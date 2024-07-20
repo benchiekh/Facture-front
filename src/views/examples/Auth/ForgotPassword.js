@@ -1,47 +1,108 @@
 import axios from 'axios';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Button, Card, CardBody, FormGroup, Form, Input, InputGroup, InputGroupAddon, InputGroupText, Col, CardHeader } from 'reactstrap';
+import zxcvbn from 'zxcvbn';
+import { Button, Card, CardBody, FormGroup, Form, Input, InputGroup, InputGroupAddon, InputGroupText, Col, CardHeader, Spinner } from 'reactstrap';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [step, setStep] = useState(1);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);  // New loading state
+  const [passwordStrength, setPasswordStrength] = useState('weak');
   const navigate = useNavigate();
+  const MIN_PASSWORD_LENGTH = 6;
 
   const handleRequestOtp = async (e) => {
     e.preventDefault();
+    setLoading(true); // Set loading to true
+    setError(''); // Clear previous error
     try {
       const response = await axios.post('http://localhost:5000/api/sendotp', { email });
       setMessage(response.data.message);
       setStep(2);
     } catch (error) {
       setError(error.response?.data?.error || 'Error requesting OTP');
+    } finally {
+      setLoading(false); // Set loading to false
     }
   };
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
+    setLoading(true); // Set loading to true
+    setError(''); // Clear previous error
     try {
       const response = await axios.post('http://localhost:5000/api/verfieropt', { email, otp });
       setMessage(response.data.message);
       setStep(3);
     } catch (error) {
       setError(error.response?.data?.error || 'Invalid or expired OTP');
+    } finally {
+      setLoading(false); // Set loading to false
     }
   };
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
+    if (newPassword.length < MIN_PASSWORD_LENGTH) {
+      setError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters long`);
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+    setLoading(true); // Set loading to true
+    setError(''); // Clear previous error
     try {
       const response = await axios.post('http://localhost:5000/api/resetpassword', { email, newpassword: newPassword });
       setMessage(response.data.message);
       navigate('/login');
     } catch (error) {
       setError(error.response?.data?.error || 'Error resetting password');
+    } finally {
+      setLoading(false); // Set loading to false
+    }
+  };
+
+  const handlePasswordChange = (e) => {
+    const { value } = e.target;
+    setNewPassword(value);
+
+    if (value.length < MIN_PASSWORD_LENGTH) {
+      setPasswordStrength('weak');
+    } else {
+      const result = zxcvbn(value);
+      const score = result.score;
+      let strength = '';
+
+      if (score === 0) {
+        strength = 'weak';
+      } else if (score === 1 || score === 2) {
+        strength = 'medium';
+      } else if (score === 3 || score === 4) {
+        strength = 'strong';
+      }
+
+      setPasswordStrength(strength);
+    }
+  };
+
+  const getPasswordStrengthColor = () => {
+    switch (passwordStrength) {
+      case 'weak':
+        return 'text-danger';
+      case 'medium':
+        return 'text-warning';
+      case 'strong':
+        return 'text-success';
+      default:
+        return '';
     }
   };
 
@@ -89,26 +150,54 @@ const ForgotPassword = () => {
             )}
 
             {step === 3 && (
-              <FormGroup className="mb-3">
-                <InputGroup className="input-group-alternative">
-                  <InputGroupAddon addonType="prepend">
-                    <InputGroupText><i className="ni ni-lock-circle-open" /></InputGroupText>
-                  </InputGroupAddon>
-                  <Input
-                    placeholder="New Password"
-                    type="password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    required
-                  />
-                </InputGroup>
-              </FormGroup>
+              <>
+                <FormGroup className="mb-3">
+                  <InputGroup className="input-group-alternative">
+                    <InputGroupAddon addonType="prepend">
+                      <InputGroupText><i className="ni ni-lock-circle-open" /></InputGroupText>
+                    </InputGroupAddon>
+                    <Input
+                      placeholder="New Password"
+                      type="password"
+                      value={newPassword}
+                      onChange={handlePasswordChange}
+                      required
+                    />
+                  </InputGroup>
+                </FormGroup>
+                <div className="text-muted font-italic">
+                  <small>
+                    Password strength:{" "}
+                    <span className={`font-weight-700 ${getPasswordStrengthColor()}`}>
+                      {passwordStrength.toUpperCase()}
+                    </span>
+                  </small>
+                </div>
+                <FormGroup className="mb-3">
+                  <InputGroup className="input-group-alternative">
+                    <InputGroupAddon addonType="prepend">
+                      <InputGroupText><i className="ni ni-lock-circle-open" /></InputGroupText>
+                    </InputGroupAddon>
+                    <Input
+                      placeholder="Confirm Password"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                    />
+                  </InputGroup>
+                </FormGroup>
+              </>
             )}
 
             <div className="text-center">
-              <Button className="my-4" color="primary" type="submit">
-                {step === 1 ? 'Request OTP' : step === 2 ? 'Verify OTP' : 'Reset Password'}
-              </Button>
+              {loading ? (
+                <Spinner color="primary" />
+              ) : (
+                <Button className="my-4" color="primary" type="submit">
+                  {step === 1 ? 'Request OTP' : step === 2 ? 'Verify OTP' : 'Reset Password'}
+                </Button>
+              )}
             </div>
           </Form>
         </CardBody>
