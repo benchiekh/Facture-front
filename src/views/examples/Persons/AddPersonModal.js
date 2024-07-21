@@ -12,7 +12,9 @@ import {
   Dropdown,
   DropdownToggle,
   DropdownMenu,
-  DropdownItem
+  DropdownItem,
+  InputGroup,
+  InputGroupText
 } from "reactstrap";
 import axios from "axios";
 import { toast } from 'react-toastify';
@@ -40,7 +42,6 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
       const response = await axios.get("http://localhost:5000/api/entreprise");
       const allCompanies = response.data;
       setCompanies(allCompanies);
-      // Filter companies based on the current user
       const userCompanies = allCompanies.filter(company => company.createdBy === userId);
       setFilteredCompanies(userCompanies);
     } catch (error) {
@@ -61,7 +62,7 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
     const newPerson = {
       prenom,
       nom,
-      entreprise: company, // Use the company ID here
+      entreprise: company,
       pays,
       telephone,
       email,
@@ -101,28 +102,46 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
           <ModalBody>
             <FormGroup>
               <Label for="prenom">First Name</Label>
-              <Input
-                type="text"
-                id="prenom"
-                value={prenom}
-                onChange={(e) => setPrenom(e.target.value)}
-                required
-              />
+              <InputGroup>
+                <InputGroupText style={{ backgroundColor: '#fff', border: '1px solid #ced4da', borderRight: 0, borderRadius: '0.25rem 0 0 0.25rem' }}>
+                  <i className="ni ni-single-02"></i>
+                </InputGroupText>
+                <Input
+                  type="text"
+                  id="prenom"
+                  value={prenom}
+                  onChange={(e) => setPrenom(e.target.value)}
+                  placeholder="Enter first name"
+                  required
+                  style={{ borderLeft: 0, borderRadius: '0 0.25rem 0.25rem 0', transition: 'border-color 0.2s' }}
+                  onFocus={(e) => e.target.style.borderColor = '#80bdff'}
+                  onBlur={(e) => e.target.style.borderColor = '#ced4da'}
+                />
+              </InputGroup>
             </FormGroup>
             <FormGroup>
               <Label for="nom">Last Name</Label>
-              <Input
-                type="text"
-                id="nom"
-                value={nom}
-                onChange={(e) => setNom(e.target.value)}
-                required
-              />
+              <InputGroup>
+                <InputGroupText style={{ backgroundColor: '#fff', border: '1px solid #ced4da', borderRight: 0, borderRadius: '0.25rem 0 0 0.25rem' }}>
+                  <i className="ni ni-hat-3"></i>
+                </InputGroupText>
+                <Input
+                  type="text"
+                  id="nom"
+                  value={nom}
+                  onChange={(e) => setNom(e.target.value)}
+                  placeholder="Enter last name"
+                  required
+                  style={{ borderLeft: 0, borderRadius: '0 0.25rem 0.25rem 0', transition: 'border-color 0.2s' }}
+                  onFocus={(e) => e.target.style.borderColor = '#80bdff'}
+                  onBlur={(e) => e.target.style.borderColor = '#ced4da'}
+                />
+              </InputGroup>
             </FormGroup>
             <FormGroup>
               <Label for="company">Company</Label>
               <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown}>
-                <DropdownToggle caret>
+                <DropdownToggle caret style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.5rem 1rem', backgroundColor: '#fff', border: '1px solid #ced4da', borderRadius: '0.25rem', transition: 'border-color 0.2s' }}>
                   {filteredCompanies.find(c => c._id === company)?.nom || "Select Company"}
                 </DropdownToggle>
                 <DropdownMenu>
@@ -140,39 +159,65 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
                     <span className="ni ni-fat-add text-blue mr-2" style={{ fontSize: '24px' }}></span>
                     Add New Company
                   </DropdownItem>
-
                 </DropdownMenu>
               </Dropdown>
             </FormGroup>
             <FormGroup>
               <Label for="pays">Country</Label>
-              <Input
-                type="text"
-                id="pays"
-                value={pays}
-                onChange={(e) => setPays(e.target.value)}
-                required
-              />
+              <InputGroup>
+                <InputGroupText style={{ backgroundColor: '#fff', border: '1px solid #ced4da', borderRight: 0, borderRadius: '0.25rem 0 0 0.25rem' }}>
+                  <i className="ni ni-world"></i>
+                </InputGroupText>
+                <Input
+                  type="text"
+                  id="pays"
+                  value={pays}
+                  onChange={(e) => setPays(e.target.value)}
+                  placeholder="Enter country"
+                  required
+                  style={{ borderLeft: 0, borderRadius: '0 0.25rem 0.25rem 0', transition: 'border-color 0.2s' }}
+                  onFocus={(e) => e.target.style.borderColor = '#80bdff'}
+                  onBlur={(e) => e.target.style.borderColor = '#ced4da'}
+                />
+              </InputGroup>
             </FormGroup>
             <FormGroup>
-              <Label for="telephone">Tel</Label>
-              <Input
-                type="text"
-                id="telephone"
-                value={telephone}
-                onChange={(e) => setTelephone(e.target.value)}
-                required
-              />
+              <Label for="telephone">Telephone</Label>
+              <InputGroup>
+                <InputGroupText style={{ backgroundColor: '#fff', border: '1px solid #ced4da', borderRight: 0, borderRadius: '0.25rem 0 0 0.25rem' }}>
+                  <i className="ni ni-mobile-button"></i>
+                </InputGroupText>
+                <Input
+                  type="text"
+                  id="telephone"
+                  value={telephone}
+                  onChange={(e) => setTelephone(e.target.value)}
+                  placeholder="Enter telephone number"
+                  required
+                  style={{ borderLeft: 0, borderRadius: '0 0.25rem 0.25rem 0', transition: 'border-color 0.2s' }}
+                  onFocus={(e) => e.target.style.borderColor = '#80bdff'}
+                  onBlur={(e) => e.target.style.borderColor = '#ced4da'}
+                />
+              </InputGroup>
             </FormGroup>
             <FormGroup>
               <Label for="email">Email</Label>
-              <Input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+              <InputGroup>
+                <InputGroupText style={{ backgroundColor: '#fff', border: '1px solid #ced4da', borderRight: 0, borderRadius: '0.25rem 0 0 0.25rem' }}>
+                  <i className="ni ni-email-83"></i>
+                </InputGroupText>
+                <Input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter email address"
+                  required
+                  style={{ borderLeft: 0, borderRadius: '0 0.25rem 0.25rem 0', transition: 'border-color 0.2s' }}
+                  onFocus={(e) => e.target.style.borderColor = '#80bdff'}
+                  onBlur={(e) => e.target.style.borderColor = '#ced4da'}
+                />
+              </InputGroup>
             </FormGroup>
           </ModalBody>
           <ModalFooter>
