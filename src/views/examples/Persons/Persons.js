@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+import AddPersonModal from "./AddPersonModal";
 import axios from "axios";
 import {
   Button,
@@ -14,11 +15,17 @@ import {
   Row,
 } from "reactstrap";
 import Header from "components/Headers/ElementHeader";
-import AddPersonModal from "./Persons/AddPersonModal";
-import ConfirmDeleteModal from "./Persons/ConfirmDeleteModal";
-import EditPersonModal from "./Persons/EditPersonModal";
+import ConfirmDeleteModal from "./ConfirmDeleteModal";
+import EditPersonModal from "./EditPersonModal";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
+const decodeToken = (token) => {
+  const base64Url = token.split('.')[1];
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  const payload = JSON.parse(atob(base64));
+  return payload;
+};
 
 const Persons = () => {
   const [people, setPeople] = useState([]);
@@ -32,10 +39,17 @@ const Persons = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [personToEdit, setPersonToEdit] = useState(null);
 
+  const token = localStorage.getItem('token'); // or wherever you store the token
+  const decodedToken = token ? decodeToken(token) : {};
+  const currentUserId = decodedToken.AdminID;
+  console.log(currentUserId)
+
   const fetchPeople = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/people");
-      setPeople(response.data);
+      console.log(response.data)
+      const filteredPeople = response.data.filter(person => person.createdBy === currentUserId);
+      setPeople(filteredPeople);
     } catch (error) {
       console.error("Error fetching people:", error);
     }
@@ -87,7 +101,7 @@ const Persons = () => {
   // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Toggle modal
+  // Toggle modals
   const toggleModal = () => {
     setModalOpen(!modalOpen);
   };
@@ -114,7 +128,6 @@ const Persons = () => {
         draggable: true,
         progress: undefined,
       });
-      
     } catch (error) {
       console.error("Error deleting person:", error);
     }
@@ -148,7 +161,6 @@ const Persons = () => {
                     className="mr-3"
                   />
                   <Button color="primary" style={{ width: buttonWidth }} onClick={toggleModal}>Add new person</Button>
-                  
                 </div>
               </CardHeader>
               <Table className="align-items-center table-flush" responsive>
@@ -181,8 +193,7 @@ const Persons = () => {
                     ))
                   ) : (
                     <tr>
-
-                      <td colSpan="7" className="text-center text-danger">No matching records found</td>
+                      <td colSpan="8" className="text-center text-danger">No matching records found</td>
                     </tr>
                   )}
                 </tbody>
@@ -239,6 +250,7 @@ const Persons = () => {
         isOpen={modalOpen}
         toggle={toggleModal}
         refreshPeople={refreshPeople}
+        userId={currentUserId} // Pass the current user ID
       />
     </>
   );

@@ -25,7 +25,7 @@ root.render(
         }
       />
       <Route path="/auth/*" element={<AuthLayout />} />
-      <Route path="/auth/google/success" element={<GoogleAuthSuccess />} />
+      <Route path="/auth/login/success" element={<GoogleAuthSuccess />} />
       <Route path="/password-reset/*" element={<ForgotPasswordLayout />} />
       <Route path="*" element={<Navigate to="/auth/login" replace />} />
     </Routes>

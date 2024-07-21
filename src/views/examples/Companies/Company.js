@@ -18,10 +18,11 @@
 import React from "react";
 
 // reactstrap components
-import { Card, Container, Row } from "reactstrap";
+import { Card, CardHeader, Container, Row } from "reactstrap";
 
 // core components
 import Header from "components/Headers/Header.js";
+import ElementHeader from "components/Headers/ElementHeader";
 
 const MapWrapper = () => {
   const mapRef = React.useRef(null);
@@ -113,16 +114,19 @@ const MapWrapper = () => {
   );
 };
 
-const Maps = () => {
+const Company = () => {
   return (
     <>
-      <Header />
+      <ElementHeader />
       {/* Page content */}
       <Container className="mt--7" fluid>
         <Row>
           <div className="col">
             <Card className="shadow border-0">
-              <MapWrapper />
+              <CardHeader className="border-0 d-flex justify-content-between align-items-center">
+                <h3 className="mb-0">Companies list</h3>
+                
+              </CardHeader>
             </Card>
           </div>
         </Row>
@@ -131,4 +135,4 @@ const Maps = () => {
   );
 };
 
-export default Maps;
+export default Company;

@@ -11,17 +11,18 @@ import {
   Label
 } from "reactstrap";
 import axios from "axios";
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
-const AddPersonModal = ({ isOpen, toggle, refreshPeople }) => {
+const AddPersonModal = ({ isOpen, toggle, refreshPeople,userId }) => {
   const [prenom, setPrenom] = useState("");
   const [nom, setNom] = useState("");
   const [company, setCompany] = useState("");
   const [pays, setPays] = useState("");
   const [telephone, setTelephone] = useState("");
   const [email, setEmail] = useState("");
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,11 +33,13 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople }) => {
       company,
       pays,
       telephone,
-      email
+      email,
+      createdBy: userId
     };
 
     try {
       await axios.post("http://localhost:5000/api/people", newPerson);
+      
       refreshPeople(); 
       toggle();
       toast.success('Person added successfully', {

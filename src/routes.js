@@ -17,11 +17,11 @@
 */
 import Index from "views/Index.js";
 import Profile from "views/examples/Profile.js";
-import Maps from "views/examples/Maps.js";
+import Company from "views/examples/Companies/Company";
 import Register from "views/examples/Register.js";
 import Login from "views/examples/Login.js";
 import Tables from "views/examples/Tables.js";
-import Icons from "views/examples/Persons.js";
+import Person from "views/examples/Persons/Persons";
 import ForgotPassword from "views/examples/Auth/ForgotPassword";
 
 var routes = [
@@ -36,14 +36,14 @@ var routes = [
     path: "/persons",
     name: "Persons",
     icon: "ni ni-circle-08 text-blue",
-    component: <Icons />,
+    component: <Person />,
     layout: "/admin",
   },
   {
-    path: "/maps",
-    name: "Maps",
-    icon: "ni ni-pin-3 text-orange",
-    component: <Maps />,
+    path: "/company",
+    name: "Company",
+    icon: "ni ni-building text-orange",
+    component: <Company />,
     layout: "/admin",
   },
   {
