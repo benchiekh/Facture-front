@@ -29,6 +29,7 @@ const decodeToken = (token) => {
 
 const Persons = () => {
   const [people, setPeople] = useState([]);
+  const [companies, setCompanies] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [peoplePerPage] = useState(5);
   const [searchQuery, setSearchQuery] = useState("");
@@ -39,15 +40,13 @@ const Persons = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [personToEdit, setPersonToEdit] = useState(null);
 
-  const token = localStorage.getItem('token'); // or wherever you store the token
+  const token = localStorage.getItem('token'); 
   const decodedToken = token ? decodeToken(token) : {};
   const currentUserId = decodedToken.AdminID;
-  console.log(currentUserId)
 
   const fetchPeople = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/people");
-      console.log(response.data)
       const filteredPeople = response.data.filter(person => person.createdBy === currentUserId);
       setPeople(filteredPeople);
     } catch (error) {
@@ -55,8 +54,18 @@ const Persons = () => {
     }
   };
 
+  const fetchCompanies = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/entreprise");
+      setCompanies(response.data);
+    } catch (error) {
+      console.error("Error fetching companies:", error);
+    }
+  };
+
   useEffect(() => {
     fetchPeople();
+    fetchCompanies();
   }, []);
 
   const refreshPeople = () => {
@@ -67,10 +76,15 @@ const Persons = () => {
     setSearchQuery(e.target.value);
   };
 
+  const getCompanyNameById = (id) => {
+    const company = companies.find(company => company._id === id);
+    return company ? company.nom : <span className="ni ni-fat-delete" style={{ fontSize: '20px', color: 'blac' }}></span>;
+  };
+  
   const filteredPeople = people.filter((person) =>
     person.prenom.toLowerCase().includes(searchQuery.toLowerCase()) ||
     person.nom.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    person.entreprise.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    getCompanyNameById(person.entreprise).toLowerCase().includes(searchQuery.toLowerCase()) ||
     person.pays.toLowerCase().includes(searchQuery.toLowerCase()) ||
     person.telephone.toLowerCase().includes(searchQuery.toLowerCase()) ||
     person.email.toLowerCase().includes(searchQuery.toLowerCase())
@@ -181,7 +195,7 @@ const Persons = () => {
                       <tr key={person._id}>
                         <td>{person.prenom}</td>
                         <td>{person.nom}</td>
-                        <td>{person.entreprise}</td>
+                        <td>{getCompanyNameById(person.entreprise)}</td>
                         <td>{person.pays}</td>
                         <td>{person.telephone}</td>
                         <td>{person.email}</td>
@@ -193,7 +207,7 @@ const Persons = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="8" className="text-center text-danger">No matching records found</td>
+                      <td colSpan="7" className="text-center text-danger">No matching records found</td>
                     </tr>
                   )}
                 </tbody>
@@ -208,6 +222,7 @@ const Persons = () => {
                 toggle={toggleEditModal}
                 person={personToEdit}
                 refreshPeople={refreshPeople}
+                userId={currentUserId} 
               />
               <CardFooter className="py-4">
                 <nav aria-label="Page navigation example">
@@ -250,7 +265,7 @@ const Persons = () => {
         isOpen={modalOpen}
         toggle={toggleModal}
         refreshPeople={refreshPeople}
-        userId={currentUserId} // Pass the current user ID
+        userId={currentUserId} 
       />
     </>
   );
