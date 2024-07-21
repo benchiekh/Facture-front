@@ -165,7 +165,7 @@ const Persons = () => {
           <div className="col">
             <Card className="shadow">
               <CardHeader className="border-0 d-flex justify-content-between align-items-center">
-                <h3 className="mb-0">Liste des personnes</h3>
+                <h3 className="mb-0">Persons list</h3>
                 <div className="d-flex">
                   <Input
                     type="text"

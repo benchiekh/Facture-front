@@ -136,10 +136,11 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
                     <DropdownItem disabled>No companies available</DropdownItem>
                   )}
                   <DropdownItem divider />
-                  <DropdownItem onClick={toggleAddCompanyModal}>
-                    <span className="ni ni-fat-add text-blue" style={{ fontSize: '24px' }}></span>
+                  <DropdownItem onClick={toggleAddCompanyModal} className="d-flex align-items-center">
+                    <span className="ni ni-fat-add text-blue mr-2" style={{ fontSize: '24px' }}></span>
                     Add New Company
                   </DropdownItem>
+
                 </DropdownMenu>
               </Dropdown>
             </FormGroup>
@@ -185,8 +186,8 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
         isOpen={addCompanyModalOpen}
         toggle={toggleAddCompanyModal}
         refreshCompany={() => {
-          fetchCompanies(); // Refresh the company list after adding a new company
-          toggleAddCompanyModal(); // Close the modal after adding a company
+          fetchCompanies();
+          toggleAddCompanyModal();
         }}
         userId={userId}
       />
