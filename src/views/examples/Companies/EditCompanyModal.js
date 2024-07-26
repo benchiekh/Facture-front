@@ -8,52 +8,109 @@ import {
   Input,
   Form,
   FormGroup,
-  Label,
-  Dropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem
+  Label
 } from "reactstrap";
 import axios from "axios";
 import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Select from 'react-select';
+import countryList from 'react-select-country-list';
+import { parsePhoneNumber, isValidNumber, getCountryCallingCode } from 'libphonenumber-js';
+
+const decodeToken = (token) => {
+  const base64Url = token.split('.')[1];
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  const payload = JSON.parse(atob(base64));
+  return payload;
+};
 
 const EditCompanyModal = ({ isOpen, toggle, company, refreshCompany, userId }) => {
   const [nom, setNom] = useState("");
-  const [pays, setPays] = useState("");
+  const [pays, setPays] = useState(null);
   const [telephone, setTelephone] = useState("");
   const [email, setEmail] = useState("");
   const [siteweb, setSiteweb] = useState("");
   const [mainContact, setMainContact] = useState(null);
   const [people, setPeople] = useState([]);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [countryOptions, setCountryOptions] = useState([]);
+
+  const token = localStorage.getItem('token');
+  const decodedToken = token ? decodeToken(token) : {};
+  const currentUserId = decodedToken.AdminID;
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchPeople();
+      setCountryOptions(countryList().getData().map(country => ({
+        value: country.value,
+        label: country.label
+      })));
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (company) {
       setNom(company.nom);
-      setPays(company.pays);
+      setPays(countryOptions.find(option => option.value === company.pays) || null);
       setTelephone(company.telephone);
       setEmail(company.email);
       setSiteweb(company.siteweb);
       setMainContact(company.mainContact);
     }
-    fetchPeople();
-  }, [company]);
+  }, [company, countryOptions]);
 
   const fetchPeople = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/people");
-      setPeople(response.data.filter(person => person.createdBy === userId));
+      setPeople(response.data.filter(person => person.createdBy === currentUserId));
     } catch (error) {
       console.error("Error fetching people:", error);
+    }
+  };
+
+  const handleCountryChange = (selectedOption) => {
+    setPays(selectedOption);
+
+    const countryCode = selectedOption?.value ? `+${getCountryCallingCode(selectedOption.value)}` : "";
+
+    setTelephone((prev) => {
+      const numberWithoutCode = prev.replace(/^\+\d+\s*/, '');
+      return `${countryCode} ${numberWithoutCode}`;
+    });
+  };
+
+  const validatePhoneNumber = (number, countryCode) => {
+    try {
+      // Remove spaces or extra characters for validation
+      const phoneNumber = number.replace(/\s+/g, '');
+      return isValidNumber(phoneNumber, countryCode);
+    } catch (error) {
+      console.error("Phone number validation error:", error);
+      return false;
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const countryCode = pays ? pays.value : "";
+    const numberToValidate = telephone.replace(/^\+\d+\s*/, '');
+
+    if (!validatePhoneNumber(numberToValidate, countryCode)) {
+      toast.error('Invalid phone number format.', {
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      return;
+    }
+
     const updatedCompany = {
       nom,
-      pays,
+      pays: pays ? pays.value : "",
       telephone,
       email,
       siteweb,
@@ -85,13 +142,6 @@ const EditCompanyModal = ({ isOpen, toggle, company, refreshCompany, userId }) =
     }
   };
 
-  const toggleDropdown = () => setDropdownOpen(prevState => !prevState);
-
-  const handleSelectContact = (contactId) => {
-    setMainContact(contactId);
-    toggleDropdown();
-  };
-
   return (
     <Modal isOpen={isOpen} toggle={toggle} fade={true} className="custom-modal">
       <ModalHeader toggle={toggle}>Edit Company</ModalHeader>
@@ -109,16 +159,28 @@ const EditCompanyModal = ({ isOpen, toggle, company, refreshCompany, userId }) =
           </FormGroup>
           <FormGroup>
             <Label for="pays">Country</Label>
-            <Input
-              type="text"
-              id="pays"
+            <Select
+              options={countryOptions}
               value={pays}
-              onChange={(e) => setPays(e.target.value)}
-              required
+              onChange={handleCountryChange}
+              placeholder="Select country"
+              isClearable
+              styles={{
+                control: (provided) => ({
+                  ...provided,
+                  border: '1px solid #ced4da',
+                  borderRadius: '0.25rem',
+                  transition: 'border-color 0.2s'
+                }),
+                menu: (provided) => ({
+                  ...provided,
+                  zIndex: 9999
+                })
+              }}
             />
           </FormGroup>
           <FormGroup>
-            <Label for="telephone">Tel</Label>
+            <Label for="telephone">Telephone</Label>
             <Input
               type="text"
               id="telephone"
@@ -147,24 +209,6 @@ const EditCompanyModal = ({ isOpen, toggle, company, refreshCompany, userId }) =
               required
             />
           </FormGroup>
-          {/* <FormGroup>
-            <Label for="mainContact">Main Contact</Label>
-            <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown}>
-              <DropdownToggle caret>
-                {mainContact ? people.find(p => p._id === mainContact)?.prenom + ' ' + people.find(p => p._id === mainContact)?.nom : 'Select Main Contact'}
-              </DropdownToggle>
-              <DropdownMenu>
-                {people.length > 0 ? people.map(person => (
-                  <DropdownItem
-                    key={person._id}
-                    onClick={() => handleSelectContact(person._id)}
-                  >
-                    {person.prenom} {person.nom}
-                  </DropdownItem>
-                )) : <DropdownItem disabled>No contacts available</DropdownItem>}
-              </DropdownMenu>
-            </Dropdown>
-          </FormGroup> */}
         </ModalBody>
         <ModalFooter>
           <Button color="primary" type="submit">Save</Button>{' '}

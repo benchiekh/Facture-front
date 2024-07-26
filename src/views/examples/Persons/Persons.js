@@ -13,12 +13,20 @@ import {
   Table,
   Container,
   Row,
+  Dropdown,
+  DropdownMenu,
+  DropdownItem,
+  DropdownToggle,
 } from "reactstrap";
 import Header from "components/Headers/ElementHeader";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import EditPersonModal from "./EditPersonModal";
+import DisplayPerson from "../Persons/DisplayPersonModal";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEllipsisH } from "@fortawesome/free-solid-svg-icons";
+import './style.css'
 
 const decodeToken = (token) => {
   const base64Url = token.split('.')[1];
@@ -39,8 +47,11 @@ const Persons = () => {
   const [personToDelete, setPersonToDelete] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [personToEdit, setPersonToEdit] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(null);
+  const [selectedPerson, setSelectedPerson] = useState(null);
+  const [displayModalOpen, setDisplayModalOpen] = useState(false);
 
-  const token = localStorage.getItem('token'); 
+  const token = localStorage.getItem('token');
   const decodedToken = token ? decodeToken(token) : {};
   const currentUserId = decodedToken.AdminID;
 
@@ -71,6 +82,7 @@ const Persons = () => {
   const refreshPeople = () => {
     fetchPeople();
   };
+
   const refreshCompanies = () => {
     fetchCompanies();
   };
@@ -81,7 +93,7 @@ const Persons = () => {
 
   const getCompanyNameById = (id) => {
     const company = companies.find(company => company._id === id);
-    return company ? company.nom : 'Company Not Found'; // Ensure it returns a string
+    return company ? company.nom : 'Company Not Found';
   };
 
   const filteredPeople = people.filter((person) => {
@@ -121,6 +133,10 @@ const Persons = () => {
     setModalOpen(!modalOpen);
   };
 
+  const toggleDropdown = (id) => {
+    setDropdownOpen(dropdownOpen === id ? null : id);
+  };
+
   const toggleDeleteModal = () => {
     setDeleteModalOpen(!deleteModalOpen);
   };
@@ -136,7 +152,7 @@ const Persons = () => {
       refreshPeople();
       toggleDeleteModal();
       toast.success('Person deleted successfully', {
-        autoClose: 2000, 
+        autoClose: 2000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
@@ -153,18 +169,28 @@ const Persons = () => {
   };
 
   const handleEditClick = (person) => {
+    setSelectedPerson(person);
     setPersonToEdit(person);
     toggleEditModal();
+  };
+
+  const toggleDisplayModal = () => {
+    setDisplayModalOpen(!displayModalOpen);
+  };
+
+  const handleDisplayClick = (person) => {
+    setSelectedPerson(person);
+    toggleDisplayModal();
   };
 
   return (
     <>
       <ToastContainer />
       <Header />
-      <Container className="mt--7" fluid>
+      <Container className="mt--7" fluid >
         <Row>
           <div className="col">
-            <Card className="shadow">
+            <Card className="shadow" >
               <CardHeader className="border-0 d-flex justify-content-between align-items-center">
                 <h3 className="mb-0">Persons list</h3>
                 <div className="d-flex">
@@ -178,6 +204,7 @@ const Persons = () => {
                   <Button color="primary" style={{ width: buttonWidth }} onClick={toggleModal}>Add new person</Button>
                 </div>
               </CardHeader>
+              <div className="table-wrapper"> 
               <Table className="align-items-center table-flush" responsive>
                 <thead className="thead-light">
                   <tr>
@@ -187,7 +214,7 @@ const Persons = () => {
                     <th scope="col">Country</th>
                     <th scope="col">Tel</th>
                     <th scope="col">Email</th>
-                    <th scope="col">Actions</th>
+                    <th scope="col"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -207,8 +234,33 @@ const Persons = () => {
                         <td>{person.telephone}</td>
                         <td>{person.email}</td>
                         <td>
-                          <span className="ni ni-settings-gear-65 text-primary" style={{ fontSize: '1.5rem', marginRight: '10px', cursor: 'pointer' }} onClick={() => handleEditClick(person)}></span>
-                          <span className="ni ni-fat-remove text-danger" style={{ fontSize: '1.5rem', cursor: 'pointer' }} onClick={() => handleDeleteClick(person._id)}></span>
+                          <Dropdown isOpen={dropdownOpen === person._id} toggle={() => toggleDropdown(person._id)} >
+                            <DropdownToggle tag="span" data-toggle="dropdown" style={{ cursor: 'pointer' }}>
+                              <FontAwesomeIcon icon={faEllipsisH} style={{ fontSize: '1rem' }} />
+                            </DropdownToggle>
+                            <DropdownMenu right style={{marginTop:"-25px"}}>
+                              <DropdownItem onClick={() => handleDisplayClick(person)}>
+                                <span className="d-flex align-items-center">
+                                  <i className="fa-solid fa-eye" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
+                                  Display
+                                </span>
+                              </DropdownItem>
+                              <DropdownItem onClick={() => handleEditClick(person)}>
+                                <span className="d-flex align-items-center">
+                                  <i className="fa-solid fa-gear" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
+                                  Edit
+                                </span>
+                              </DropdownItem>
+                              <DropdownItem divider />
+                              <DropdownItem onClick={() => handleDeleteClick(person._id)}>
+                                <span className="d-flex align-items-center">
+                                  <i className="fa-solid fa-trash text-danger" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
+                                  Delete
+                                </span>
+                              </DropdownItem>
+                            </DropdownMenu>
+                          </Dropdown>
+
                         </td>
                       </tr>
                     ))
@@ -219,19 +271,9 @@ const Persons = () => {
                   )}
                 </tbody>
               </Table>
-              <ConfirmDeleteModal
-                isOpen={deleteModalOpen}
-                toggle={toggleDeleteModal}
-                onConfirm={confirmDeletePerson}
-              />
-              <EditPersonModal
-                isOpen={editModalOpen}
-                toggle={toggleEditModal}
-                person={personToEdit}
-                refreshPeople={refreshPeople}
-                refreshCompanies={refreshCompanies}
-                userId={currentUserId} 
-              />
+              </div>
+
+             
               <CardFooter className="py-4">
                 <nav aria-label="Page navigation example">
                   <Pagination
@@ -273,7 +315,30 @@ const Persons = () => {
         isOpen={modalOpen}
         toggle={toggleModal}
         refreshPeople={refreshPeople}
-        userId={currentUserId} 
+        userId={currentUserId}
+      />
+      {selectedPerson && (
+        <EditPersonModal
+          isOpen={editModalOpen}
+          toggle={toggleEditModal}
+          person={selectedPerson}
+          refreshPeople={fetchPeople}
+          refreshCompanies={refreshCompanies}
+          userId={currentUserId}
+        />
+      )}
+      {selectedPerson && (
+        <DisplayPerson
+          isOpen={displayModalOpen}
+          toggle={toggleDisplayModal}
+          person={selectedPerson}
+          companies={companies}
+        />
+      )}
+      <ConfirmDeleteModal
+        isOpen={deleteModalOpen}
+        toggle={toggleDeleteModal}
+        onConfirm={confirmDeletePerson}
       />
     </>
   );

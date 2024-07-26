@@ -52,7 +52,7 @@ const EditPersonModal = ({ isOpen, toggle, person, refreshPeople, refreshCompani
       setInitialEmail(person.email);
       setInitialPhone(person.telephone);
     }
-  }, [person, userId]);
+  }, [person, userId, options]);
 
   const fetchCompanies = async () => {
     try {
@@ -127,6 +127,7 @@ const EditPersonModal = ({ isOpen, toggle, person, refreshPeople, refreshCompani
       const phoneNumberObj = parsePhoneNumber(phoneNumber, countryCode);
       return phoneNumberObj.isValid();
     } catch (error) {
+      console.error("Phone number validation error:", error);
       return false;
     }
   };
@@ -134,7 +135,6 @@ const EditPersonModal = ({ isOpen, toggle, person, refreshPeople, refreshCompani
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Check phone number validity based on selected country
     if (pays) {
       const countryCode = pays.value;
       if (!validatePhoneNumber(telephone, countryCode)) {

@@ -15,12 +15,22 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Select from 'react-select';
 import countryList from 'react-select-country-list';
+import { getCountryCallingCode, parsePhoneNumberFromString } from 'libphonenumber-js';
 
+// Function to decode the JWT token and get payload
 const decodeToken = (token) => {
   const base64Url = token.split('.')[1];
   const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
   const payload = JSON.parse(atob(base64));
   return payload;
+};
+
+// Function to validate phone number based on country
+const validatePhoneNumber = (number, countryCode) => {
+  if (!countryCode || !number) return false;
+
+  const phoneNumber = parsePhoneNumberFromString(number, countryCode);
+  return phoneNumber ? phoneNumber.isValid() : false;
 };
 
 const AddCompanyModal = ({ isOpen, toggle, refreshCompany, userId }) => {
@@ -57,8 +67,32 @@ const AddCompanyModal = ({ isOpen, toggle, refreshCompany, userId }) => {
     }
   };
 
+  const handleCountryChange = (selectedOption) => {
+    setPays(selectedOption);
+
+    const countryCode = selectedOption?.value ? `+${getCountryCallingCode(selectedOption.value)}` : "";
+
+    // Remove any existing country code and set the new one
+    setTelephone((prev) => {
+      const numberWithoutCode = prev.replace(/^\+\d+\s*/, '');
+      return `${countryCode} ${numberWithoutCode}`;
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!validatePhoneNumber(telephone, pays?.value)) {
+      toast.error('Invalid phone number for the selected country. Please check the number and try again.', {
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      return;
+    }
 
     const newCompany = {
       nom,
@@ -130,7 +164,7 @@ const AddCompanyModal = ({ isOpen, toggle, refreshCompany, userId }) => {
             <Select
               options={countryOptions}
               value={pays}
-              onChange={setPays}
+              onChange={handleCountryChange}
               placeholder="Select country"
               isClearable
               styles={{
@@ -177,24 +211,6 @@ const AddCompanyModal = ({ isOpen, toggle, refreshCompany, userId }) => {
               required
             />
           </FormGroup>
-          {/* <FormGroup>
-            <Label for="mainContact">Main Contact</Label>
-            <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown}>
-              <DropdownToggle caret>
-                {mainContact ? people.find(p => p._id === mainContact)?.prenom + ' ' + people.find(p => p._id === mainContact)?.nom : 'Select Main Contact'}
-              </DropdownToggle>
-              <DropdownMenu>
-                {people.length > 0 ? people.map(person => (
-                  <DropdownItem
-                    key={person._id}
-                    onClick={() => handleSelectContact(person._id, `${person.prenom} ${person.nom}`)}
-                  >
-                    {person.prenom} {person.nom}
-                  </DropdownItem>
-                )) : <DropdownItem disabled>No contacts available</DropdownItem>}
-              </DropdownMenu>
-            </Dropdown>
-          </FormGroup> */}
         </ModalBody>
         <ModalFooter>
           <Button color="primary" type="submit">Save</Button>{' '}
@@ -206,4 +222,3 @@ const AddCompanyModal = ({ isOpen, toggle, refreshCompany, userId }) => {
 };
 
 export default AddCompanyModal;
-

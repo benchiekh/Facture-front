@@ -20,6 +20,8 @@ import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import EditCompanyModal from "./EditCompanyModal";
 import countryList from 'react-select-country-list';
 import { Rings } from 'react-loader-spinner'; // Import the loader spinner component
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const decodeToken = (token) => {
   const base64Url = token.split('.')[1];
@@ -239,7 +241,7 @@ const Company = () => {
                       <tr key={company._id}>
                         <td>{company.nom}</td>
                         <td>{getMainContact(company._id)}</td>
-                        <td>{countryOptions[company.pays] || company.pays}</td> {/* Display full country name */}
+                        <td>{countryOptions[company.pays] || company.pays}</td> 
                         <td>{company.telephone}</td>
                         <td>{company.email}</td>
                         <td><a target="_blank" href={company.siteweb}>{company.siteweb}</a></td>

@@ -163,10 +163,9 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
 
     try {
       const response = await axios.post("http://localhost:5000/api/people", newPerson);
-      console.log('Response:', response);  // Check response data
       refreshPeople();
-      toggle(); // Close the modal
-      resetForm(); // Reset form fields
+      toggle(); 
+      resetForm(); 
       toast.success('Person added successfully', {
         autoClose: 2000,
         hideProgressBar: false,
