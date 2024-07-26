@@ -10,11 +10,7 @@ import {
   PaginationItem,
   PaginationLink,
   Row,
-  Table,
-  Dropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem
+  Table
 } from "reactstrap";
 import ElementHeader from "components/Headers/ElementHeader";
 import axios from "axios";
@@ -22,6 +18,8 @@ import { toast, ToastContainer } from 'react-toastify';
 import AddCompanyModal from "./AddCompanyModal";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import EditCompanyModal from "./EditCompanyModal";
+import countryList from 'react-select-country-list';
+import { Rings } from 'react-loader-spinner'; // Import the loader spinner component
 
 const decodeToken = (token) => {
   const base64Url = token.split('.')[1];
@@ -42,28 +40,41 @@ const Company = () => {
   const [companyToDelete, setCompanyToDelete] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [companyToEdit, setCompanyToEdit] = useState(null);
-  const [dropdownOpen, setDropdownOpen] = useState({});
+  const [loading, setLoading] = useState(true); // Add loading state
 
   const token = localStorage.getItem('token');
   const decodedToken = token ? decodeToken(token) : {};
   const currentUserId = decodedToken.AdminID;
 
+  // Get the list of countries
+  const countries = countryList().getData();
+  const countryOptions = countries.reduce((acc, country) => {
+    acc[country.value] = country.label;
+    return acc;
+  }, {});
+
   const fetchCompanies = async () => {
+    setLoading(true); // Set loading to true before fetching
     try {
       const response = await axios.get("http://localhost:5000/api/entreprise");
-      const filteredCompany = response.data.filter(company => company.createdBy === currentUserId);
-      setCompanies(filteredCompany);
+      const filteredCompanies = response.data.filter(company => company.createdBy === currentUserId);
+      setCompanies(filteredCompanies);
     } catch (error) {
       console.error("Error fetching companies:", error);
+    } finally {
+      setLoading(false); // Set loading to false after fetching
     }
   };
 
   const fetchPeople = async () => {
+    setLoading(true); // Set loading to true before fetching
     try {
       const response = await axios.get("http://localhost:5000/api/people");
       setPeople(response.data.filter(person => person.createdBy === currentUserId));
     } catch (error) {
       console.error("Error fetching people:", error);
+    } finally {
+      setLoading(false); // Set loading to false after fetching
     }
   };
 
@@ -71,19 +82,6 @@ const Company = () => {
     fetchCompanies();
     fetchPeople();
   }, []);
-
-  useEffect(() => {
-    
-    setDropdownOpen(prevState => {
-      const newState = { ...prevState };
-      companies.forEach(company => {
-        if (newState[company._id] === undefined) {
-          newState[company._id] = false;
-        }
-      });
-      return newState;
-    });
-  }, [people]);
 
   const refreshCompany = () => {
     fetchCompanies();
@@ -93,23 +91,23 @@ const Company = () => {
     setSearchQuery(e.target.value);
   };
 
-  const toggleDropdown = (companyId) => {
-    setDropdownOpen(prevState => ({
-      ...prevState,
-      [companyId]: !prevState[companyId]
-    }));
-  };
-
-  const getMainContacts = (companyId) => {
+  const getMainContact = (companyId) => {
     const mainContacts = people.filter(person => person.entreprise === companyId);
     if (mainContacts.length === 0) {
-      return <DropdownItem disabled>No main contacts available</DropdownItem>;
+      return <span style={{ color: 'red' }}>No main contacts available</span>;
     }
-    return mainContacts.map(person => (
-      <DropdownItem key={person._id}>
-        {person.prenom} {person.nom}
-      </DropdownItem>
-    ));
+    return (
+      <span style={{
+        display: 'inline-block',
+        backgroundColor: '#b3d7ff',
+        color: '#0056b3',
+        padding: '5px 10px',
+        borderRadius: '5px',
+        textAlign: 'center'
+      }}>
+        {mainContacts[0].prenom} {mainContacts[0].nom}
+      </span>
+    );
   };
 
   const filteredCompanies = companies.filter((company) =>
@@ -185,6 +183,23 @@ const Company = () => {
     toggleEditModal();
   };
 
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <Rings
+          height="80"
+          width="80"
+          color="#4fa94d"
+          radius="6"
+          wrapperStyle={{}}
+          wrapperClass=""
+          visible={true}
+          ariaLabel="rings-loading"
+        />
+      </div>
+    );
+  }
+
   return (
     <>
       <ToastContainer />
@@ -223,20 +238,11 @@ const Company = () => {
                     currentCompanies.map((company) => (
                       <tr key={company._id}>
                         <td>{company.nom}</td>
-                        <td>
-                          <Dropdown isOpen={dropdownOpen[company._id]} toggle={() => toggleDropdown(company._id)}>
-                            <DropdownToggle caret>
-                              Main Contacts
-                            </DropdownToggle>
-                            <DropdownMenu>
-                              {getMainContacts(company._id)}
-                            </DropdownMenu>
-                          </Dropdown>
-                        </td>
-                        <td>{company.pays}</td>
+                        <td>{getMainContact(company._id)}</td>
+                        <td>{countryOptions[company.pays] || company.pays}</td> {/* Display full country name */}
                         <td>{company.telephone}</td>
                         <td>{company.email}</td>
-                        <td><a target="_blank" href={company.siteweb}>{company.siteweb} </a></td>
+                        <td><a target="_blank" href={company.siteweb}>{company.siteweb}</a></td>
                         <td>
                           <span className="ni ni-settings-gear-65 text-primary" style={{ fontSize: '1.5rem', marginRight: '10px', cursor: 'pointer' }} onClick={() => handleEditClick(company)}></span>
                           <span className="ni ni-fat-remove text-danger" style={{ fontSize: '1.5rem', cursor: 'pointer' }} onClick={() => handleDeleteClick(company._id)}></span>
@@ -248,7 +254,6 @@ const Company = () => {
                       <td colSpan="7" className="text-center text-danger">No matching records found</td>
                     </tr>
                   )}
-
                 </tbody>
               </Table>
 
@@ -264,7 +269,6 @@ const Company = () => {
                 company={companyToEdit}
                 refreshCompany={refreshCompany}
                 userId={currentUserId}
-
               />
 
               <CardFooter className="py-4">
@@ -303,13 +307,11 @@ const Company = () => {
           </div>
         </Row>
       </Container>
-
       <AddCompanyModal
         isOpen={modalOpen}
         toggle={toggleModal}
         refreshCompany={refreshCompany}
         userId={currentUserId}
-        people={people}
       />
     </>
   );

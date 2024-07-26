@@ -8,25 +8,24 @@ import {
   Input,
   Form,
   FormGroup,
-  Label,
-  Dropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem
+  Label
 } from "reactstrap";
 import axios from "axios";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Select from 'react-select';
+import countryList from 'react-select-country-list';
+
 const decodeToken = (token) => {
   const base64Url = token.split('.')[1];
   const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
   const payload = JSON.parse(atob(base64));
   return payload;
 };
+
 const AddCompanyModal = ({ isOpen, toggle, refreshCompany, userId }) => {
-  
   const [nom, setNom] = useState("");
-  const [pays, setPays] = useState("");
+  const [pays, setPays] = useState(null);
   const [telephone, setTelephone] = useState("");
   const [email, setEmail] = useState("");
   const [siteweb, setSiteweb] = useState("");
@@ -37,7 +36,11 @@ const AddCompanyModal = ({ isOpen, toggle, refreshCompany, userId }) => {
   const token = localStorage.getItem('token');
   const decodedToken = token ? decodeToken(token) : {};
   const currentUserId = decodedToken.AdminID;
-  console.log(currentUserId);
+
+  const countryOptions = countryList().getData().map(country => ({
+    value: country.value,
+    label: country.label
+  }));
 
   useEffect(() => {
     if (isOpen) {
@@ -59,7 +62,7 @@ const AddCompanyModal = ({ isOpen, toggle, refreshCompany, userId }) => {
 
     const newCompany = {
       nom,
-      pays,
+      pays: pays ? pays.value : "",
       telephone,
       email,
       siteweb,
@@ -79,6 +82,14 @@ const AddCompanyModal = ({ isOpen, toggle, refreshCompany, userId }) => {
         draggable: true,
         progress: undefined,
       });
+
+      // Clear the form
+      setNom("");
+      setPays(null);
+      setTelephone("");
+      setEmail("");
+      setSiteweb("");
+      setMainContact(null);
     } catch (error) {
       console.error("Error creating new company:", error.response || error.message);
       toast.error('Error creating company. Please try again.', {
@@ -116,16 +127,28 @@ const AddCompanyModal = ({ isOpen, toggle, refreshCompany, userId }) => {
           </FormGroup>
           <FormGroup>
             <Label for="pays">Country</Label>
-            <Input
-              type="text"
-              id="pays"
+            <Select
+              options={countryOptions}
               value={pays}
-              onChange={(e) => setPays(e.target.value)}
-              required
+              onChange={setPays}
+              placeholder="Select country"
+              isClearable
+              styles={{
+                control: (provided) => ({
+                  ...provided,
+                  border: '1px solid #ced4da',
+                  borderRadius: '0.25rem',
+                  transition: 'border-color 0.2s'
+                }),
+                menu: (provided) => ({
+                  ...provided,
+                  zIndex: 9999
+                })
+              }}
             />
           </FormGroup>
           <FormGroup>
-            <Label for="telephone">Tel</Label>
+            <Label for="telephone">Telephone</Label>
             <Input
               type="text"
               id="telephone"
@@ -183,3 +206,4 @@ const AddCompanyModal = ({ isOpen, toggle, refreshCompany, userId }) => {
 };
 
 export default AddCompanyModal;
+

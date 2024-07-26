@@ -71,6 +71,9 @@ const Persons = () => {
   const refreshPeople = () => {
     fetchPeople();
   };
+  const refreshCompanies = () => {
+    fetchCompanies();
+  };
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -78,17 +81,18 @@ const Persons = () => {
 
   const getCompanyNameById = (id) => {
     const company = companies.find(company => company._id === id);
-    return company ? company.nom : <span className="ni ni-fat-delete" style={{ fontSize: '20px', color: 'blac' }}></span>;
+    return company ? company.nom : 'Company Not Found'; // Ensure it returns a string
   };
-  
-  const filteredPeople = people.filter((person) =>
-    person.prenom.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    person.nom.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    getCompanyNameById(person.entreprise).toLowerCase().includes(searchQuery.toLowerCase()) ||
-    person.pays.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    person.telephone.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    person.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+
+  const filteredPeople = people.filter((person) => {
+    const companyName = getCompanyNameById(person.entreprise);
+    return person.prenom.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      person.nom.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      person.pays.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      person.telephone.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      person.email.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   useEffect(() => {
     const handleResize = () => {
@@ -107,15 +111,12 @@ const Persons = () => {
     };
   }, []);
 
-  // Get current people
   const indexOfLastPerson = currentPage * peoplePerPage;
   const indexOfFirstPerson = indexOfLastPerson - peoplePerPage;
   const currentPeople = filteredPeople.slice(indexOfFirstPerson, indexOfLastPerson);
 
-  // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Toggle modals
   const toggleModal = () => {
     setModalOpen(!modalOpen);
   };
@@ -195,7 +196,13 @@ const Persons = () => {
                       <tr key={person._id}>
                         <td>{person.prenom}</td>
                         <td>{person.nom}</td>
-                        <td>{getCompanyNameById(person.entreprise)}</td>
+                        <td>
+                          {getCompanyNameById(person.entreprise) === 'Company Not Found' ? (
+                            <span className="ni ni-fat-delete" style={{ fontSize: '20px', color: 'black' }}></span>
+                          ) : (
+                            getCompanyNameById(person.entreprise)
+                          )}
+                        </td>
                         <td>{person.pays}</td>
                         <td>{person.telephone}</td>
                         <td>{person.email}</td>
@@ -222,6 +229,7 @@ const Persons = () => {
                 toggle={toggleEditModal}
                 person={personToEdit}
                 refreshPeople={refreshPeople}
+                refreshCompanies={refreshCompanies}
                 userId={currentUserId} 
               />
               <CardFooter className="py-4">

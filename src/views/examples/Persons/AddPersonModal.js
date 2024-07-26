@@ -16,16 +16,19 @@ import {
   InputGroup,
   InputGroupText
 } from "reactstrap";
+import Select from 'react-select';
 import axios from "axios";
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AddCompanyModal from "../Companies/AddCompanyModal";
+import countryList from 'react-select-country-list';
+import { getCountryCallingCode, parsePhoneNumber, isValidPhoneNumber } from 'libphonenumber-js';
 
 const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
   const [prenom, setPrenom] = useState("");
   const [nom, setNom] = useState("");
   const [company, setCompany] = useState("");
-  const [pays, setPays] = useState("");
+  const [pays, setPays] = useState(null);
   const [telephone, setTelephone] = useState("");
   const [email, setEmail] = useState("");
   const [companies, setCompanies] = useState([]);
@@ -33,9 +36,13 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [addCompanyModalOpen, setAddCompanyModalOpen] = useState(false);
 
+  const options = countryList().getData();
+
   useEffect(() => {
-    fetchCompanies();
-  }, []);
+    if (isOpen) {
+      fetchCompanies();
+    }
+  }, [isOpen]);
 
   const fetchCompanies = async () => {
     try {
@@ -52,27 +59,114 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const toggleAddCompanyModal = () => setAddCompanyModalOpen(!addCompanyModalOpen);
 
-  const handleCompanyChange = (e) => {
-    setCompany(e.target.value);
+  const handleCountryChange = (selectedOption) => {
+    setPays(selectedOption);
+
+    const countryCode = selectedOption?.value ? `+${getCountryCallingCode(selectedOption.value)}` : "";
+
+    setTelephone((prev) => {
+      return prev.startsWith('+') ? prev : `${countryCode} ${prev}`;
+    });
+  };
+
+  const validatePhoneNumber = (phoneNumber, countryCode) => {
+    try {
+      const phoneNumberObj = parsePhoneNumber(phoneNumber, countryCode);
+      return phoneNumberObj.isValid();
+    } catch (error) {
+      return false;
+    }
+  };
+
+  const checkUniqueness = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/people", {
+        params: { createdBy: userId }
+      });
+      const userPersons = response.data;
+
+      const isEmailUnique = !userPersons.some(person => person.email === email);
+      const isPhoneUnique = !userPersons.some(person => person.telephone === telephone);
+
+      if (!isEmailUnique) {
+        toast.error('Email already exists among your contacts. Please use a different email.', {
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+        return false;
+      }
+
+      if (!isPhoneUnique) {
+        toast.error('Telephone number already exists among your contacts. Please use a different telephone number.', {
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Error checking uniqueness:", error);
+      toast.error('Error checking uniqueness. Please try again.', {
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+      return false;
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (pays) {
+      const countryCode = pays.value;
+      if (!validatePhoneNumber(telephone, countryCode)) {
+        toast.error(`Invalid phone number for ${pays.label}. Please check the number format.`, {
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
+        return;
+      }
+    }
+
+    const isUnique = await checkUniqueness();
+    if (!isUnique) return;
+
     const newPerson = {
       prenom,
       nom,
-      entreprise: company,
-      pays,
+      pays: pays?.label,
       telephone,
       email,
       createdBy: userId
     };
 
+    if (company) {
+      newPerson.entreprise = company;
+    }
+
     try {
-      await axios.post("http://localhost:5000/api/people", newPerson);
+      const response = await axios.post("http://localhost:5000/api/people", newPerson);
+      console.log('Response:', response);  // Check response data
       refreshPeople();
-      toggle();
+      toggle(); // Close the modal
+      resetForm(); // Reset form fields
       toast.success('Person added successfully', {
         autoClose: 2000,
         hideProgressBar: false,
@@ -82,7 +176,7 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
         progress: undefined,
       });
     } catch (error) {
-      console.error("Error creating new person:", error);
+      console.error("Error creating new person:", error.response ? error.response.data : error.message);
       toast.error('Error creating person. Please try again.', {
         autoClose: 2000,
         hideProgressBar: false,
@@ -92,6 +186,15 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
         progress: undefined,
       });
     }
+  };
+
+  const resetForm = () => {
+    setPrenom("");
+    setNom("");
+    setCompany("");
+    setPays(null);
+    setTelephone("");
+    setEmail("");
   };
 
   return (
@@ -164,22 +267,25 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
             </FormGroup>
             <FormGroup>
               <Label for="pays">Country</Label>
-              <InputGroup>
-                <InputGroupText style={{ backgroundColor: '#fff', border: '1px solid #ced4da', borderRight: 0, borderRadius: '0.25rem 0 0 0.25rem' }}>
-                  <i className="ni ni-world"></i>
-                </InputGroupText>
-                <Input
-                  type="text"
-                  id="pays"
-                  value={pays}
-                  onChange={(e) => setPays(e.target.value)}
-                  placeholder="Enter country"
-                  required
-                  style={{ borderLeft: 0, borderRadius: '0 0.25rem 0.25rem 0', transition: 'border-color 0.2s' }}
-                  onFocus={(e) => e.target.style.borderColor = '#80bdff'}
-                  onBlur={(e) => e.target.style.borderColor = '#ced4da'}
-                />
-              </InputGroup>
+              <Select
+                options={options}
+                value={pays}
+                onChange={handleCountryChange}
+                placeholder="Select country"
+                isClearable
+                styles={{
+                  control: (provided) => ({
+                    ...provided,
+                    border: '1px solid #ced4da',
+                    borderRadius: '0.25rem',
+                    transition: 'border-color 0.2s'
+                  }),
+                  menu: (provided) => ({
+                    ...provided,
+                    zIndex: 9999
+                  })
+                }}
+              />
             </FormGroup>
             <FormGroup>
               <Label for="telephone">Telephone</Label>
@@ -222,7 +328,7 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
           </ModalBody>
           <ModalFooter>
             <Button color="primary" type="submit">Save</Button>{' '}
-            <Button color="secondary" onClick={toggle}>Cancel</Button>
+            <Button color="secondary" onClick={() => { toggle(); resetForm(); }}>Cancel</Button>
           </ModalFooter>
         </Form>
       </Modal>
@@ -236,6 +342,7 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
         }}
         userId={userId}
       />
+
     </>
   );
 };

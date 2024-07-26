@@ -2,7 +2,20 @@ import axios from 'axios';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import zxcvbn from 'zxcvbn';
-import { Button, Card, CardBody, FormGroup, Form, Input, InputGroup, InputGroupAddon, InputGroupText, Col, CardHeader, Spinner } from 'reactstrap';
+import {
+  Button,
+  Card,
+  CardBody,
+  FormGroup,
+  Form,
+  Input,
+  InputGroup,
+  InputGroupAddon,
+  InputGroupText,
+  Col,
+  CardHeader,
+  Spinner
+} from 'reactstrap';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');

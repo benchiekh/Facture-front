@@ -18,6 +18,7 @@
 import Index from "views/Index.js";
 import Profile from "views/examples/Profile.js";
 import Company from "views/examples/Companies/Company";
+import Clients from "views/examples/Clients/Clients";
 import Register from "views/examples/Register.js";
 import Login from "views/examples/Login.js";
 import Tables from "views/examples/Tables.js";
@@ -44,6 +45,13 @@ var routes = [
     name: "Company",
     icon: "ni ni-building text-orange",
     component: <Company />,
+    layout: "/admin",
+  },
+  {
+    path: "/clients",
+    name: "Clients",
+    icon: "ni ni-single-02 text-yellow",
+    component: <Clients />,
     layout: "/admin",
   },
   {
