@@ -194,6 +194,20 @@ const EditPersonModal = ({ isOpen, toggle, person, refreshPeople, refreshCompani
     }
   };
 
+  // Get placeholder text based on selected country
+  const getPhoneNumberPlaceholder = () => {
+    if (pays) {
+      const countryCode = pays.value;
+      try {
+        const exampleNumber = parsePhoneNumber('', countryCode);
+        return `e.g., ${exampleNumber.formatNational()}`;
+      } catch (error) {
+        return 'Enter phone number';
+      }
+    }
+    return 'Enter phone number';
+  };
+
   return (
     <>
       <Modal isOpen={isOpen} toggle={toggle} fade={true} className="custom-modal">
@@ -263,12 +277,13 @@ const EditPersonModal = ({ isOpen, toggle, person, refreshPeople, refreshCompani
               />
             </FormGroup>
             <FormGroup>
-              <Label for="telephone">Tel</Label>
+            <Label for="telephone">Tel</Label>
               <Input
                 type="text"
                 id="telephone"
                 value={telephone}
                 onChange={(e) => setTelephone(e.target.value)}
+                placeholder={getPhoneNumberPlaceholder()}
                 required
               />
             </FormGroup>
@@ -304,3 +319,4 @@ const EditPersonModal = ({ isOpen, toggle, person, refreshPeople, refreshCompani
 };
 
 export default EditPersonModal;
+

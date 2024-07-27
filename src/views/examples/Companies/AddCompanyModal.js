@@ -16,6 +16,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Select from 'react-select';
 import countryList from 'react-select-country-list';
 import { getCountryCallingCode, parsePhoneNumberFromString } from 'libphonenumber-js';
+import Flag from 'react-world-flags';
 
 // Function to decode the JWT token and get payload
 const decodeToken = (token) => {
@@ -49,7 +50,12 @@ const AddCompanyModal = ({ isOpen, toggle, refreshCompany, userId }) => {
 
   const countryOptions = countryList().getData().map(country => ({
     value: country.value,
-    label: country.label
+    label: (
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <Flag code={country.value} style={{ width: 20, marginRight: 10 }} />
+        {country.label}
+      </div>
+    )
   }));
 
   useEffect(() => {

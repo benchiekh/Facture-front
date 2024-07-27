@@ -23,6 +23,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import AddCompanyModal from "../Companies/AddCompanyModal";
 import countryList from 'react-select-country-list';
 import { getCountryCallingCode, parsePhoneNumber, isValidPhoneNumber } from 'libphonenumber-js';
+import Flag from 'react-world-flags'; // Import the flag library
 
 const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
   const [prenom, setPrenom] = useState("");
@@ -65,7 +66,9 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
     const countryCode = selectedOption?.value ? `+${getCountryCallingCode(selectedOption.value)}` : "";
 
     setTelephone((prev) => {
-      return prev.startsWith('+') ? prev : `${countryCode} ${prev}`;
+      // Remove existing country code if present
+      const prevWithoutCode = prev.replace(/^\+\d+\s*/, '');
+      return `${countryCode} ${prevWithoutCode}`;
     });
   };
 
@@ -196,6 +199,23 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
     setEmail("");
   };
 
+  const customSingleValue = ({ data }) => (
+    <div className="custom-single-value">
+      <Flag code={data.value} alt={data.label} style={{ width: 20, marginRight: 10 }} />
+      {data.label}
+    </div>
+  );
+
+  const customOption = (props) => {
+    const { data, innerRef, innerProps } = props;
+    return (
+      <div ref={innerRef} {...innerProps} className="custom-option">
+        <Flag code={data.value} alt={data.label} style={{ width: 20, marginRight: 10 }} />
+        {data.label}
+      </div>
+    );
+  };
+
   return (
     <>
       <Modal isOpen={isOpen} toggle={toggle} fade={true} className="custom-modal">
@@ -243,12 +263,12 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
             <FormGroup>
               <Label for="company">Company</Label>
               <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown}>
-                <DropdownToggle caret style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.5rem 1rem', backgroundColor: '#fff', border: '1px solid #ced4da', borderRadius: '0.25rem', transition: 'border-color 0.2s' }}>
-                  {filteredCompanies.find(c => c._id === company)?.nom || "Select Company"}
+                <DropdownToggle caret>
+                  {company ? companies.find(comp => comp._id === company)?.nom : "Select company"}
                 </DropdownToggle>
                 <DropdownMenu>
                   {filteredCompanies.length > 0 ? (
-                    filteredCompanies.map((comp) => (
+                    filteredCompanies.map(comp => (
                       <DropdownItem key={comp._id} onClick={() => setCompany(comp._id)}>
                         {comp.nom}
                       </DropdownItem>
@@ -284,6 +304,7 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
                     zIndex: 9999
                   })
                 }}
+                components={{ SingleValue: customSingleValue, Option: customOption }}
               />
             </FormGroup>
             <FormGroup>
@@ -341,7 +362,7 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
         }}
         userId={userId}
       />
-
+      <ToastContainer />
     </>
   );
 };
