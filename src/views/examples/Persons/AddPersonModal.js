@@ -83,13 +83,15 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
 
   const checkUniqueness = async () => {
     try {
+      // Fetch the list of people created by the current user
       const response = await axios.get("http://localhost:5000/api/people", {
         params: { createdBy: userId }
       });
-      const userPersons = response.data;
 
+      const userPersons = response.data.filter(person => person.createdBy === userId);;
+
+      // Check if the email already exists among the user's contacts
       const isEmailUnique = !userPersons.some(person => person.email === email);
-      const isPhoneUnique = !userPersons.some(person => person.telephone === telephone);
 
       if (!isEmailUnique) {
         toast.error('Email already exists among your contacts. Please use a different email.', {
@@ -102,6 +104,9 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
         });
         return false;
       }
+
+      // Check if the phone number already exists among the user's contacts
+      const isPhoneUnique = !userPersons.some(person => person.telephone === telephone);
 
       if (!isPhoneUnique) {
         toast.error('Telephone number already exists among your contacts. Please use a different telephone number.', {
@@ -362,7 +367,6 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
         }}
         userId={userId}
       />
-      <ToastContainer />
     </>
   );
 };

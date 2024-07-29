@@ -5,6 +5,10 @@ import {
   CardFooter,
   CardHeader,
   Container,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
   Input,
   Pagination,
   PaginationItem,
@@ -21,6 +25,9 @@ import EditCompanyModal from "./EditCompanyModal";
 import countryList from 'react-select-country-list';
 import { Rings } from 'react-loader-spinner'; // Import the loader spinner component
 import 'react-toastify/dist/ReactToastify.css';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEllipsisH } from "@fortawesome/free-solid-svg-icons";
+import DisplayCompany from "./DisplayCompanyModal"
 
 
 const decodeToken = (token) => {
@@ -43,6 +50,11 @@ const Company = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [companyToEdit, setCompanyToEdit] = useState(null);
   const [loading, setLoading] = useState(true); // Add loading state
+  const [dropdownOpen, setDropdownOpen] = useState(null);
+  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [displayModalOpen, setDisplayModalOpen] = useState(false);
+
+
 
   const token = localStorage.getItem('token');
   const decodedToken = token ? decodeToken(token) : {};
@@ -149,6 +161,10 @@ const Company = () => {
     setModalOpen(!modalOpen);
   };
 
+  const toggleDropdown = (id) => {
+    setDropdownOpen(dropdownOpen === id ? null : id);
+  };
+
   const toggleDeleteModal = () => {
     setDeleteModalOpen(!deleteModalOpen);
   };
@@ -184,7 +200,14 @@ const Company = () => {
     setCompanyToEdit(company);
     toggleEditModal();
   };
+  const toggleDisplayModal = () => {
+    setDisplayModalOpen(!displayModalOpen);
+  };
 
+  const handleDisplayClick = (company) => {
+    setSelectedCompany(company);
+    toggleDisplayModal();
+  };
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -205,6 +228,7 @@ const Company = () => {
   return (
     <>
       <ToastContainer />
+
       <ElementHeader />
       <Container className="mt--7" fluid>
         <Row>
@@ -232,7 +256,8 @@ const Company = () => {
                     <th scope="col">Tel</th>
                     <th scope="col">Email</th>
                     <th scope="col">Website</th>
-                    <th scope="col">Actions</th>
+                    <th scope="col"></th>
+
                   </tr>
                 </thead>
                 <tbody>
@@ -241,13 +266,39 @@ const Company = () => {
                       <tr key={company._id}>
                         <td>{company.nom}</td>
                         <td>{getMainContact(company._id)}</td>
-                        <td>{countryOptions[company.pays] || company.pays}</td> 
+                        <td>{countryOptions[company.pays] || company.pays}</td>
                         <td>{company.telephone}</td>
                         <td>{company.email}</td>
                         <td><a target="_blank" href={company.siteweb}>{company.siteweb}</a></td>
+
                         <td>
-                          <span className="ni ni-settings-gear-65 text-primary" style={{ fontSize: '1.5rem', marginRight: '10px', cursor: 'pointer' }} onClick={() => handleEditClick(company)}></span>
-                          <span className="ni ni-fat-remove text-danger" style={{ fontSize: '1.5rem', cursor: 'pointer' }} onClick={() => handleDeleteClick(company._id)}></span>
+                          <Dropdown isOpen={dropdownOpen === company._id} toggle={() => toggleDropdown(company._id)} >
+                            <DropdownToggle tag="span" data-toggle="dropdown" style={{ cursor: 'pointer' }}>
+                              <FontAwesomeIcon icon={faEllipsisH} style={{ fontSize: '1rem' }} />
+                            </DropdownToggle>
+                            <DropdownMenu right style={{ marginTop: "-25px" }}>
+                              <DropdownItem onClick={() => handleDisplayClick(company)}>
+                                <span className="d-flex align-items-center">
+                                  <i className="fa-solid fa-eye" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
+                                  Display
+                                </span>
+                              </DropdownItem>
+                              <DropdownItem onClick={() => handleEditClick(company)}>
+                                <span className="d-flex align-items-center">
+                                  <i className="fa-solid fa-gear" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
+                                  Edit
+                                </span>
+                              </DropdownItem>
+                              <DropdownItem divider />
+                              <DropdownItem onClick={() => handleDeleteClick(company._id)}>
+                                <span className="d-flex align-items-center">
+                                  <i className="fa-solid fa-trash text-danger" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
+                                  Delete
+                                </span>
+                              </DropdownItem>
+                            </DropdownMenu>
+                          </Dropdown>
+
                         </td>
                       </tr>
                     ))
@@ -258,20 +309,28 @@ const Company = () => {
                   )}
                 </tbody>
               </Table>
+       
+                <ConfirmDeleteModal
+                  isOpen={deleteModalOpen}
+                  toggle={toggleDeleteModal}
+                  onConfirm={confirmDeleteCompany}
+                />
+                <EditCompanyModal
+                  isOpen={editModalOpen}
+                  toggle={toggleEditModal}
+                  company={companyToEdit}
+                  refreshCompany={refreshCompany}
+                  userId={currentUserId}
+                />
 
-              <ConfirmDeleteModal
-                isOpen={deleteModalOpen}
-                toggle={toggleDeleteModal}
-                onConfirm={confirmDeleteCompany}
-              />
-
-              <EditCompanyModal
-                isOpen={editModalOpen}
-                toggle={toggleEditModal}
-                company={companyToEdit}
-                refreshCompany={refreshCompany}
-                userId={currentUserId}
-              />
+              {selectedCompany && (
+                <DisplayCompany
+                  isOpen={displayModalOpen}
+                  toggle={toggleDisplayModal}
+                  company={selectedCompany}
+                  people={people}
+                />
+              )}
 
               <CardFooter className="py-4">
                 <Pagination className="pagination justify-content-end mb-0" listClassName="justify-content-end">

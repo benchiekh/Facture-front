@@ -6,8 +6,11 @@ import AddClientModal from "./AddClientModal";
 import EditClientModal from "./EditClientModal";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import countryList from 'react-select-country-list';
-import { Button, Card, CardFooter, CardHeader, Container, Input, Pagination, PaginationItem, PaginationLink, Row, Table } from 'reactstrap';
+import { Button, Card, CardFooter, CardHeader, Container, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Input, Pagination, PaginationItem, PaginationLink, Row, Table } from 'reactstrap';
 import { Rings } from 'react-loader-spinner'; // Import the loader spinner component
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEllipsisH } from '@fortawesome/free-solid-svg-icons';
+import DisplayClient from "./DisplayClientModal"
 
 const decodeToken = (token) => {
     const base64Url = token.split('.')[1];
@@ -28,6 +31,9 @@ function Clients() {
     const [companyToDelete, setCompanyToDelete] = useState(null);
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [clientToEdit, setClientToEdit] = useState(null);
+    const [dropdownOpen, setDropdownOpen] = useState(null);
+    const [selectedClient, setSelectedClient] = useState(null);
+    const [displayModalOpen, setDisplayModalOpen] = useState(false);
 
     const token = localStorage.getItem('token');
     const decodedToken = token ? decodeToken(token) : {};
@@ -99,7 +105,9 @@ function Clients() {
     const toggleModal = () => {
         setModalOpen(!modalOpen);
     };
-
+    const toggleDropdown = (id) => {
+        setDropdownOpen(dropdownOpen === id ? null : id);
+    };
     const toggleDeleteModal = () => {
         setDeleteModalOpen(!deleteModalOpen);
     };
@@ -139,6 +147,14 @@ function Clients() {
         setClientToEdit(client);
         toggleEditModal();
     };
+    const toggleDisplayModal = () => {
+        setDisplayModalOpen(!displayModalOpen);
+    };
+
+    const handleDisplayClick = (client) => {
+        setSelectedClient(client);
+        toggleDisplayModal();
+    };
 
     return (
         <>
@@ -169,7 +185,8 @@ function Clients() {
                                         <th scope="col">Country</th>
                                         <th scope="col">Tel</th>
                                         <th scope="col">Email</th>
-                                        <th scope="col">Actions</th>
+                                        <th scope="col"></th>
+
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -192,7 +209,7 @@ function Clients() {
                                                     {client.type === 'Person' && client.person ? client.person.prenom + ' ' + client.person.nom : client.type === 'Company' && client.entreprise ? client.entreprise.nom : 'N/A'}
                                                 </td>
                                                 <td>
-                                                    {client.type === 'Company' && client.entreprise ? countryOptions[client.entreprise.pays] :  client.type === 'Person' && client.person ? client.person.pays : 'N/A'}
+                                                    {client.type === 'Company' && client.entreprise ? countryOptions[client.entreprise.pays] : client.type === 'Person' && client.person ? client.person.pays : 'N/A'}
                                                 </td>
                                                 <td>
                                                     {client.type === 'Person' && client.person ? client.person.telephone : client.type === 'Company' && client.entreprise ? client.entreprise.telephone : 'N/A'}
@@ -200,9 +217,34 @@ function Clients() {
                                                 <td>
                                                     {client.type === 'Person' && client.person ? client.person.email : client.type === 'Company' && client.entreprise ? client.entreprise.email : 'N/A'}
                                                 </td>
+
                                                 <td>
-                                                    <span className="ni ni-settings-gear-65 text-primary" style={{ fontSize: '1.5rem', marginRight: '10px', cursor: 'pointer' }} onClick={() => handleEditClick(client)}></span>
-                                                    <span className="ni ni-fat-remove text-danger" style={{ fontSize: '1.5rem', cursor: 'pointer' }} onClick={() => handleDeleteClick(client._id)}></span>
+                                                    <Dropdown isOpen={dropdownOpen === client._id} toggle={() => toggleDropdown(client._id)} >
+                                                        <DropdownToggle tag="span" data-toggle="dropdown" style={{ cursor: 'pointer' }}>
+                                                            <FontAwesomeIcon icon={faEllipsisH} style={{ fontSize: '1rem' }} />
+                                                        </DropdownToggle>
+                                                        <DropdownMenu right style={{ marginTop: "-25px" }}>
+                                                            <DropdownItem onClick={() => handleDisplayClick(client)}>
+                                                                <span className="d-flex align-items-center">
+                                                                    <i className="fa-solid fa-eye" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
+                                                                    Display
+                                                                </span>
+                                                            </DropdownItem>
+                                                            <DropdownItem onClick={() => handleEditClick(client)}>
+                                                                <span className="d-flex align-items-center">
+                                                                    <i className="fa-solid fa-gear" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
+                                                                    Edit
+                                                                </span>
+                                                            </DropdownItem>
+                                                            <DropdownItem divider />
+                                                            <DropdownItem onClick={() => handleDeleteClick(client._id)}>
+                                                                <span className="d-flex align-items-center">
+                                                                    <i className="fa-solid fa-trash text-danger" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
+                                                                    Delete
+                                                                </span>
+                                                            </DropdownItem>
+                                                        </DropdownMenu>
+                                                    </Dropdown>
                                                 </td>
                                             </tr>
                                         ))
@@ -213,6 +255,7 @@ function Clients() {
                                     )}
                                 </tbody>
                             </Table>
+
 
                             <ConfirmDeleteModal
                                 isOpen={deleteModalOpen}
@@ -227,6 +270,14 @@ function Clients() {
                                 refreshClients={refreshClients}
                                 userId={currentUserId}
                             />
+                            {selectedClient && (
+                                <DisplayClient
+                                    isOpen={displayModalOpen}
+                                    toggle={toggleDisplayModal}
+
+                                    client={selectedClient}
+                                />
+                            )}
 
                             <CardFooter className="py-4">
                                 <Pagination className="pagination justify-content-end mb-0" listClassName="justify-content-end">

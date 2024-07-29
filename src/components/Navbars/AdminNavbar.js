@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   DropdownMenu,
@@ -17,11 +17,9 @@ import {
   Media,
 } from "reactstrap";
 
-const logout = () => {
-  localStorage.removeItem("token");
-  window.location.href = "/auth/login";
-};
 
+
+// Function to decode JWT token
 const decodeToken = (token) => {
   const base64Url = token.split('.')[1];
   const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -29,16 +27,39 @@ const decodeToken = (token) => {
   return payload;
 };
 
+// Logout function
+const logout = () => {
+  localStorage.removeItem("token");
+  window.location.href = "/auth/login";
+};
+
 const AdminNavbar = (props) => {
   const token = localStorage.getItem("token");
   const user = token ? decodeToken(token) : null;
-  console.log(user.name)
+  const [previewImage, setPreviewImage] = useState(null);
 
 
   const handleLogout = (e) => {
     e.preventDefault();
     logout();
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decodedToken = decodeToken(token);
+      const storedImage = localStorage.getItem(`profileImage_${decodedToken.AdminID}`);
+      if (storedImage) {
+        setPreviewImage(storedImage);
+      } else if (decodedToken.photo) {
+        const imageUrl = decodedToken.photo.startsWith('http')
+          ? decodedToken.photo
+          : `http://localhost:5000/${decodedToken.photo}`;
+        setPreviewImage(imageUrl);
+        localStorage.setItem(`profileImage_${decodedToken.AdminID}`, imageUrl);
+      }
+    }
+  }, []);
 
   return (
     <>
@@ -66,8 +87,35 @@ const AdminNavbar = (props) => {
             <UncontrolledDropdown nav>
               <DropdownToggle className="pr-0" nav>
                 <Media className="align-items-center">
-                  <span className="avatar avatar-sm rounded-circle" >
-                   
+                  <span className="avatar avatar-sm rounded-circle">
+                    {previewImage ?(
+                      <img
+                        src={previewImage}
+                        alt="Profile"
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          borderRadius: '50%',
+                          objectFit: 'cover',
+                        }}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          borderRadius: '50%',
+                          backgroundColor: '#000000', // Default color if no photo
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '1rem',
+                          color: 'white',
+                        }}
+                      >
+                        {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                      </div>
+                    )}
                   </span>
                   <Media className="ml-2 d-none d-lg-block">
                     <span className="mb-0 text-sm font-weight-bold">

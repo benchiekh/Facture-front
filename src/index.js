@@ -11,10 +11,13 @@ import AuthLayout from "layouts/Auth.js";
 import PrivateRoute from "./PrivateRoute ";
 import GoogleAuthSuccess from "views/examples/Auth/GoogleAuthSuccess";
 import ForgotPasswordLayout from "layouts/ForgotPasswordLayout";
+import { ToastContainer } from "react-toastify";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(
   <BrowserRouter>
+        <ToastContainer />
+
     <Routes>
       <Route
         path="/admin/*"

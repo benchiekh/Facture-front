@@ -10,6 +10,7 @@ import {
 } from 'reactstrap';
 
 const DisplayPersonModal = ({ isOpen, toggle, person, companies }) => {
+  
   const getCompanyNameById = (id) => {
     const company = companies.find(company => company._id === id);
     return company ? company.nom : 'Company Not Found';
