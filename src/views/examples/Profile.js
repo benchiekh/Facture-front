@@ -106,6 +106,7 @@ const Profile = () => {
       setSelectedImage(null);
     } catch (error) {
       console.error('Error uploading image:', error);
+      toast.error('Error uploading image.');
     }
   };
 
@@ -286,23 +287,28 @@ const Profile = () => {
                       href="#pablo"
                       onClick={(e) => {
                         e.preventDefault();
-                        togglePasswordForm();
+                        setShowPasswordForm(!showPasswordForm);
                       }}
                       size="sm"
                     >
-                      {showPasswordForm ? 'Cancel' : 'Change Password'}
+                      Change password
                     </Button>
                   </Col>
                 </Row>
               </CardHeader>
               <CardBody>
                 <Form>
-                  <h6 className="heading-small text-muted mb-4">User information</h6>
+                  <h6 className="heading-small text-muted mb-4">
+                    User information
+                  </h6>
                   <div className="pl-lg-4">
                     <Row>
                       <Col lg="6">
                         <FormGroup>
-                          <label className="form-control-label" htmlFor="input-username">
+                          <label
+                            className="form-control-label"
+                            htmlFor="input-username"
+                          >
                             Username
                           </label>
                           <Input
@@ -311,13 +317,16 @@ const Profile = () => {
                             placeholder="Username"
                             type="text"
                             value={user.name || ''}
-                            readOnly
+                            disabled
                           />
                         </FormGroup>
                       </Col>
                       <Col lg="6">
                         <FormGroup>
-                          <label className="form-control-label" htmlFor="input-email">
+                          <label
+                            className="form-control-label"
+                            htmlFor="input-email"
+                          >
                             Email address
                           </label>
                           <Input
@@ -326,7 +335,7 @@ const Profile = () => {
                             placeholder="jesse@example.com"
                             type="email"
                             value={user.email || ''}
-                            readOnly
+                            disabled
                           />
                         </FormGroup>
                       </Col>
@@ -334,7 +343,10 @@ const Profile = () => {
                     <Row>
                       <Col lg="6">
                         <FormGroup>
-                          <label className="form-control-label" htmlFor="input-first-name">
+                          <label
+                            className="form-control-label"
+                            htmlFor="input-first-name"
+                          >
                             First name
                           </label>
                           <Input
@@ -343,13 +355,16 @@ const Profile = () => {
                             placeholder="First name"
                             type="text"
                             value={user.name || ''}
-                            readOnly
+                            disabled
                           />
                         </FormGroup>
                       </Col>
                       <Col lg="6">
                         <FormGroup>
-                          <label className="form-control-label" htmlFor="input-last-name">
+                          <label
+                            className="form-control-label"
+                            htmlFor="input-last-name"
+                          >
                             Last name
                           </label>
                           <Input
@@ -358,7 +373,7 @@ const Profile = () => {
                             placeholder="Last name"
                             type="text"
                             value={user.surname || ''}
-                            readOnly
+                            disabled
                           />
                         </FormGroup>
                       </Col>
@@ -366,17 +381,19 @@ const Profile = () => {
                   </div>
                   {showPasswordForm && (
                     <div className="pl-lg-4">
-                      <h6 className="heading-small text-muted mb-4">Change Password</h6>
                       <Row>
                         <Col lg="6">
                           <FormGroup>
-                            <label className="form-control-label" htmlFor="input-new-password">
+                            <label
+                              className="form-control-label"
+                              htmlFor="input-new-password"
+                            >
                               New Password
                             </label>
                             <Input
                               className="form-control-alternative"
                               id="input-new-password"
-                              placeholder="New password"
+                              placeholder="New Password"
                               type="password"
                               value={newPassword}
                               onChange={(e) => setNewPassword(e.target.value)}
@@ -385,13 +402,16 @@ const Profile = () => {
                         </Col>
                         <Col lg="6">
                           <FormGroup>
-                            <label className="form-control-label" htmlFor="input-confirm-password">
+                            <label
+                              className="form-control-label"
+                              htmlFor="input-confirm-password"
+                            >
                               Confirm Password
                             </label>
                             <Input
                               className="form-control-alternative"
                               id="input-confirm-password"
-                              placeholder="Confirm password"
+                              placeholder="Confirm Password"
                               type="password"
                               value={confirmPassword}
                               onChange={(e) => setConfirmPassword(e.target.value)}
@@ -399,9 +419,15 @@ const Profile = () => {
                           </FormGroup>
                         </Col>
                       </Row>
-                      <Button color="primary" onClick={handlePasswordSubmit}>
-                        Update Password
-                      </Button>
+                      <div className="text-center">
+                        <Button
+                          color="primary"
+                          onClick={handlePasswordSubmit}
+                          size="sm"
+                        >
+                          Save Password
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </Form>

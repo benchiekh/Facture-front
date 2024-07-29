@@ -33,10 +33,20 @@ const logout = () => {
   window.location.href = "/auth/login";
 };
 
+const getRandomColor = () => {
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+};
 const AdminNavbar = (props) => {
   const token = localStorage.getItem("token");
   const user = token ? decodeToken(token) : null;
   const [previewImage, setPreviewImage] = useState(null);
+  const [avatarColor, setAvatarColor] = useState(getRandomColor());
+
 
 
   const handleLogout = (e) => {
@@ -88,7 +98,7 @@ const AdminNavbar = (props) => {
               <DropdownToggle className="pr-0" nav>
                 <Media className="align-items-center">
                   <span className="avatar avatar-sm rounded-circle">
-                    {previewImage ?(
+                    {previewImage ? (
                       <img
                         src={previewImage}
                         alt="Profile"
@@ -105,7 +115,7 @@ const AdminNavbar = (props) => {
                           width: '100%',
                           height: '100%',
                           borderRadius: '50%',
-                          backgroundColor: '#000000', // Default color if no photo
+                          backgroundColor: avatarColor, // Default color if no photo
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
