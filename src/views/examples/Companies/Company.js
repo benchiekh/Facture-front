@@ -49,7 +49,6 @@ const Company = () => {
   const [companyToDelete, setCompanyToDelete] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [companyToEdit, setCompanyToEdit] = useState(null);
-  const [loading, setLoading] = useState(true); // Add loading state
   const [dropdownOpen, setDropdownOpen] = useState(null);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const [displayModalOpen, setDisplayModalOpen] = useState(false);
@@ -68,28 +67,22 @@ const Company = () => {
   }, {});
 
   const fetchCompanies = async () => {
-    setLoading(true); // Set loading to true before fetching
     try {
       const response = await axios.get("http://localhost:5000/api/entreprise");
       const filteredCompanies = response.data.filter(company => company.createdBy === currentUserId);
       setCompanies(filteredCompanies);
     } catch (error) {
       console.error("Error fetching companies:", error);
-    } finally {
-      setLoading(false); // Set loading to false after fetching
     }
   };
 
   const fetchPeople = async () => {
-    setLoading(true); // Set loading to true before fetching
     try {
       const response = await axios.get("http://localhost:5000/api/people");
       setPeople(response.data.filter(person => person.createdBy === currentUserId));
     } catch (error) {
       console.error("Error fetching people:", error);
-    } finally {
-      setLoading(false); // Set loading to false after fetching
-    }
+    } 
   };
 
   useEffect(() => {
@@ -208,23 +201,7 @@ const Company = () => {
     setSelectedCompany(company);
     toggleDisplayModal();
   };
-  if (loading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <Rings
-          height="80"
-          width="80"
-          color="#4fa94d"
-          radius="6"
-          wrapperStyle={{}}
-          wrapperClass=""
-          visible={true}
-          ariaLabel="rings-loading"
-        />
-      </div>
-    );
-  }
-
+ 
   return (
     <>
       <ToastContainer />

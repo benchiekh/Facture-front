@@ -24,6 +24,8 @@ import Login from "views/examples/Login.js";
 import Tables from "views/examples/Tables.js";
 import Person from "views/examples/Persons/Persons";
 import ForgotPassword from "views/examples/Auth/ForgotPassword";
+import ProductCategory from "views/examples/ProductCategory/ProductCategory";
+
 
 var routes = [
   {
@@ -57,8 +59,15 @@ var routes = [
   {
     path: "/user-profile",
     name: "User Profile",
-    icon: "ni ni-single-02 text-yellow",
+    icon: "fa-regular fa-user text-red",
     component: <Profile />,
+    layout: "/admin",
+  },
+  {
+    path: "/product-category",
+    name: "Product Category",
+    icon: "fa-solid fa-ticket text-green",
+    component: <ProductCategory />,
     layout: "/admin",
   },
   {
