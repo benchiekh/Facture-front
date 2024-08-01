@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Button,
   Modal,
@@ -9,21 +9,13 @@ import {
   Form,
   FormGroup,
   Label
-} from "reactstrap";
-import axios from "axios";
+} from 'reactstrap';
+import axios from 'axios';
 import Select from 'react-select';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import Switch from "react-switch";
+import Switch from 'react-switch';
 import { colorOptions } from './colorOptions';
-
-// Function to decode the JWT token and get payload
-const decodeToken = (token) => {
-  const base64Url = token.split('.')[1];
-  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-  const payload = JSON.parse(atob(base64));
-  return payload;
-};
 
 // Function to determine if the color is light or dark
 const isColorLight = (color) => {
@@ -35,95 +27,57 @@ const isColorLight = (color) => {
   return brightness > 155;
 };
 
-const AddProductCategoryModal = ({ isOpen, toggle, userId, refreshCategories }) => {
-  const [nom, setNom] = useState("");
-  const [description, setDescription] = useState("");
-  const [color, setColor] = useState(colorOptions[0]);
-  const [enabled, setEnabled] = useState(true);
+const EditCategoryModal = ({ isOpen, toggle, category, refreshCategories }) => {
+  const [nom, setNom] = useState(category?.name || "");
+  const [description, setDescription] = useState(category?.description || "");
+  const [color, setColor] = useState(null); // Initialize with null or a default value
+  const [enabled, setEnabled] = useState(category?.enabled || true);
 
-  const token = localStorage.getItem('token');
-  const decodedToken = token ? decodeToken(token) : {};
-  const currentUserId = decodedToken.AdminID;
+  // Update color state when category changes
+  useEffect(() => {
+    if (category) {
+      const normalizedColor = category.color.charAt(0).toUpperCase() + category.color.slice(1).toLowerCase(); // Normalize color
+  
+      const selectedColor = colorOptions.find(c => c.value === normalizedColor);
+  
+      if (!selectedColor) {
+        console.warn("Color not found in options:", normalizedColor);
+      }
+  
+      setNom(category.name || "");
+      setDescription(category.description || "");
+      setColor(selectedColor || colorOptions[0]);
+      setEnabled(category.enabled || true);
+    }
+  }, [category]);
+  
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!color) {
+      toast.error('Please select a color');
+      return;
+    }
     try {
-      console.log("Submitting with values:", { name: nom, description, color: color.value, createdBy: userId, enabled });
-      const response = await axios.post(`http://localhost:5000/api/category`, {
+      await axios.put(`http://localhost:5000/api/category/${category._id}`, {
         name: nom,
         description,
         color: color.value,
-        createdBy: userId,
-        enabled: enabled,
+        enabled
       });
       toggle();
       refreshCategories();
-      setNom("");
-      setDescription("");
-      setColor(colorOptions[0]);
-      setEnabled(true);
-      toast.success('Category added successfully', {
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      });
+      toast.success('Category updated successfully');
     } catch (error) {
-      console.error("Error creating category:", error);
-      toast.error('Error creating category');
+      console.error("Error updating category:", error);
+      toast.error('Error updating category');
     }
-  };
-
-  const customStyles = {
-    control: (provided) => ({
-      ...provided,
-      minHeight: '38px',
-    }),
-    option: (provided, state) => {
-      const color = state.data.hex;
-      const textColor = isColorLight(color) ? '#000' : '#fff';
-      return {
-        ...provided,
-        display: 'flex',
-        alignItems: 'center',
-        paddingLeft: '10px',
-        color: textColor,
-        ':before': {
-          content: '""',
-          display: 'inline-block',
-          marginRight: '10px', // Space between color block and text
-          padding: '5px 10px', // Padding to make the width adaptive
-          backgroundColor: color,
-          borderRadius: '3px',
-        },
-        fontWeight: state.isSelected ? 'bold' : 'normal',
-      };
-    },
-    singleValue: (provided, state) => {
-      const color = state.data.hex;
-      const textColor = isColorLight(color) ? '#000' : '#fff';
-      return {
-        ...provided,
-        display: 'flex',
-        alignItems: 'center',
-        ':before': {
-          content: '""',
-          display: 'inline-block',
-          marginRight: '10px', // Space between color block and text
-          padding: '5px 10px', // Padding to make the width adaptive
-          backgroundColor: color,
-          borderRadius: '3px',
-        },
-        color: textColor,
-      };
-    },
   };
 
   return (
     <Modal isOpen={isOpen} toggle={toggle} fade={true} className="custom-modal">
-      <ModalHeader toggle={toggle}>Add New Product Category</ModalHeader>
+      <ModalHeader toggle={toggle}>Edit Product Category</ModalHeader>
       <Form onSubmit={handleSubmit}>
         <ModalBody>
           <FormGroup>
@@ -155,7 +109,6 @@ const AddProductCategoryModal = ({ isOpen, toggle, userId, refreshCategories }) 
               onChange={(selectedOption) => setColor(selectedOption)}
               isClearable={false}
               placeholder="Select a color"
-              //styles={customStyles} // Applying custom styles
               formatOptionLabel={(option) => (
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <div
@@ -204,4 +157,4 @@ const AddProductCategoryModal = ({ isOpen, toggle, userId, refreshCategories }) 
   );
 };
 
-export default AddProductCategoryModal;
+export default EditCategoryModal;

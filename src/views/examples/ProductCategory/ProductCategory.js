@@ -7,6 +7,8 @@ import AddProductCategoryModal from './AddProductCategory';
 import { faEllipsisH } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ConfirmDeleteModal from './ConfirmDeleteModal'
+import DisplayCategory from "./DisplayCategoryModal"
+import EditCategoryModal from "./EditCategoryModal"
 
 const decodeToken = (token) => {
     const base64Url = token.split('.')[1];
@@ -25,6 +27,14 @@ function ProductCategory() {
     const [dropdownOpen, setDropdownOpen] = useState(null);
     const [categoryToDelete, setCategoryToDelete] = useState(null);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [displayModalOpen, setDisplayModalOpen] = useState(false);
+    const [categoryToEdit, setCategoryToEdit] = useState(null);
+    const [editModalOpen, setEditModalOpen] = useState(false);
+
+
+
+
 
     const token = localStorage.getItem('token');
     const decodedToken = token ? decodeToken(token) : {};
@@ -39,7 +49,7 @@ function ProductCategory() {
         } catch (error) {
             console.error("Error fetching categories:", error);
             setError("Error fetching categories");
-        } 
+        }
     };
 
     useEffect(() => {
@@ -68,19 +78,33 @@ function ProductCategory() {
     const toggleModal = () => setModalOpen(!modalOpen);
     const toggleDropdown = (id) => setDropdownOpen(dropdownOpen === id ? null : id);
     const toggleDeleteModal = () => setDeleteModalOpen(!deleteModalOpen);
+    const toggleDisplayModal = () => {
+        setDisplayModalOpen(!displayModalOpen);
+    };
+    const toggleEditModal = () => {
+        setEditModalOpen(!editModalOpen);
+    };
 
     const handleDeleteClick = (id) => {
         setCategoryToDelete(id);
         toggleDeleteModal();
     };
+    const handleDisplayClick = (category) => {
+        setSelectedCategory(category);
+        toggleDisplayModal();
+    };
+    const handleEditClick = (category) => {
+        setSelectedCategory(category);
+        setCategoryToEdit(category);
+        toggleEditModal();
+    };
+
 
     const confirmDeleteCategory = async () => {
         try {
             await axios.delete(`http://localhost:5000/api/category/${categoryToDelete}`);
-            // setTimeout(() => {
-            //     refreshCategories();
-            //   }, 100);
-              refreshCategories();
+
+            refreshCategories();
 
             toggleDeleteModal();
             toast.success('Category deleted successfully', {
@@ -150,6 +174,19 @@ function ProductCategory() {
                                                         <FontAwesomeIcon icon={faEllipsisH} style={{ fontSize: '1rem' }} />
                                                     </DropdownToggle>
                                                     <DropdownMenu right style={{ marginTop: "-25px" }}>
+                                                        <DropdownItem onClick={() => handleDisplayClick(category)}>
+                                                            <span className="d-flex align-items-center">
+                                                                <i className="fa-solid fa-eye" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
+                                                                Display
+                                                            </span>
+                                                        </DropdownItem>
+                                                        <DropdownItem onClick={() => handleEditClick(category)}>
+                                                            <span className="d-flex align-items-center">
+                                                                <i className="fa-solid fa-gear" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
+                                                                Edit
+                                                            </span>
+                                                        </DropdownItem>
+                                                        <DropdownItem divider />
                                                         <DropdownItem onClick={() => handleDeleteClick(category._id)}>
                                                             <span className="d-flex align-items-center">
                                                                 <i className="fa-solid fa-trash text-danger" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
@@ -207,11 +244,29 @@ function ProductCategory() {
                 refreshCategories={refreshCategories}
             />
 
+            {selectedCategory && (
+                <EditCategoryModal
+                    isOpen={editModalOpen}
+                    toggle={toggleEditModal}
+                    category={selectedCategory}
+                    refreshCategories={refreshCategories}
+                    userId={currentUserId}
+                />
+            )}
+
             <ConfirmDeleteModal
                 isOpen={deleteModalOpen}
                 toggle={toggleDeleteModal}
                 onConfirm={confirmDeleteCategory}
             />
+
+            {selectedCategory && (
+                <DisplayCategory
+                    isOpen={displayModalOpen}
+                    toggle={toggleDisplayModal}
+                    category={selectedCategory}
+                />
+            )}
         </>
     );
 }
