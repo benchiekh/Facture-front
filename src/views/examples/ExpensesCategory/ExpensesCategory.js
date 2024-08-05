@@ -3,13 +3,14 @@ import { ToastContainer, toast } from 'react-toastify';
 import axios from 'axios';
 import ElementHeader from 'components/Headers/ElementHeader';
 import { Button, Card, CardFooter, CardHeader, Container, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Input, Pagination, PaginationItem, PaginationLink, Row, Table } from 'reactstrap';
-import AddProductCategoryModal from './AddProductCategory';
+import AddProductCategoryModal from './AddExpenseCategory';
 import { faEllipsisH } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import ConfirmDeleteModal from './ConfirmDeleteModal';
-import DisplayCategory from "./DisplayCategoryModal";
-import EditCategoryModal from "./EditCategoryModal";
+import ConfirmDeleteModal from './ConfirmDeleteModal'
+import DisplayCategory from "./DisplayCategoryModal"
+import EditCategoryModal from "./EditCategoryModal"
 import Switch from 'react-switch'; 
+
 
 const decodeToken = (token) => {
     const base64Url = token.split('.')[1];
@@ -18,7 +19,7 @@ const decodeToken = (token) => {
     return payload;
 };
 
-function ProductCategory() {
+function ExpenseCategory() {
     const [categories, setCategories] = useState([]);
     const [error, setError] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -33,13 +34,17 @@ function ProductCategory() {
     const [categoryToEdit, setCategoryToEdit] = useState(null);
     const [editModalOpen, setEditModalOpen] = useState(false);
 
+
+
+
+
     const token = localStorage.getItem('token');
     const decodedToken = token ? decodeToken(token) : {};
     const currentUserId = decodedToken.AdminID;
 
     const fetchCategories = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/category`, {
+            const response = await axios.get(`http://localhost:5000/api/depense-categories`, {
                 params: { createdBy: currentUserId }
             });
             setCategories(response.data);
@@ -55,7 +60,7 @@ function ProductCategory() {
 
     const refreshCategories = () => {
         fetchCategories();
-    };
+    }
 
     const filteredCategories = categories.filter((category) =>
         category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -70,11 +75,17 @@ function ProductCategory() {
 
     const handleSearchChange = (e) => setSearchQuery(e.target.value);
 
+
+
     const toggleModal = () => setModalOpen(!modalOpen);
     const toggleDropdown = (id) => setDropdownOpen(dropdownOpen === id ? null : id);
     const toggleDeleteModal = () => setDeleteModalOpen(!deleteModalOpen);
-    const toggleDisplayModal = () => setDisplayModalOpen(!displayModalOpen);
-    const toggleEditModal = () => setEditModalOpen(!editModalOpen);
+    const toggleDisplayModal = () => {
+        setDisplayModalOpen(!displayModalOpen);
+    };
+    const toggleEditModal = () => {
+        setEditModalOpen(!editModalOpen);
+    };
 
     const handleDeleteClick = (id) => {
         setCategoryToDelete(id);
@@ -92,7 +103,7 @@ function ProductCategory() {
 
     const confirmDeleteCategory = async () => {
         try {
-            const response = await axios.delete(`http://localhost:5000/api/category/${categoryToDelete}`);
+            const response = await axios.delete(`http://localhost:5000/api/depense-categories/${categoryToDelete}`);
 
             if (response.status === 200) {
                 refreshCategories();
@@ -118,6 +129,7 @@ function ProductCategory() {
         } catch (error) {
             console.error("Error deleting Category:", error);
             if (error.response) {
+
                 toast.error(error.response.data.message || 'Error deleting category', {
                     autoClose: 2000,
                     hideProgressBar: false,
@@ -130,6 +142,7 @@ function ProductCategory() {
         }
     };
 
+
     return (
         <>
             <ToastContainer />
@@ -139,7 +152,7 @@ function ProductCategory() {
                     <div className="col">
                         <Card className="shadow border-0">
                             <CardHeader className="border-0 d-flex justify-content-between align-items-center">
-                                <h3 className="mb-0">Products Categories List</h3>
+                                <h3 className="mb-0">Expenses Categories List</h3>
                                 <div className="d-flex">
                                     <Input
                                         type="text"
@@ -176,11 +189,13 @@ function ProductCategory() {
                                                             marginRight: '10px',
                                                         }}
                                                     ></div>
+
                                                 </td>
                                                 <td>{category.name}</td>
                                                 <td style={{ whiteSpace: 'pre-wrap', overflowWrap: 'break-word', maxWidth: '300px' }}>
                                                     {category.description}
                                                 </td>
+
                                                 <td>
                                                     <Switch
                                                         checked={category.enabled}
@@ -226,10 +241,9 @@ function ProductCategory() {
                                                     </Dropdown>
                                                 </td>
                                             </tr>
-                                        ))
-                                    ) : (
+                                        ))) : (
                                         <tr>
-                                            <td colSpan="5" className="text-center text-danger">No matching records found</td>
+                                            <td colSpan="6" className="text-center text-danger">No matching records found</td>
                                         </tr>
                                     )}
                                 </tbody>
@@ -305,4 +319,4 @@ function ProductCategory() {
     );
 }
 
-export default ProductCategory;
+export default ExpenseCategory;

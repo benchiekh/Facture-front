@@ -21,7 +21,6 @@ const decodeToken = (token) => {
 
 function Clients() {
     const [clients, setClients] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [clientPerPage] = useState(5);
@@ -57,8 +56,6 @@ function Clients() {
         } catch (err) {
             setError(err.message);
             toast.error('Failed to fetch clients');
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -70,23 +67,7 @@ function Clients() {
         fetchClients();
     };
 
-    if (loading) {
-        return (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                <Rings
-                    height="80"
-                    width="80"
-                    color="#4fa94d"
-                    radius="6"
-                    wrapperStyle={{}}
-                    wrapperClass=""
-                    visible={true}
-                    ariaLabel="rings-loading"
-                />
-            </div>
-        );
-    }
-    if (error) return <p>Error: {error}</p>;
+  
 
     const filteredClients = clients.filter((client) =>
         (client.person && client.person.prenom.toLowerCase().includes(searchQuery.toLowerCase())) ||

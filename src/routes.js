@@ -19,12 +19,15 @@ import Index from "views/Index.js";
 import Profile from "views/examples/Profile.js";
 import Company from "views/examples/Companies/Company";
 import Clients from "views/examples/Clients/Clients";
-import Register from "views/examples/Register.js";
-import Login from "views/examples/Login.js";
+import Register from "views/examples/Auth/Register";
+import Login from "views/examples/Auth/Login";
 import Tables from "views/examples/Tables.js";
 import Person from "views/examples/Persons/Persons";
 import ForgotPassword from "views/examples/Auth/ForgotPassword";
 import ProductCategory from "views/examples/ProductCategory/ProductCategory";
+import Product from "views/examples/Products/Products";
+import ExpenseCategory from "views/examples/ExpensesCategory/ExpensesCategory";
+
 
 
 var routes = [
@@ -68,6 +71,20 @@ var routes = [
     name: "Product Category",
     icon: "fa-solid fa-ticket text-green",
     component: <ProductCategory />,
+    layout: "/admin",
+  },
+  {
+    path: "/expense-category",
+    name: "Expense Category",
+    icon: "fa-solid fa-ticket text-blue",
+    component: <ExpenseCategory />,
+    layout: "/admin",
+  },
+  {
+    path: "/product",
+    name: "Product ",
+    icon: "fa-solid fa-box text-green",
+    component: <Product />,
     layout: "/admin",
   },
   {
