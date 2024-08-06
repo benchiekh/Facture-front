@@ -74,7 +74,7 @@ const AddClientModal = ({ isOpen, toggle, refreshClients, userId }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} toggle={toggle} fade={true} className="custom-modal">
+    <Modal isOpen={isOpen} toggle={toggle} fade={true} className="custom-moda">
       <ModalHeader toggle={toggle}>Add New Client</ModalHeader>
       <Form onSubmit={handleSubmit}>
         <ModalBody>

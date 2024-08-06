@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ConfirmDeleteModal from './ConfirmDeleteModal'
 import DisplayCategory from "./DisplayCategoryModal"
 import EditCategoryModal from "./EditCategoryModal"
-import Switch from 'react-switch'; 
+import Switch from 'react-switch';
 
 
 const decodeToken = (token) => {
@@ -202,9 +202,9 @@ function ExpenseCategory() {
                                                         onChange={() => { }}
                                                         onColor="#86d3ff"
                                                         offColor="#888"
-                                                        onHandleColor="#002395"    
-                                                        offHandleColor="#d4d4d4"   
-                                                        handleDiameter={15} 
+                                                        onHandleColor="#002395"
+                                                        offHandleColor="#d4d4d4"
+                                                        handleDiameter={15}
                                                         uncheckedIcon={false}
                                                         checkedIcon={false}
                                                         height={10}
@@ -243,7 +243,12 @@ function ExpenseCategory() {
                                             </tr>
                                         ))) : (
                                         <tr>
-                                            <td colSpan="6" className="text-center text-danger">No matching records found</td>
+                                            <td colSpan="6">
+                                                <div style={{ textAlign: 'center' }}>
+                                                    <i className="fa-solid fa-ban" style={{ display: 'block', marginBottom: '10px', fontSize: '50px', opacity: '0.5' }}></i>
+                                                    <span className="text-danger">No matching records found</span>
+                                                </div>
+                                            </td>
                                         </tr>
                                     )}
                                 </tbody>

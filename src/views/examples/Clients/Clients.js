@@ -67,7 +67,7 @@ function Clients() {
         fetchClients();
     };
 
-  
+
 
     const filteredClients = clients.filter((client) =>
         (client.person && client.person.prenom.toLowerCase().includes(searchQuery.toLowerCase())) ||
@@ -231,7 +231,12 @@ function Clients() {
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan="6" className="text-center text-danger">No matching records found</td>
+                                            <td colSpan="6">
+                                                <div style={{ textAlign: 'center' }}>
+                                                    <i className="fa-solid fa-ban" style={{ display: 'block', marginBottom: '10px', fontSize: '50px', opacity: '0.5' }}></i>
+                                                    <span className="text-danger">No matching records found</span>
+                                                </div>
+                                            </td>
                                         </tr>
                                     )}
                                 </tbody>

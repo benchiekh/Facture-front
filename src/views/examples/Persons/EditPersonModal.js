@@ -12,7 +12,9 @@ import {
   Dropdown,
   DropdownToggle,
   DropdownMenu,
-  DropdownItem
+  DropdownItem,
+  InputGroup,
+  InputGroupText
 } from "reactstrap";
 import axios from "axios";
 import { toast } from 'react-toastify';
@@ -21,6 +23,7 @@ import AddCompanyModal from "../Companies/AddCompanyModal";
 import Select from 'react-select';
 import countryList from 'react-select-country-list';
 import { parsePhoneNumber } from 'libphonenumber-js';
+import Flag from 'react-world-flags';
 
 const EditPersonModal = ({ isOpen, toggle, person, refreshPeople, refreshCompanies, userId }) => {
   const [prenom, setPrenom] = useState("");
@@ -208,6 +211,25 @@ const EditPersonModal = ({ isOpen, toggle, person, refreshPeople, refreshCompani
     return 'Enter phone number';
   };
 
+  // Custom Single Value Component
+  const customSingleValue = ({ data }) => (
+    <div className="custom-single-value">
+      <Flag code={data.value} alt={data.label} style={{ width: 20, marginRight: 10 }} />
+      {data.label}
+    </div>
+  );
+
+  // Custom Option Component
+  const customOption = (props) => {
+    const { data, innerRef, innerProps } = props;
+    return (
+      <div ref={innerRef} {...innerProps} className="custom-option">
+        <Flag code={data.value} alt={data.label} style={{ width: 20, marginRight: 10 }} />
+        {data.label}
+      </div>
+    );
+  };
+
   return (
     <>
       <Modal isOpen={isOpen} toggle={toggle} fade={true} className="custom-modal">
@@ -216,23 +238,37 @@ const EditPersonModal = ({ isOpen, toggle, person, refreshPeople, refreshCompani
           <ModalBody>
             <FormGroup>
               <Label for="prenom">First Name</Label>
-              <Input
-                type="text"
-                id="prenom"
-                value={prenom}
-                onChange={(e) => setPrenom(e.target.value)}
-                required
-              />
+              <InputGroup>
+                <InputGroupText style={{ backgroundColor: '#fff', border: '1px solid #ced4da', borderRight: 0, borderRadius: '0.25rem 0 0 0.25rem' }}>
+                  <i className="ni ni-single-02"></i>
+                </InputGroupText>
+                <Input
+                  type="text"
+                  id="prenom"
+                  value={prenom}
+                  onChange={(e) => setPrenom(e.target.value)}
+                  placeholder="Enter first name"
+                  required
+                  style={{ borderLeft: 0, borderRadius: '0 0.25rem 0.25rem 0', transition: 'border-color 0.2s' }}
+                />
+              </InputGroup>
             </FormGroup>
             <FormGroup>
               <Label for="nom">Last Name</Label>
-              <Input
-                type="text"
-                id="nom"
-                value={nom}
-                onChange={(e) => setNom(e.target.value)}
-                required
-              />
+              <InputGroup>
+                <InputGroupText style={{ backgroundColor: '#fff', border: '1px solid #ced4da', borderRight: 0, borderRadius: '0.25rem 0 0 0.25rem' }}>
+                  <i className="ni ni-hat-3"></i>
+                </InputGroupText>
+                <Input
+                  type="text"
+                  id="nom"
+                  value={nom}
+                  onChange={(e) => setNom(e.target.value)}
+                  placeholder="Enter last name"
+                  required
+                  style={{ borderLeft: 0, borderRadius: '0 0.25rem 0.25rem 0', transition: 'border-color 0.2s' }}
+                />
+              </InputGroup>
             </FormGroup>
             <FormGroup>
               <Label for="company">Company</Label>
@@ -247,8 +283,7 @@ const EditPersonModal = ({ isOpen, toggle, person, refreshPeople, refreshCompani
                     </DropdownItem>
                   ))}
                   <DropdownItem divider />
-                  <DropdownItem onClick={toggleAddCompanyModal} className="d-flex align-items-center">
-                    <span className="ni ni-fat-add text-blue mr-2" style={{ fontSize: '24px' }}></span>
+                  <DropdownItem onClick={toggleAddCompanyModal}>
                     Add New Company
                   </DropdownItem>
                 </DropdownMenu>
@@ -257,66 +292,58 @@ const EditPersonModal = ({ isOpen, toggle, person, refreshPeople, refreshCompani
             <FormGroup>
               <Label for="pays">Country</Label>
               <Select
+                id="pays"
                 options={options}
                 value={pays}
                 onChange={setPays}
                 placeholder="Select country"
-                isClearable
-                styles={{
-                  control: (provided) => ({
-                    ...provided,
-                    border: '1px solid #ced4da',
-                    borderRadius: '0.25rem',
-                    transition: 'border-color 0.2s'
-                  }),
-                  menu: (provided) => ({
-                    ...provided,
-                    zIndex: 9999
-                  })
-                }}
+                components={{ SingleValue: customSingleValue, Option: customOption }}
               />
             </FormGroup>
             <FormGroup>
-            <Label for="telephone">Tel</Label>
-              <Input
-                type="text"
-                id="telephone"
-                value={telephone}
-                onChange={(e) => setTelephone(e.target.value)}
-                placeholder={getPhoneNumberPlaceholder()}
-                required
-              />
+              <Label for="telephone">Phone Number</Label>
+              <InputGroup>
+                <InputGroupText style={{ backgroundColor: '#fff', border: '1px solid #ced4da', borderRight: 0, borderRadius: '0.25rem 0 0 0.25rem' }}>
+                  <i className="ni ni-mobile-button"></i>
+                </InputGroupText>
+                <Input
+                  type="text"
+                  id="telephone"
+                  value={telephone}
+                  onChange={(e) => setTelephone(e.target.value)}
+                  placeholder={getPhoneNumberPlaceholder()}
+                  required
+                  style={{ borderLeft: 0, borderRadius: '0 0.25rem 0.25rem 0', transition: 'border-color 0.2s' }}
+                />
+              </InputGroup>
             </FormGroup>
             <FormGroup>
               <Label for="email">Email</Label>
-              <Input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+              <InputGroup>
+                <InputGroupText style={{ backgroundColor: '#fff', border: '1px solid #ced4da', borderRight: 0, borderRadius: '0.25rem 0 0 0.25rem' }}>
+                  <i className="ni ni-email-83"></i>
+                </InputGroupText>
+                <Input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter email"
+                  required
+                  style={{ borderLeft: 0, borderRadius: '0 0.25rem 0.25rem 0', transition: 'border-color 0.2s' }}
+                />
+              </InputGroup>
             </FormGroup>
           </ModalBody>
           <ModalFooter>
-            <Button color="primary" type="submit">Save</Button>{' '}
             <Button color="secondary" onClick={toggle}>Cancel</Button>
+            <Button color="primary" type="submit">Save</Button>
           </ModalFooter>
         </Form>
       </Modal>
-
-      <AddCompanyModal
-        isOpen={addCompanyModalOpen}
-        toggle={toggleAddCompanyModal}
-        refreshCompany={() => {
-          fetchCompanies();
-          toggleAddCompanyModal();
-        }}
-        userId={userId}
-      />
+      <AddCompanyModal isOpen={addCompanyModalOpen} toggle={toggleAddCompanyModal} refreshCompanies={fetchCompanies} />
     </>
   );
 };
 
 export default EditPersonModal;
-

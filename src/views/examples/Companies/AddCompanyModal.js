@@ -8,7 +8,10 @@ import {
   Input,
   Form,
   FormGroup,
-  Label
+  Label,
+  InputGroup,
+  InputGroupAddon,
+  InputGroupText
 } from "reactstrap";
 import axios from "axios";
 import { toast } from 'react-toastify';
@@ -17,6 +20,8 @@ import Select from 'react-select';
 import countryList from 'react-select-country-list';
 import { getCountryCallingCode, parsePhoneNumberFromString } from 'libphonenumber-js';
 import Flag from 'react-world-flags';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBuilding, faGlobe, faEnvelope, faPhone } from '@fortawesome/free-solid-svg-icons';
 
 // Function to decode the JWT token and get payload
 const decodeToken = (token) => {
@@ -42,7 +47,6 @@ const AddCompanyModal = ({ isOpen, toggle, refreshCompany, userId }) => {
   const [siteweb, setSiteweb] = useState("");
   const [mainContact, setMainContact] = useState(null);
   const [people, setPeople] = useState([]);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const token = localStorage.getItem('token');
   const decodedToken = token ? decodeToken(token) : {};
@@ -143,11 +147,8 @@ const AddCompanyModal = ({ isOpen, toggle, refreshCompany, userId }) => {
     }
   };
 
-  const toggleDropdown = () => setDropdownOpen(prevState => !prevState);
-
-  const handleSelectContact = (contactId, contactName) => {
-    setMainContact(contactId);
-    toggleDropdown();
+  const filterOption = (option, inputValue) => {
+    return option.label.props.children[1].toLowerCase().includes(inputValue.toLowerCase());
   };
 
   return (
@@ -157,13 +158,21 @@ const AddCompanyModal = ({ isOpen, toggle, refreshCompany, userId }) => {
         <ModalBody>
           <FormGroup>
             <Label for="nom">Company Name</Label>
-            <Input
-              type="text"
-              id="nom"
-              value={nom}
-              onChange={(e) => setNom(e.target.value)}
-              required
-            />
+            <InputGroup>
+              <InputGroupAddon addonType="prepend">
+                <InputGroupText>
+                  <FontAwesomeIcon icon={faBuilding} />
+                </InputGroupText>
+              </InputGroupAddon>
+              <Input
+                type="text"
+                id="nom"
+                value={nom}
+                onChange={(e) => setNom(e.target.value)}
+                placeholder="Enter company name"
+                required
+              />
+            </InputGroup>
           </FormGroup>
           <FormGroup>
             <Label for="pays">Country</Label>
@@ -173,6 +182,8 @@ const AddCompanyModal = ({ isOpen, toggle, refreshCompany, userId }) => {
               onChange={handleCountryChange}
               placeholder="Select country"
               isClearable
+              isSearchable
+              filterOption={filterOption} // Custom filter function
               styles={{
                 control: (provided) => ({
                   ...provided,
@@ -189,33 +200,57 @@ const AddCompanyModal = ({ isOpen, toggle, refreshCompany, userId }) => {
           </FormGroup>
           <FormGroup>
             <Label for="telephone">Telephone</Label>
-            <Input
-              type="text"
-              id="telephone"
-              value={telephone}
-              onChange={(e) => setTelephone(e.target.value)}
-              required
-            />
+            <InputGroup>
+              <InputGroupAddon addonType="prepend">
+                <InputGroupText>
+                  <FontAwesomeIcon icon={faPhone} />
+                </InputGroupText>
+              </InputGroupAddon>
+              <Input
+                type="text"
+                id="telephone"
+                value={telephone}
+                onChange={(e) => setTelephone(e.target.value)}
+                placeholder="Enter phone number"
+                required
+              />
+            </InputGroup>
           </FormGroup>
           <FormGroup>
             <Label for="email">Email</Label>
-            <Input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+            <InputGroup>
+              <InputGroupAddon addonType="prepend">
+                <InputGroupText>
+                  <FontAwesomeIcon icon={faEnvelope} />
+                </InputGroupText>
+              </InputGroupAddon>
+              <Input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter email address"
+                required
+              />
+            </InputGroup>
           </FormGroup>
           <FormGroup>
             <Label for="siteweb">Website</Label>
-            <Input
-              type="text"
-              id="siteweb"
-              value={siteweb}
-              onChange={(e) => setSiteweb(e.target.value)}
-              required
-            />
+            <InputGroup>
+              <InputGroupAddon addonType="prepend">
+                <InputGroupText>
+                  <FontAwesomeIcon icon={faGlobe} />
+                </InputGroupText>
+              </InputGroupAddon>
+              <Input
+                type="text"
+                id="siteweb"
+                value={siteweb}
+                onChange={(e) => setSiteweb(e.target.value)}
+                placeholder="Enter website URL"
+                required
+              />
+            </InputGroup>
           </FormGroup>
         </ModalBody>
         <ModalFooter>

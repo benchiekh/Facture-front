@@ -8,7 +8,9 @@ import {
   Input,
   Form,
   FormGroup,
-  Label
+  Label,
+  InputGroup,
+  InputGroupText
 } from "reactstrap";
 import axios from "axios";
 import { toast } from 'react-toastify';
@@ -16,6 +18,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Select from 'react-select';
 import countryList from 'react-select-country-list';
 import { parsePhoneNumber, isValidNumber, getCountryCallingCode } from 'libphonenumber-js';
+import Flag from 'react-world-flags';
 
 const decodeToken = (token) => {
   const base64Url = token.split('.')[1];
@@ -81,7 +84,6 @@ const EditCompanyModal = ({ isOpen, toggle, company, refreshCompany, userId }) =
 
   const validatePhoneNumber = (number, countryCode) => {
     try {
-      // Remove spaces or extra characters for validation
       const phoneNumber = number.replace(/\s+/g, '');
       return isValidNumber(phoneNumber, countryCode);
     } catch (error) {
@@ -142,6 +144,23 @@ const EditCompanyModal = ({ isOpen, toggle, company, refreshCompany, userId }) =
     }
   };
 
+  const customSingleValue = ({ data }) => (
+    <div className="custom-single-value">
+      <Flag code={data.value} alt={data.label} style={{ width: 20, marginRight: 10 }} />
+      {data.label}
+    </div>
+  );
+
+  const customOption = (props) => {
+    const { data, innerRef, innerProps } = props;
+    return (
+      <div ref={innerRef} {...innerProps} className="custom-option">
+        <Flag code={data.value} alt={data.label} style={{ width: 20, marginRight: 10 }} />
+        {data.label}
+      </div>
+    );
+  };
+
   return (
     <Modal isOpen={isOpen} toggle={toggle} fade={true} className="custom-modal">
       <ModalHeader toggle={toggle}>Edit Company</ModalHeader>
@@ -149,13 +168,22 @@ const EditCompanyModal = ({ isOpen, toggle, company, refreshCompany, userId }) =
         <ModalBody>
           <FormGroup>
             <Label for="nom">Company Name</Label>
-            <Input
-              type="text"
-              id="nom"
-              value={nom}
-              onChange={(e) => setNom(e.target.value)}
-              required
-            />
+            <InputGroup>
+              <InputGroupText style={{ backgroundColor: '#fff', border: '1px solid #ced4da', borderRight: 0, borderRadius: '0.25rem 0 0 0.25rem' }}>
+                <i className="ni ni-building"></i>
+              </InputGroupText>
+              <Input
+                type="text"
+                id="nom"
+                value={nom}
+                onChange={(e) => setNom(e.target.value)}
+                placeholder="Enter company name"
+                required
+                style={{ borderLeft: 0, borderRadius: '0 0.25rem 0.25rem 0', transition: 'border-color 0.2s' }}
+                onFocus={(e) => e.target.style.borderColor = '#80bdff'}
+                onBlur={(e) => e.target.style.borderColor = '#ced4da'}
+              />
+            </InputGroup>
           </FormGroup>
           <FormGroup>
             <Label for="pays">Country</Label>
@@ -177,37 +205,65 @@ const EditCompanyModal = ({ isOpen, toggle, company, refreshCompany, userId }) =
                   zIndex: 9999
                 })
               }}
+              components={{ SingleValue: customSingleValue, Option: customOption }}
             />
           </FormGroup>
           <FormGroup>
             <Label for="telephone">Telephone</Label>
-            <Input
-              type="text"
-              id="telephone"
-              value={telephone}
-              onChange={(e) => setTelephone(e.target.value)}
-              required
-            />
+            <InputGroup>
+              <InputGroupText style={{ backgroundColor: '#fff', border: '1px solid #ced4da', borderRight: 0, borderRadius: '0.25rem 0 0 0.25rem' }}>
+                <i className="ni ni-mobile-button"></i>
+              </InputGroupText>
+              <Input
+                type="text"
+                id="telephone"
+                value={telephone}
+                onChange={(e) => setTelephone(e.target.value)}
+                placeholder="Enter phone number"
+                required
+                style={{ borderLeft: 0, borderRadius: '0 0.25rem 0.25rem 0', transition: 'border-color 0.2s' }}
+                onFocus={(e) => e.target.style.borderColor = '#80bdff'}
+                onBlur={(e) => e.target.style.borderColor = '#ced4da'}
+              />
+            </InputGroup>
           </FormGroup>
           <FormGroup>
             <Label for="email">Email</Label>
-            <Input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+            <InputGroup>
+              <InputGroupText style={{ backgroundColor: '#fff', border: '1px solid #ced4da', borderRight: 0, borderRadius: '0.25rem 0 0 0.25rem' }}>
+                <i className="ni ni-email-83"></i>
+              </InputGroupText>
+              <Input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter email address"
+                required
+                style={{ borderLeft: 0, borderRadius: '0 0.25rem 0.25rem 0', transition: 'border-color 0.2s' }}
+                onFocus={(e) => e.target.style.borderColor = '#80bdff'}
+                onBlur={(e) => e.target.style.borderColor = '#ced4da'}
+              />
+            </InputGroup>
           </FormGroup>
           <FormGroup>
             <Label for="siteweb">Website</Label>
-            <Input
-              type="text"
-              id="siteweb"
-              value={siteweb}
-              onChange={(e) => setSiteweb(e.target.value)}
-              required
-            />
+            <InputGroup>
+              <InputGroupText style={{ backgroundColor: '#fff', border: '1px solid #ced4da', borderRight: 0, borderRadius: '0.25rem 0 0 0.25rem' }}>
+                <i className="ni ni-world-2"></i>
+              </InputGroupText>
+              <Input
+                type="text"
+                id="siteweb"
+                value={siteweb}
+                onChange={(e) => setSiteweb(e.target.value)}
+                placeholder="Enter website URL"
+                required
+                style={{ borderLeft: 0, borderRadius: '0 0.25rem 0.25rem 0', transition: 'border-color 0.2s' }}
+                onFocus={(e) => e.target.style.borderColor = '#80bdff'}
+                onBlur={(e) => e.target.style.borderColor = '#ced4da'}
+              />
+            </InputGroup>
           </FormGroup>
         </ModalBody>
         <ModalFooter>

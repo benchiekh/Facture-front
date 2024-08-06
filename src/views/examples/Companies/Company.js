@@ -82,7 +82,7 @@ const Company = () => {
       setPeople(response.data.filter(person => person.createdBy === currentUserId));
     } catch (error) {
       console.error("Error fetching people:", error);
-    } 
+    }
   };
 
   useEffect(() => {
@@ -201,7 +201,7 @@ const Company = () => {
     setSelectedCompany(company);
     toggleDisplayModal();
   };
- 
+
   return (
     <>
       <ToastContainer />
@@ -281,24 +281,29 @@ const Company = () => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="7" className="text-center text-danger">No matching records found</td>
+                      <td colSpan="6">
+                        <div style={{ textAlign: 'center' }}>
+                          <i className="fa-solid fa-ban" style={{ display: 'block', marginBottom: '10px', fontSize: '50px', opacity: '0.5' }}></i>
+                          <span className="text-danger">No matching records found</span>
+                        </div>
+                      </td>
                     </tr>
                   )}
                 </tbody>
               </Table>
-       
-                <ConfirmDeleteModal
-                  isOpen={deleteModalOpen}
-                  toggle={toggleDeleteModal}
-                  onConfirm={confirmDeleteCompany}
-                />
-                <EditCompanyModal
-                  isOpen={editModalOpen}
-                  toggle={toggleEditModal}
-                  company={companyToEdit}
-                  refreshCompany={refreshCompany}
-                  userId={currentUserId}
-                />
+
+              <ConfirmDeleteModal
+                isOpen={deleteModalOpen}
+                toggle={toggleDeleteModal}
+                onConfirm={confirmDeleteCompany}
+              />
+              <EditCompanyModal
+                isOpen={editModalOpen}
+                toggle={toggleEditModal}
+                company={companyToEdit}
+                refreshCompany={refreshCompany}
+                userId={currentUserId}
+              />
 
               {selectedCompany && (
                 <DisplayCompany

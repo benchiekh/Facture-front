@@ -203,76 +203,81 @@ const Persons = () => {
                   <Button color="primary" style={{ width: buttonWidth }} onClick={toggleModal}>Add new person</Button>
                 </div>
               </CardHeader>
-              <div className="table-wrapper"> 
-              <Table className="align-items-center table-flush" responsive>
-                <thead className="thead-light">
-                  <tr>
-                    <th scope="col">First name</th>
-                    <th scope="col">Last name</th>
-                    <th scope="col">Company</th>
-                    <th scope="col">Country</th>
-                    <th scope="col">Tel</th>
-                    <th scope="col">Email</th>
-                    <th scope="col"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {currentPeople.length > 0 ? (
-                    currentPeople.map((person) => (
-                      <tr key={person._id}>
-                        <td>{person.prenom}</td>
-                        <td>{person.nom}</td>
-                        <td>
-                          {getCompanyNameById(person.entreprise) === 'Company Not Found' ? (
-                            <span className="ni ni-fat-delete" style={{ fontSize: '20px', color: 'black' }}></span>
-                          ) : (
-                            getCompanyNameById(person.entreprise)
-                          )}
-                        </td>
-                        <td>{person.pays}</td>
-                        <td>{person.telephone}</td>
-                        <td>{person.email}</td>
-                        <td>
-                          <Dropdown isOpen={dropdownOpen === person._id} toggle={() => toggleDropdown(person._id)} >
-                            <DropdownToggle tag="span" data-toggle="dropdown" style={{ cursor: 'pointer' }}>
-                              <FontAwesomeIcon icon={faEllipsisH} style={{ fontSize: '1rem' }} />
-                            </DropdownToggle>
-                            <DropdownMenu right style={{marginTop:"-25px"}}>
-                              <DropdownItem onClick={() => handleDisplayClick(person)}>
-                                <span className="d-flex align-items-center">
-                                  <i className="fa-solid fa-eye" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
-                                  Display
-                                </span>
-                              </DropdownItem>
-                              <DropdownItem onClick={() => handleEditClick(person)}>
-                                <span className="d-flex align-items-center">
-                                  <i className="fa-solid fa-gear" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
-                                  Edit
-                                </span>
-                              </DropdownItem>
-                              <DropdownItem divider />
-                              <DropdownItem onClick={() => handleDeleteClick(person._id)}>
-                                <span className="d-flex align-items-center">
-                                  <i className="fa-solid fa-trash text-danger" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
-                                  Delete
-                                </span>
-                              </DropdownItem>
-                            </DropdownMenu>
-                          </Dropdown>
+              <div className="table-wrapper">
+                <Table className="align-items-center table-flush" responsive>
+                  <thead className="thead-light">
+                    <tr>
+                      <th scope="col">First name</th>
+                      <th scope="col">Last name</th>
+                      <th scope="col">Company</th>
+                      <th scope="col">Country</th>
+                      <th scope="col">Tel</th>
+                      <th scope="col">Email</th>
+                      <th scope="col"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentPeople.length > 0 ? (
+                      currentPeople.map((person) => (
+                        <tr key={person._id}>
+                          <td>{person.prenom}</td>
+                          <td>{person.nom}</td>
+                          <td >
+                            {getCompanyNameById(person.entreprise) === 'Company Not Found' ? (
+                              <span className="fa-solid fa-ban" style={{ fontSize: '20px', color: 'black' }}></span>
+                            ) : (
+                              getCompanyNameById(person.entreprise)
+                            )}
+                          </td>
+                          <td>{person.pays}</td>
+                          <td>{person.telephone}</td>
+                          <td>{person.email}</td>
+                          <td>
+                            <Dropdown isOpen={dropdownOpen === person._id} toggle={() => toggleDropdown(person._id)} >
+                              <DropdownToggle tag="span" data-toggle="dropdown" style={{ cursor: 'pointer' }}>
+                                <FontAwesomeIcon icon={faEllipsisH} style={{ fontSize: '1rem' }} />
+                              </DropdownToggle>
+                              <DropdownMenu right style={{ marginTop: "-25px" }}>
+                                <DropdownItem onClick={() => handleDisplayClick(person)}>
+                                  <span className="d-flex align-items-center">
+                                    <i className="fa-solid fa-eye" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
+                                    Display
+                                  </span>
+                                </DropdownItem>
+                                <DropdownItem onClick={() => handleEditClick(person)}>
+                                  <span className="d-flex align-items-center">
+                                    <i className="fa-solid fa-gear" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
+                                    Edit
+                                  </span>
+                                </DropdownItem>
+                                <DropdownItem divider />
+                                <DropdownItem onClick={() => handleDeleteClick(person._id)}>
+                                  <span className="d-flex align-items-center">
+                                    <i className="fa-solid fa-trash text-danger" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
+                                    Delete
+                                  </span>
+                                </DropdownItem>
+                              </DropdownMenu>
+                            </Dropdown>
 
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="6">
+                          <div style={{ textAlign: 'center' }}>
+                            <i className="fa-solid fa-ban" style={{ display: 'block', marginBottom: '10px', fontSize: '50px', opacity: '0.5' }}></i>
+                            <span className="text-danger">No matching records found</span>
+                          </div>
                         </td>
                       </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="7" className="text-center text-danger">No matching records found</td>
-                    </tr>
-                  )}
-                </tbody>
-              </Table>
+                    )}
+                  </tbody>
+                </Table>
               </div>
 
-             
+
               <CardFooter className="py-4">
                 <nav aria-label="Page navigation example">
                   <Pagination

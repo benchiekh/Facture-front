@@ -8,7 +8,7 @@ import {
   Table
 } from 'reactstrap';
 
-const DisplayProductModal = ({ isOpen, toggle, product, categories }) => {
+const DisplayExpenseModal = ({ isOpen, toggle, expense, categories }) => {
 
   const getCategoryNameById = (id) => {
     const category = categories.find(category => category._id === id);
@@ -31,33 +31,33 @@ const DisplayProductModal = ({ isOpen, toggle, product, categories }) => {
     >
 
 
-      <ModalHeader toggle={toggle}>Product Details</ModalHeader>
+      <ModalHeader toggle={toggle}>Expense Details</ModalHeader>
       <ModalBody>
         <Table responsive>
           <tbody>
             <tr>
               <th><span style={thStyle}>Name</span></th>
-              <td>{product.name}</td>
+              <td>{expense.name}</td>
             </tr>
             <tr>
               <th><span style={thStyle}>Category</span></th>
-              <td>{getCategoryNameById(product.productCategory._id)}</td>
+              <td>{getCategoryNameById(expense.depenseCategory._id)}</td>
             </tr>
             <tr>
               <th><span style={thStyle}>Currency</span></th>
-              <td>{product.currency}</td>
+              <td>{expense.currency}</td>
             </tr>
             <tr>
               <th><span style={thStyle}>Price</span></th>
-              <td>{product.price}</td>
+              <td>{expense.price}</td>
             </tr>
             <tr>
               <th><span style={thStyle}>Description</span></th>
-              <td>{product.description}</td>
+              <td>{expense.description}</td>
             </tr>
             <tr>
               <th><span style={thStyle}>Reference</span></th>
-              <td>{product.reference}</td>
+              <td>{expense.reference}</td>
             </tr>
           </tbody>
         </Table>
@@ -72,4 +72,4 @@ const DisplayProductModal = ({ isOpen, toggle, product, categories }) => {
   );
 };
 
-export default DisplayProductModal;
+export default DisplayExpenseModal;
