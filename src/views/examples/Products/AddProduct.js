@@ -64,125 +64,128 @@ const AddProduct = ({ isOpen, toggle, refreshProducts, userId }) => {
 
   return (
     <Modal isOpen={isOpen} toggle={toggle} className="modal-right">
-  
-          <ModalHeader toggle={toggle}>Add New Product</ModalHeader>
-          <ModalBody>
-            <Form>
-              <FormGroup>
-                <Label for="productName">Name</Label>
-                <InputGroup>
-                  <InputGroupAddon addonType="prepend">
-                    <InputGroupText>
-                      <FontAwesomeIcon icon={faTag} />
-                    </InputGroupText>
-                  </InputGroupAddon>
-                  <Input
-                    type="text"
-                    id="productName"
-                    value={name}
-                    placeholder="Enter product name"
-                    onChange={(e) => setName(e.target.value)}
-                  />
-                </InputGroup>
-              </FormGroup>
-              <FormGroup>
-                <Label for="productCategory">Category</Label>
-                <InputGroup>
-                  <InputGroupAddon addonType="prepend">
-                    <InputGroupText>
-                      <FontAwesomeIcon icon={faList} />
-                    </InputGroupText>
-                  </InputGroupAddon>
-                  <Input
-                    type="select"
-                    id="productCategory"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                  >
-                    <option value="" disabled>Select a category</option>
-                    {categories.map((category) => (
-                      <option key={category._id} value={category._id}>
-                        {category.name}
-                      </option>
-                    ))}
-                  </Input>
-                </InputGroup>
-              </FormGroup>
-              <FormGroup>
-                <Label for="productCurrency">Currency</Label>
-                <InputGroup>
-                  <InputGroupAddon addonType="prepend">
-                    <InputGroupText>
-                      <FontAwesomeIcon icon={faDollarSign} />
-                    </InputGroupText>
-                  </InputGroupAddon>
-                  <Input
-                    type="text"
-                    id="productCurrency"
-                    value={currency}
-                    placeholder="Enter currency (e.g., USD)"
-                    onChange={(e) => setCurrency(e.target.value)}
-                  />
-                </InputGroup>
-              </FormGroup>
-              <FormGroup>
-                <Label for="productPrice">Price</Label>
-                <InputGroup>
-                  <InputGroupAddon addonType="prepend">
-                    <InputGroupText>
-                      <FontAwesomeIcon icon={faMoneyBill} />
-                    </InputGroupText>
-                  </InputGroupAddon>
-                  <Input
-                    type="number"
-                    id="productPrice"
-                    value={price}
-                    placeholder="Enter price"
-                    onChange={(e) => setPrice(e.target.value)}
-                  />
-                </InputGroup>
-              </FormGroup>
-              <FormGroup>
-                <Label for="productDescription">Description</Label>
-                <InputGroup>
-                  <InputGroupAddon addonType="prepend">
-                    <InputGroupText>
-                      <FontAwesomeIcon icon={faFileAlt} />
-                    </InputGroupText>
-                  </InputGroupAddon>
-                  <Input
-                    type="textarea"
-                    id="productDescription"
-                    value={description}
-                    placeholder="Enter product description"
-                    onChange={(e) => setDescription(e.target.value)}
-                  />
-                </InputGroup>
-              </FormGroup>
-              <FormGroup>
-                <Label for="productReference">Reference</Label>
-                <InputGroup>
-                  <InputGroupAddon addonType="prepend">
-                    <InputGroupText>
-                      <FontAwesomeIcon icon={faBarcode} />
-                    </InputGroupText>
-                  </InputGroupAddon>
-                  <Input
-                    type="text"
-                    id="productReference"
-                    value={reference}
-                    placeholder="Enter product reference"
-                    onChange={(e) => setReference(e.target.value)}
-                  />
-                </InputGroup>
-              </FormGroup>
-            </Form>
-          </ModalBody>
-          <ModalFooter>
-            <Button color="primary" onClick={handleAddProduct}>Add Product</Button>{' '}
-            <Button color="secondary" onClick={toggle}>Cancel</Button>
-          </ModalFooter>
-        
+
+      <ModalHeader toggle={toggle}>Add New Product</ModalHeader>
+      <ModalBody>
+        <Form>
+          <FormGroup>
+            <Label for="productName">Name</Label>
+            <InputGroup>
+              <InputGroupAddon addonType="prepend">
+                <InputGroupText>
+                  <FontAwesomeIcon icon={faTag} />
+                </InputGroupText>
+              </InputGroupAddon>
+              <Input
+                type="text"
+                id="productName"
+                value={name}
+                placeholder="Enter product name"
+                onChange={(e) => setName(e.target.value)}
+              />
+            </InputGroup>
+          </FormGroup>
+          <FormGroup>
+            <Label for="productCategory">Category</Label>
+            <InputGroup>
+              <InputGroupAddon addonType="prepend">
+                <InputGroupText>
+                  <FontAwesomeIcon icon={faList} />
+                </InputGroupText>
+              </InputGroupAddon>
+              <Input
+                type="select"
+                id="productCategory"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+              >
+                <option value="" disabled>Select a category</option>
+                {categories
+                  .filter((category) => category.enabled) 
+                  .map((category) => (
+                    <option key={category._id} value={category._id}>
+                      {category.name}
+                    </option>
+                  ))}
+              </Input>
+
+            </InputGroup>
+          </FormGroup>
+          <FormGroup>
+            <Label for="productCurrency">Currency</Label>
+            <InputGroup>
+              <InputGroupAddon addonType="prepend">
+                <InputGroupText>
+                  <FontAwesomeIcon icon={faDollarSign} />
+                </InputGroupText>
+              </InputGroupAddon>
+              <Input
+                type="text"
+                id="productCurrency"
+                value={currency}
+                placeholder="Enter currency (e.g., USD)"
+                onChange={(e) => setCurrency(e.target.value)}
+              />
+            </InputGroup>
+          </FormGroup>
+          <FormGroup>
+            <Label for="productPrice">Price</Label>
+            <InputGroup>
+              <InputGroupAddon addonType="prepend">
+                <InputGroupText>
+                  <FontAwesomeIcon icon={faMoneyBill} />
+                </InputGroupText>
+              </InputGroupAddon>
+              <Input
+                type="number"
+                id="productPrice"
+                value={price}
+                placeholder="Enter price"
+                onChange={(e) => setPrice(e.target.value)}
+              />
+            </InputGroup>
+          </FormGroup>
+          <FormGroup>
+            <Label for="productDescription">Description</Label>
+            <InputGroup>
+              <InputGroupAddon addonType="prepend">
+                <InputGroupText>
+                  <FontAwesomeIcon icon={faFileAlt} />
+                </InputGroupText>
+              </InputGroupAddon>
+              <Input
+                type="textarea"
+                id="productDescription"
+                value={description}
+                placeholder="Enter product description"
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </InputGroup>
+          </FormGroup>
+          <FormGroup>
+            <Label for="productReference">Reference</Label>
+            <InputGroup>
+              <InputGroupAddon addonType="prepend">
+                <InputGroupText>
+                  <FontAwesomeIcon icon={faBarcode} />
+                </InputGroupText>
+              </InputGroupAddon>
+              <Input
+                type="text"
+                id="productReference"
+                value={reference}
+                placeholder="Enter product reference"
+                onChange={(e) => setReference(e.target.value)}
+              />
+            </InputGroup>
+          </FormGroup>
+        </Form>
+      </ModalBody>
+      <ModalFooter>
+        <Button color="primary" onClick={handleAddProduct}>Add Product</Button>{' '}
+        <Button color="secondary" onClick={toggle}>Cancel</Button>
+      </ModalFooter>
+
     </Modal>
   );
 };

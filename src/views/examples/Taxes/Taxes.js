@@ -23,12 +23,14 @@ import 'react-toastify/dist/ReactToastify.css';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsisH } from "@fortawesome/free-solid-svg-icons";
 import Switch from 'react-switch';
-import AddCurrency from "./AddCurrency";
-import ConfirmDeleteModal from "./ConfirmDeleteModal";
-import DisplayCurrencyModal from "./DisplayCurrencyModal";
-import EditCurrencyModal from "./EditCurrencyModal";
 
-// Helper function to decode token
+import AddTaxModal from "./AddTaxModal ";
+import DisplayTaxModal from "./DisplayTaxModal ";
+import EditTaxModal from "./EditTaxModal ";
+
+import ConfirmDeleteModal from "./ConfirmDeleteModal ";
+
+
 const decodeToken = (token) => {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -36,61 +38,50 @@ const decodeToken = (token) => {
     return payload;
 };
 
-const Currencies = () => {
-    const [currencies, setCurrencies] = useState([]);
+const Taxes = () => {
+    const [taxes, setTaxes] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [currenciesPerPage] = useState(5);
+    const [taxesPerPage] = useState(5);
     const [searchQuery, setSearchQuery] = useState("");
     const [buttonWidth, setButtonWidth] = useState('auto');
     const [modalOpen, setModalOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-    const [currencyToDelete, setCurrencyToDelete] = useState(null);
+    const [taxToDelete, setTaxToDelete] = useState(null);
     const [editModalOpen, setEditModalOpen] = useState(false);
-    const [currencyToEdit, setCurrencyToEdit] = useState(null);
+    const [taxToEdit, setTaxToEdit] = useState(null);
     const [dropdownOpen, setDropdownOpen] = useState(null);
-    const [selectedCurrency, setSelectedCurrency] = useState(null);
+    const [selectedTax, setSelectedTax] = useState(null);
     const [displayModalOpen, setDisplayModalOpen] = useState(false);
 
     const token = localStorage.getItem('token');
     const decodedToken = token ? decodeToken(token) : {};
     const currentUserId = decodedToken.AdminID;
 
-    const fetchCurrencies = async () => {
+    const fetchTaxes = async () => {
         try {
-            const response = await axios.get("http://localhost:5000/api/currency", {
-                params: { createdBy: currentUserId },
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            setCurrencies(response.data);
+            const response = await axios.get("http://localhost:5000/api/taxes", { params: { createdBy: currentUserId } });
+            setTaxes(response.data);
         } catch (error) {
-            console.error("Error fetching currencies:", error);
+            console.error("Error fetching taxes:", error);
         }
     };
 
     useEffect(() => {
-        fetchCurrencies();
-    }, [currentUserId, token]);
+        fetchTaxes();
+    }, []);
 
-    const refreshCurrencies = () => {
-        fetchCurrencies();
+    const refreshTaxes = () => {
+        fetchTaxes();
     };
 
     const handleSearchChange = (e) => {
         setSearchQuery(e.target.value);
     };
 
-    const filteredCurrencies = currencies.filter((currency) => {
-        return currency.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            currency.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            currency.symbol.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            currency.symbolPosition.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            currency.decimalSeparator.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            currency.thousandSeparator.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            currency.zeroFormat.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            currency.precision.toString().toLowerCase().includes(searchQuery.toLowerCase());
-    });
+    const filteredTaxes = taxes.filter((tax) =>
+        tax.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        tax.value.toString().toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     useEffect(() => {
         const handleResize = () => {
@@ -109,9 +100,9 @@ const Currencies = () => {
         };
     }, []);
 
-    const indexOfLastCurrency = currentPage * currenciesPerPage;
-    const indexOfFirstCurrency = indexOfLastCurrency - currenciesPerPage;
-    const currentCurrencies = filteredCurrencies.slice(indexOfFirstCurrency, indexOfLastCurrency);
+    const indexOfLastTax = currentPage * taxesPerPage;
+    const indexOfFirstTax = indexOfLastTax - taxesPerPage;
+    const currentTaxes = filteredTaxes.slice(indexOfFirstTax, indexOfLastTax);
 
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -128,20 +119,45 @@ const Currencies = () => {
     };
 
     const handleDeleteClick = (id) => {
-        setCurrencyToDelete(id);
+        setTaxToDelete(id);
         toggleDeleteModal();
     };
 
-    const confirmDeleteCurrency = async () => {
-        try {
-            await axios.delete(`http://localhost:5000/api/currency/${currencyToDelete}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+    const confirmDeleteTax = async () => {
+        if (taxes.length === 1) {
+            toast.error('You cannot delete the only tax', {
+                autoClose: 2000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
             });
-            refreshCurrencies();
             toggleDeleteModal();
-            toast.success('Currency deleted successfully', {
+            return;
+        }
+
+        // Find the tax to be deleted
+        const taxToBeDeleted = taxes.find((tax) => tax._id === taxToDelete);
+
+        if (taxToBeDeleted && taxToBeDeleted.isDefault) {
+            toast.error('Default tax cannot be deleted', {
+                autoClose: 2000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
+            toggleDeleteModal();
+            return;
+        }
+
+        try {
+            await axios.delete(`http://localhost:5000/api/taxes/${taxToDelete}`);
+            refreshTaxes();
+            toggleDeleteModal();
+            toast.success('Tax deleted successfully', {
                 autoClose: 2000,
                 hideProgressBar: false,
                 closeOnClick: true,
@@ -150,17 +166,18 @@ const Currencies = () => {
                 progress: undefined,
             });
         } catch (error) {
-            console.error("Error deleting currency:", error);
+            console.error("Error deleting tax:", error);
         }
     };
+
 
     const toggleEditModal = () => {
         setEditModalOpen(!editModalOpen);
     };
 
-    const handleEditClick = (currency) => {
-        setSelectedCurrency(currency);
-        setCurrencyToEdit(currency);
+    const handleEditClick = (tax) => {
+        setSelectedTax(tax);
+        setTaxToEdit(tax);
         toggleEditModal();
     };
 
@@ -168,8 +185,8 @@ const Currencies = () => {
         setDisplayModalOpen(!displayModalOpen);
     };
 
-    const handleDisplayClick = (currency) => {
-        setSelectedCurrency(currency);
+    const handleDisplayClick = (tax) => {
+        setSelectedTax(tax);
         toggleDisplayModal();
     };
 
@@ -182,7 +199,7 @@ const Currencies = () => {
                     <div className="col">
                         <Card className="shadow">
                             <CardHeader className="border-0 d-flex justify-content-between align-items-center">
-                                <h3 className="mb-0">Currencies List</h3>
+                                <h3 className="mb-0">Taxes list</h3>
                                 <div className="d-flex">
                                     <Input
                                         type="text"
@@ -191,7 +208,7 @@ const Currencies = () => {
                                         onChange={handleSearchChange}
                                         className="mr-3"
                                     />
-                                    <Button color="primary" style={{ width: buttonWidth }} onClick={toggleModal}>Add New Currency</Button>
+                                    <Button color="primary" style={{ width: buttonWidth }} onClick={toggleModal}>Add new tax</Button>
                                 </div>
                             </CardHeader>
                             <div className="table-wrapper">
@@ -199,66 +216,67 @@ const Currencies = () => {
                                     <thead className="thead-light">
                                         <tr>
                                             <th scope="col">Name</th>
-                                            <th scope="col">Code</th>
-                                            <th scope="col">Symbol</th>
-                                            <th scope="col">Symbol Position</th>
-                                            <th scope="col">Decimal Separator</th>
-                                            <th scope="col">Thousand Separator</th>
-                                            <th scope="col">Precision</th>
-                                            <th scope="col">Zero Format</th>
+                                            <th scope="col">Value</th>
                                             <th scope="col">Active</th>
-
+                                            <th scope="col">Default</th>
                                             <th scope="col"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {currentCurrencies.length > 0 ? (
-                                            currentCurrencies.map((currency) => (
-                                                <tr key={currency._id}>
-                                                    <td>{currency.name}</td>
-                                                    <td>{currency.code}</td>
-                                                    <td>{currency.symbol}</td>
-                                                    <td>{currency.symbolPosition}</td>
-                                                    <td>{currency.decimalSeparator}</td>
-                                                    <td>{currency.thousandSeparator}</td>
-                                                    <td>{currency.precision}</td>
-                                                    <td>{currency.zeroFormat}</td>
+                                        {currentTaxes.length > 0 ? (
+                                            currentTaxes.map((tax) => (
+                                                <tr key={tax._id}>
+                                                    <td>{tax.name}</td>
+                                                    <td>{tax.value}%</td>
+                                                    <td><Switch
+                                                        checked={tax.isActive}
+                                                        onChange={() => { }}
+                                                        onColor="#86d3ff"
+                                                        offColor="#888"
+                                                        onHandleColor="#002395"
+                                                        offHandleColor="#d4d4d4"
+                                                        handleDiameter={15}
+                                                        uncheckedIcon={false}
+                                                        checkedIcon={false}
+                                                        height={10}
+                                                        width={30}
+                                                        className="react-switch"
+                                                    /></td>
+                                                    <td><Switch
+                                                        checked={tax.isDefault}
+                                                        onChange={() => { }}
+                                                        onColor="#86d3ff"
+                                                        offColor="#888"
+                                                        onHandleColor="#002395"
+                                                        offHandleColor="#d4d4d4"
+                                                        handleDiameter={15}
+                                                        uncheckedIcon={false}
+                                                        checkedIcon={false}
+                                                        height={10}
+                                                        width={30}
+                                                        className="react-switch"
+                                                    /></td>
+
                                                     <td>
-                                                        <Switch
-                                                            checked={currency.active}
-                                                            onChange={() => { }}
-                                                            onColor="#86d3ff"
-                                                            offColor="#888"
-                                                            onHandleColor="#002395"
-                                                            offHandleColor="#d4d4d4"
-                                                            handleDiameter={15}
-                                                            uncheckedIcon={false}
-                                                            checkedIcon={false}
-                                                            height={10}
-                                                            width={30}
-                                                            className="react-switch"
-                                                        />
-                                                    </td>
-                                                    <td>
-                                                        <Dropdown isOpen={dropdownOpen === currency._id} toggle={() => toggleDropdown(currency._id)}>
+                                                        <Dropdown isOpen={dropdownOpen === tax._id} toggle={() => toggleDropdown(tax._id)}>
                                                             <DropdownToggle tag="span" data-toggle="dropdown" style={{ cursor: 'pointer' }}>
                                                                 <FontAwesomeIcon icon={faEllipsisH} style={{ fontSize: '1rem' }} />
                                                             </DropdownToggle>
                                                             <DropdownMenu right style={{ marginTop: "-25px" }}>
-                                                                <DropdownItem onClick={() => handleDisplayClick(currency)}>
+                                                                <DropdownItem onClick={() => handleDisplayClick(tax)}>
                                                                     <span className="d-flex align-items-center">
                                                                         <i className="fa-solid fa-eye" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
                                                                         Display
                                                                     </span>
                                                                 </DropdownItem>
-                                                                <DropdownItem onClick={() => handleEditClick(currency)}>
+                                                                <DropdownItem onClick={() => handleEditClick(tax)}>
                                                                     <span className="d-flex align-items-center">
                                                                         <i className="fa-solid fa-gear" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
                                                                         Edit
                                                                     </span>
                                                                 </DropdownItem>
                                                                 <DropdownItem divider />
-                                                                <DropdownItem onClick={() => handleDeleteClick(currency._id)}>
+                                                                <DropdownItem onClick={() => handleDeleteClick(tax._id)}>
                                                                     <span className="d-flex align-items-center">
                                                                         <i className="fa-solid fa-trash text-danger" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
                                                                         <span className="text-danger">Delete</span>
@@ -271,7 +289,7 @@ const Currencies = () => {
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan="9">
+                                                <td colSpan="4">
                                                     <div style={{ textAlign: 'center' }}>
                                                         <i className="fa-solid fa-ban" style={{ display: 'block', marginBottom: '10px', fontSize: '50px', opacity: '0.5' }}></i>
                                                         <span className="text-danger">No matching records found</span>
@@ -284,8 +302,11 @@ const Currencies = () => {
                             </div>
                             <CardFooter className="py-4">
                                 <nav aria-label="...">
-                                    <Pagination className="pagination justify-content-end mb-0" listClassName="justify-content-end mb-0">
-                                        {Array.from({ length: Math.ceil(filteredCurrencies.length / currenciesPerPage) }).map((_, index) => (
+                                    <Pagination
+                                        className="pagination justify-content-end mb-0"
+                                        listClassName="justify-content-end mb-0"
+                                    >
+                                        {Array.from({ length: Math.ceil(filteredTaxes.length / taxesPerPage) }).map((_, index) => (
                                             <PaginationItem key={index} active={index + 1 === currentPage}>
                                                 <PaginationLink onClick={() => paginate(index + 1)}>{index + 1}</PaginationLink>
                                             </PaginationItem>
@@ -297,34 +318,40 @@ const Currencies = () => {
                     </div>
                 </Row>
             </Container>
+
+            <AddTaxModal
+                isOpen={modalOpen}
+                toggle={toggleModal}
+                refreshTaxes={refreshTaxes}
+                userId={currentUserId}
+            />
+
+
+
+            {displayModalOpen && (
+                <DisplayTaxModal
+                    isOpen={displayModalOpen}
+                    toggle={toggleDisplayModal}
+                    tax={selectedTax}
+                />
+            )}
+
+            {editModalOpen &&
+                <EditTaxModal
+                    isOpen={editModalOpen}
+                    toggle={toggleEditModal}
+                    tax={taxToEdit}
+                    refreshTaxes={refreshTaxes}
+                />
+            }
+
             <ConfirmDeleteModal
                 isOpen={deleteModalOpen}
                 toggle={toggleDeleteModal}
-                onConfirm={confirmDeleteCurrency}
+                onConfirm={confirmDeleteTax}
             />
-            {displayModalOpen && (
-                <DisplayCurrencyModal
-                    isOpen={displayModalOpen}
-                    toggle={toggleDisplayModal}
-                    currency={selectedCurrency}
-                />
-            )}
-            <AddCurrency
-                isOpen={modalOpen}
-                toggle={toggleModal}
-                refreshCurrencies={refreshCurrencies}
-                userId={currentUserId}
-            />
-            {editModalOpen && (
-                <EditCurrencyModal
-                    isOpen={editModalOpen}
-                    toggle={toggleEditModal}
-                    currency={currencyToEdit}
-                    refreshCurrencies={refreshCurrencies}
-                />
-            )}
         </>
     );
 };
 
-export default Currencies;
+export default Taxes;

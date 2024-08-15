@@ -4,6 +4,8 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDollarSign, faTag, faFont, faExchangeAlt, faHashtag } from '@fortawesome/free-solid-svg-icons';
+import Switch from 'react-switch';
+
 
 const AddCurrency = ({ isOpen, toggle, refreshCurrencies, userId }) => {
   const [name, setName] = useState('');
@@ -178,18 +180,23 @@ const AddCurrency = ({ isOpen, toggle, refreshCurrencies, userId }) => {
               <option value="show">Show</option>
             </Input>
           </FormGroup>
-          <FormGroup check>
-            <Label check>
-              <Input
-                type="checkbox"
-                id="currencyActive"
-                checked={active}
-                onChange={(e) => setActive(e.target.checked)}
-              />
-              {' '}
-              Active
-            </Label>
-          </FormGroup>
+          <FormGroup>
+                    <Label for="isActive">Active</Label>
+                    <Switch
+                        checked={active}
+                        onChange={() => setActive(!active)}
+                        onColor="#86d3ff"
+                        offColor="#888"
+                        onHandleColor="#002395"
+                        offHandleColor="#d4d4d4"
+                        handleDiameter={15}
+                        uncheckedIcon={false}
+                        checkedIcon={false}
+                        height={10}
+                        width={30}
+                        className="react-switch"
+                    />
+                </FormGroup>
         </Form>
       </ModalBody>
       <ModalFooter>

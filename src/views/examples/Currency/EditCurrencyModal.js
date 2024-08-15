@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, FormGroup, Label, Input } from 'reactstrap';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import Switch from 'react-switch'; // Import Switch component
 
 const EditCurrencyModal = ({ isOpen, toggle, currency, refreshCurrencies }) => {
   const [formData, setFormData] = useState({
@@ -37,6 +38,13 @@ const EditCurrencyModal = ({ isOpen, toggle, currency, refreshCurrencies }) => {
     setFormData({
       ...formData,
       [name]: type === 'checkbox' ? checked : value
+    });
+  };
+
+  const handleSwitchChange = (checked) => {
+    setFormData({
+      ...formData,
+      active: checked
     });
   };
 
@@ -161,18 +169,22 @@ const EditCurrencyModal = ({ isOpen, toggle, currency, refreshCurrencies }) => {
             <option value="show">Show</option>
           </Input>
         </FormGroup>
-        <FormGroup check>
-          <Label check>
-            <Input
-              type="checkbox"
-              name="active"
-              id="active"
-              checked={formData.active}
-              onChange={handleChange}
-            />
-            {' '}
-            Active
-          </Label>
+        <FormGroup>
+          <Label for="active">Active</Label>
+          <Switch
+            checked={formData.active}
+            onChange={handleSwitchChange}
+            onColor="#86d3ff"
+            offColor="#888"
+            onHandleColor="#002395"
+            offHandleColor="#d4d4d4"
+            handleDiameter={15}
+            uncheckedIcon={false}
+            checkedIcon={false}
+            height={10}
+            width={30}
+            className="react-switch"
+          />
         </FormGroup>
       </ModalBody>
       <ModalFooter>

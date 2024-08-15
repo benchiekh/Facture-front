@@ -47,12 +47,12 @@ const AddExpense = ({ isOpen, toggle, refreshExpenses, userId }) => {
         depenseCategory: category,
         createdBy: userId,
         currency,
-        price, 
+        price,
         description,
         reference
       };
 
-      console.log('Adding expense:', newExpense); 
+      console.log('Adding expense:', newExpense);
 
       const response = await axios.post('http://localhost:5000/api/depense', newExpense, {
         headers: {
@@ -112,16 +112,18 @@ const AddExpense = ({ isOpen, toggle, refreshExpenses, userId }) => {
               </InputGroupAddon>
               <Input
                 type="select"
-                id="expenseCategory"
+                id="productCategory"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
               >
                 <option value="" disabled>Select a category</option>
-                {categories.map((category) => (
-                  <option key={category._id} value={category._id}>
-                    {category.name}
-                  </option>
-                ))}
+                {categories
+                  .filter((category) => category.enabled)
+                  .map((category) => (
+                    <option key={category._id} value={category._id}>
+                      {category.name}
+                    </option>
+                  ))}
               </Input>
             </InputGroup>
           </FormGroup>

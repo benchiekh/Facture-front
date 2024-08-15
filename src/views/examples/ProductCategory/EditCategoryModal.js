@@ -17,7 +17,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import Switch from 'react-switch';
 import { colorOptions } from './colorOptions';
 
-// Function to determine if the color is light or dark
 const isColorLight = (color) => {
   const hex = color.replace('#', '');
   const r = parseInt(hex.substring(0, 2), 16);
@@ -30,13 +29,12 @@ const isColorLight = (color) => {
 const EditCategoryModal = ({ isOpen, toggle, category, refreshCategories }) => {
   const [nom, setNom] = useState(category?.name || "");
   const [description, setDescription] = useState(category?.description || "");
-  const [color, setColor] = useState(null); // Initialize with null or a default value
+  const [color, setColor] = useState(null);
   const [enabled, setEnabled] = useState(category?.enabled || true);
 
-  // Update color state when category changes
   useEffect(() => {
     if (category) {
-      const normalizedColor = category.color.charAt(0).toUpperCase() + category.color.slice(1).toLowerCase(); // Normalize color
+      const normalizedColor = category.color.charAt(0).toUpperCase() + category.color.slice(1).toLowerCase(); 
   
       const selectedColor = colorOptions.find(c => c.value === normalizedColor);
   

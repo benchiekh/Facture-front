@@ -13,6 +13,10 @@ import Product from "views/examples/Products/Products";
 import ExpenseCategory from "views/examples/ExpensesCategory/ExpensesCategory";
 import Expenses from "views/examples/Expenses/Expenses";
 import Currency from "views/examples/Currency/Currency";
+import Taxes from "views/examples/Taxes/Taxes";
+import Mycompany from "views/examples/Mycompany/Mycompany";
+
+
 
 
 const decodeToken = (token) => {
@@ -95,8 +99,19 @@ const routes = [
   {
     path: "/currencies",
     name: "Currency",
-    icon: "fa-solid fa-dollar-sign text-red",
     component: <Currency />,
+    layout: "/admin",
+  },
+  {
+    path: "/taxes",
+    name: "Taxes",
+    component: <Taxes />,
+    layout: "/admin",
+  },
+  {
+    path: "/mycompany",
+    name: "My Company",
+    component: <Mycompany />,
     layout: "/admin",
   },
   {
