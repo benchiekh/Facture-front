@@ -18,8 +18,28 @@
 
 // reactstrap components
 import { Card, CardBody, CardTitle, Container, Row, Col } from "reactstrap";
+import React, { useState, useEffect } from "react";
 
+const decodeToken = (token) => {
+  const base64Url = token.split('.')[1];
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  const payload = JSON.parse(atob(base64));
+  return payload;
+};
 const Header = () => {
+  const [user, setUser] = useState([]);
+
+  const token = localStorage.getItem('token');
+  const decodedToken = token ? decodeToken(token) : {};
+  const currentUserId = decodedToken.AdminID;
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decodedToken = decodeToken(token);
+      setUser(decodedToken);
+     
+    }
+  }, []);
   return (
     <>
       <div className="header bg-gradient-info pb-8 pt-5 pt-md-8">
