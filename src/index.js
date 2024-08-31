@@ -12,13 +12,21 @@ import PrivateRoute from "./PrivateRoute ";
 import GoogleAuthSuccess from "views/examples/Auth/GoogleAuthSuccess";
 import ForgotPasswordLayout from "layouts/ForgotPasswordLayout";
 import { ToastContainer } from "react-toastify";
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
+
+const token = localStorage.getItem("token");
 
 root.render(
   <BrowserRouter>
-        <ToastContainer />
-
+    <ToastContainer />
     <Routes>
+      {token ? (
+        <Route path="*" element={<Navigate to="/admin/index" replace />} />
+      ) : (
+        <Route path="*" element={<Navigate to="/auth/login" replace />} />
+      )}
+
       <Route
         path="/admin/*"
         element={
@@ -30,7 +38,6 @@ root.render(
       <Route path="/auth/*" element={<AuthLayout />} />
       <Route path="/auth/login/success" element={<GoogleAuthSuccess />} />
       <Route path="/password-reset/*" element={<ForgotPasswordLayout />} />
-      <Route path="*" element={<Navigate to="/auth/login" replace />} />
     </Routes>
   </BrowserRouter>
 );

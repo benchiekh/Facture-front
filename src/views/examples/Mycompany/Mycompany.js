@@ -38,7 +38,7 @@ const CustomOption = (props) => {
     return (
         <div ref={innerRef} {...innerProps} className="custom-option">
             <Flag code={data.value} style={{ width: 24, height: 16, marginRight: 10 }} />
-            {data.label}
+            {data.label} {/* Display full country name */}
         </div>
     );
 };
@@ -49,7 +49,8 @@ const CustomSingleValue = (props) => {
     return (
         <div className="custom-single-value">
             <Flag code={data.value} style={{ width: 24, height: 16, marginRight: 10 }} />
-            {data.label}
+            {data.label} {/* Display full country name */}
+            
         </div>
     );
 };
@@ -74,7 +75,10 @@ const CompanyComponent = () => {
     const decodedToken = token ? decodeToken(token) : {};
     const currentUserId = decodedToken.AdminID;
 
-    const options = countryList().getData();
+    const options = countryList().getData().map(country => ({
+        value: country.value, 
+        label: country.label 
+    }));
 
     useEffect(() => {
         fetchCompany();
@@ -208,7 +212,7 @@ const CompanyComponent = () => {
                             <CardHeader className="border-0 d-flex justify-content-between align-items-center">
                                 <h3 className="mb-0">Company Information</h3>
                                 {company?.logo && (
-                                    <div className="logo-container" >
+                                    <div className="logo-container">
                                         <img
                                             src={`http://localhost:5000/${company.logo}`}
                                             alt="Company Logo"
@@ -285,85 +289,121 @@ const CompanyComponent = () => {
                                     color="secondary"
                                     onClick={handleFileInputClick}
                                     style={{
-                                        marginTop: '10px',
+                                        marginLeft: '10px',
                                     }}
                                 >
-                                    Select File
+                                    {selectedLogoName || 'Choose Logo File'}
                                 </Button>
-                                {selectedLogoName && (
-                                    <div style={{
-                                        marginTop: '10px',
-                                        color: 'green',
-                                        fontWeight: 'bold',
-                                    }}>
-                                        Logo selected
-                                    </div>
-                                )}
                             </CardFooter>
                         </Card>
                     </div>
                 </Row>
+                <Modal isOpen={modalOpen} toggle={toggleModal}>
+                    <ModalHeader toggle={toggleModal}>Edit Company Information</ModalHeader>
+                    <ModalBody>
+                        <FormGroup>
+                            <Label for="name">Name</Label>
+                            <Input
+                                type="text"
+                                id="name"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                            />
+                        </FormGroup>
+                        <FormGroup>
+                            <Label for="address">Address</Label>
+                            <Input
+                                type="text"
+                                id="address"
+                                value={address}
+                                onChange={(e) => setAddress(e.target.value)}
+                            />
+                        </FormGroup>
+                        <FormGroup>
+                            <Label for="state">State</Label>
+                            <Input
+                                type="text"
+                                id="state"
+                                value={state}
+                                onChange={(e) => setState(e.target.value)}
+                            />
+                        </FormGroup>
+                        <FormGroup>
+                            <Label for="country">Country</Label>
+                            <Select
+                                id="country"
+                                options={options}
+                                value={country}
+                                onChange={handleCountryChange}
+                                placeholder="Select country"
+                                components={{ Option: CustomOption, SingleValue: CustomSingleValue }}
+                            />
+                        </FormGroup>
+                        <FormGroup>
+                            <Label for="email">Email</Label>
+                            <Input
+                                type="email"
+                                id="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
+                        </FormGroup>
+                        <FormGroup>
+                            <Label for="phone">Phone</Label>
+                            <Input
+                                type="text"
+                                id="phone"
+                                value={phone}
+                                onChange={(e) => setPhone(e.target.value)}
+                            />
+                        </FormGroup>
+                        <FormGroup>
+                            <Label for="website">Website</Label>
+                            <Input
+                                type="text"
+                                id="website"
+                                value={website}
+                                onChange={(e) => setWebsite(e.target.value)}
+                            />
+                        </FormGroup>
+                        <FormGroup>
+                            <Label for="taxNumber">Tax Number</Label>
+                            <Input
+                                type="text"
+                                id="taxNumber"
+                                value={taxNumber}
+                                onChange={(e) => setTaxNumber(e.target.value)}
+                            />
+                        </FormGroup>
+                        <FormGroup>
+                            <Label for="vatNumber">VAT Number</Label>
+                            <Input
+                                type="text"
+                                id="vatNumber"
+                                value={vatNumber}
+                                onChange={(e) => setVatNumber(e.target.value)}
+                            />
+                        </FormGroup>
+                        <FormGroup>
+                            <Label for="registrationNumber">Registration Number</Label>
+                            <Input
+                                type="text"
+                                id="registrationNumber"
+                                value={registrationNumber}
+                                onChange={(e) => setRegistrationNumber(e.target.value)}
+                            />
+                        </FormGroup>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="primary" onClick={handleUpdateCompany}>
+                            Save Changes
+                        </Button>
+                        <Button color="secondary" onClick={toggleModal}>
+                            Cancel
+                        </Button>
+                    </ModalFooter>
+                </Modal>
             </Container>
-            <Modal isOpen={modalOpen} toggle={toggleModal}>
-                <ModalHeader toggle={toggleModal}>Edit Company Information</ModalHeader>
-                <ModalBody>
-                    <FormGroup>
-                        <Label for="name">Name</Label>
-                        <Input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} />
-                    </FormGroup>
-                    <FormGroup>
-                        <Label for="address">Address</Label>
-                        <Input type="text" id="address" value={address} onChange={(e) => setAddress(e.target.value)} />
-                    </FormGroup>
-                    <FormGroup>
-                        <Label for="state">State</Label>
-                        <Input type="text" id="state" value={state} onChange={(e) => setState(e.target.value)} />
-                    </FormGroup>
-                    <FormGroup>
-                        <Label for="country">Country</Label>
-                        <Select
-                            id="country"
-                            options={options}
-                            value={country}
-                            onChange={handleCountryChange}
-                            placeholder="Select country"
-                            components={{ Option: CustomOption, SingleValue: CustomSingleValue }}
-                        />
-                    </FormGroup>
-                    <FormGroup>
-                        <Label for="email">Email</Label>
-                        <Input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                    </FormGroup>
-                    <FormGroup>
-                        <Label for="phone">Phone</Label>
-                        <Input type="text" id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} />
-                    </FormGroup>
-                    <FormGroup>
-                        <Label for="website">Website</Label>
-                        <Input type="text" id="website" value={website} onChange={(e) => setWebsite(e.target.value)} />
-                    </FormGroup>
-                    <FormGroup>
-                        <Label for="taxNumber">Tax Number</Label>
-                        <Input type="text" id="taxNumber" value={taxNumber} onChange={(e) => setTaxNumber(e.target.value)} />
-                    </FormGroup>
-                    <FormGroup>
-                        <Label for="vatNumber">VAT Number</Label>
-                        <Input type="text" id="vatNumber" value={vatNumber} onChange={(e) => setVatNumber(e.target.value)} />
-                    </FormGroup>
-                    <FormGroup>
-                        <Label for="registrationNumber">Registration Number</Label>
-                        <Input type="text" id="registrationNumber" value={registrationNumber} onChange={(e) => setRegistrationNumber(e.target.value)} />
-                    </FormGroup>
-                </ModalBody>
-                <ModalFooter>
-                    <Button color="primary" onClick={handleUpdateCompany}>
-                        Save
-                    </Button>{' '}
-                    <Button color="secondary" onClick={toggleModal}>
-                        Cancel
-                    </Button>
-                </ModalFooter>
-            </Modal>
         </>
     );
 };

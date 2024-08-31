@@ -15,6 +15,8 @@ import Expenses from "views/examples/Expenses/Expenses";
 import Currency from "views/examples/Currency/Currency";
 import Taxes from "views/examples/Taxes/Taxes";
 import Mycompany from "views/examples/Mycompany/Mycompany";
+import Invoices from "views/examples/Invoices/Invoices";
+
 
 
 
@@ -30,8 +32,7 @@ const token = localStorage.getItem('token');
 const decodedToken = token ? decodeToken(token) : {};
 const currentUserId = decodedToken.AdminID;
 
-const isAuthenticated = !!currentUserId; // Determines if the user is authenticated
-
+const isAuthenticated = !!currentUserId; 
 const routes = [
   {
     path: "/index",
@@ -95,6 +96,15 @@ const routes = [
     icon: "fa-solid fa-wallet text-blue",
     component: <Expenses />,
     layout: "/admin",
+  },
+  {
+    path: "/invoices",
+    name: "Invoices",
+    icon: "fa-solid fa-file-invoice text-red",
+    component: <Invoices />,
+    layout: "/admin",
+
+    
   },
   {
     path: "/currencies",

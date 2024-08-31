@@ -50,6 +50,7 @@ const Currencies = () => {
     const [dropdownOpen, setDropdownOpen] = useState(null);
     const [selectedCurrency, setSelectedCurrency] = useState(null);
     const [displayModalOpen, setDisplayModalOpen] = useState(false);
+    
 
     const token = localStorage.getItem('token');
     const decodedToken = token ? decodeToken(token) : {};

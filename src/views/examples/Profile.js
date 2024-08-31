@@ -35,6 +35,7 @@ const getRandomColor = () => {
 
 const Profile = () => {
   const [user, setUser] = useState({});
+  const [company, setCompany] = useState({});
   const [avatarColor, setAvatarColor] = useState(getRandomColor());
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -42,7 +43,9 @@ const Profile = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
-
+  const token = localStorage.getItem('token');
+  const decodedToken = token ? decodeToken(token) : {};
+  const currentUserId = decodedToken.AdminID;
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -61,6 +64,33 @@ const Profile = () => {
     }
   }, []);
 
+  useEffect(() => {
+    fetchCompany();
+  }, [currentUserId]);
+
+  const fetchCompany = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/companysetting/getByCreatedBy/${currentUserId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = response.data;
+      setCompany(data);
+      // setName(data.name);
+      // setAddress(data.address);
+      // setState(data.state);
+      // setCountry(options.find(opt => opt.value === data.country));
+      // setEmail(data.email);
+      // setPhone(data.phone);
+      // setWebsite(data.website);
+      // setTaxNumber(data.taxNumber);
+      // setVatNumber(data.vatNumber);
+      // setRegistrationNumber(data.registrationNumber);
+    } catch (error) {
+      console.error('Error fetching company data:', error);
+    }
+  };
   const togglePasswordForm = () => {
     setShowPasswordForm(!showPasswordForm);
   };
@@ -190,31 +220,6 @@ const Profile = () => {
                 </Col>
               </Row>
               <CardHeader className="text-center border-0 pt-8 pt-md-4 pb-0 pb-md-4">
-                <div className="d-flex justify-content-between">
-                  <Button
-                    className="mr-4"
-                    color="info"
-                    onClick={() => document.getElementById('imageInput').click()}
-                    size="sm"
-                  >
-                    Change profile image
-                  </Button>
-                  <input
-                    type="file"
-                    id="imageInput"
-                    style={{ display: 'none' }}
-                    onChange={handleImageUpload}
-                  />
-                  <Button
-                    className="float-right"
-                    color="default"
-                    href="#pablo"
-                    onClick={(e) => e.preventDefault()}
-                    size="sm"
-                  >
-                    Message
-                  </Button>
-                </div>
                 {selectedImage && (
                   <div className="text-center mt-2">
                     <Button
@@ -230,46 +235,82 @@ const Profile = () => {
               <CardBody className="pt-0 pt-md-4">
                 <Row>
                   <div className="col">
-                    <div className="card-profile-stats d-flex justify-content-center mt-md-5">
-                      <div>
-                        <span className="heading">22</span>
-                        <span className="description">Friends</span>
+
+                    <Button
+                      className="mr-4"
+                      color="info"
+                      onClick={() => document.getElementById('imageInput').click()}
+                      size="sm"
+                    >
+                      Change profile image
+                    </Button>
+                    <input
+                      type="file"
+                      id="imageInput"
+                      style={{ display: 'none' }}
+                      onChange={handleImageUpload}
+                    />
+                    <Button
+                      className="float-right"
+                      color="default"
+                      href="#pablo"
+                      onClick={(e) => e.preventDefault()}
+                      size="sm"
+                    >
+                      Message
+                    </Button>
+                  </div>
+                  <div className="card-profile-stats mt-md-5 text-center">
+                    <h4 style={{ color: '#343a40', fontSize: '1.5rem', fontWeight: '600',textAlign:'cent' }}>Your Company</h4>
+
+                    <div className="mt-4" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <div className="mb-3" style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '600px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <Button color="primary" size="sm" style={{ backgroundColor: '#007bff', borderColor: '#007bff', color: '#ffffff', fontWeight: '500' }}>
+                            Name
+                          </Button>
+                          <h3 style={{ marginLeft: '10px', color: '#495057' }}>{company.name}</h3>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <Button color="primary" size="sm" style={{ backgroundColor: '#007bff', borderColor: '#007bff', color: '#ffffff', fontWeight: '500' }}>
+                            Phone
+                          </Button>
+                          <h3 style={{ marginLeft: '10px', color: '#495057' }}>{company.phone}</h3>
+                        </div>
                       </div>
-                      <div>
-                        <span className="heading">10</span>
-                        <span className="description">Photos</span>
-                      </div>
-                      <div>
-                        <span className="heading">89</span>
-                        <span className="description">Comments</span>
+                      <div className="mb-3" style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: '600px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <Button color="primary" size="sm" style={{ backgroundColor: '#007bff', borderColor: '#007bff', color: '#ffffff', fontWeight: '500' }}>
+                            Email
+                          </Button>
+                          <h3 style={{ marginLeft: '10px', color: '#495057' }}>{company.email}</h3>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <Button color="primary" size="sm" style={{ backgroundColor: '#007bff', borderColor: '#007bff', color: '#ffffff', fontWeight: '500' }}>
+                            Country
+                          </Button>
+                          <h5 style={{ marginLeft: '10px', color: '#495057' }}>{company.country}</h5>
+                        </div>
                       </div>
                     </div>
                   </div>
+
+
+
                 </Row>
                 <div className="text-center">
                   <h3>
                     {user.name || 'User'}
                     <span className="font-weight-light">, {user.surname || 'N/A'}</span>
                   </h3>
-                  <div className="h5 font-weight-300">
-                    <i className="ni location_pin mr-2" />
-                    {user.email || 'City, Country'}
-                  </div>
+
                   <div className="h5 mt-4">
-                    <i className="ni business_briefcase-24 mr-2" />
-                    {user.Position || 'Position'}
+                    <span className="font-weight-light">Role</span><br />
+                    <h3>{user.role || 'N/A'}</h3>
                   </div>
-                  <div>
-                    <i className="ni education_hat mr-2" />
-                    {user.role || 'Education'}
-                  </div>
-                  <hr className="my-4" />
-                  <p>
-                    {user.Bio || 'A few words about you...'}
-                  </p>
-                  <a href="#pablo" onClick={(e) => e.preventDefault()}>
-                    Show more
-                  </a>
+
+
+
                 </div>
               </CardBody>
             </Card>

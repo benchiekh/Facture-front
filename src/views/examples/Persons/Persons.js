@@ -59,6 +59,7 @@ const Persons = () => {
       const response = await axios.get("http://localhost:5000/api/people");
       const filteredPeople = response.data.filter(person => person.createdBy === currentUserId);
       setPeople(filteredPeople);
+      console.log(people)
     } catch (error) {
       console.error("Error fetching people:", error);
     }
