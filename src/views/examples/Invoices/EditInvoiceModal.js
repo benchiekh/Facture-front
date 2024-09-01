@@ -33,6 +33,7 @@ const EditInvoiceModal = ({ isOpen, toggle, invoiceData, refreshInvoices, userId
     const [invoiceTotal, setInvoiceTotal] = useState(0);
     const [clientOptions, setClientOptions] = useState([]);
     const [currencyOptions, setCurrencyOptions] = useState([]);
+    const [statusOptions] = useState(['Draft', 'Sent', 'Paid', 'Cancelled']); // Define your status options
 
     useEffect(() => {
         const fetchTaxes = async () => {
@@ -263,6 +264,24 @@ const EditInvoiceModal = ({ isOpen, toggle, invoiceData, refreshInvoices, userId
                             </Input>
                         </FormGroup>
                     </Col>
+                    <Col md={6}>
+                        <FormGroup>
+                            <Label for="status">Status</Label>
+                            <Input
+                                type="select"
+                                name="status"
+                                id="status"
+                                value={invoice.status}
+                                onChange={handleInputChange}
+                            >
+                                {statusOptions.map((status) => (
+                                    <option key={status} value={status}>
+                                        {status}
+                                    </option>
+                                ))}
+                            </Input>
+                        </FormGroup>
+                    </Col>
                 </Row>
                 <FormGroup>
                     <Label for="note">Note</Label>
@@ -365,5 +384,3 @@ const EditInvoiceModal = ({ isOpen, toggle, invoiceData, refreshInvoices, userId
 };
 
 export default EditInvoiceModal;
-
-

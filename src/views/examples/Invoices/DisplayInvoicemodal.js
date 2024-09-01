@@ -3,7 +3,7 @@ import { Modal, ModalBody, Button, Badge, Table } from 'reactstrap';
 import axios from 'axios';
 import "./style.css"
 
-const DisplayInvoiceModal = ({ isOpen, toggle, invoice, clients }) => {
+const DisplayInvoiceModal = ({ isOpen, toggle, invoice, clients, taxe }) => {
 
     const getClientNameById = (clientId) => {
         const client = clients.find(client => client._id === clientId);
@@ -44,27 +44,49 @@ const DisplayInvoiceModal = ({ isOpen, toggle, invoice, clients }) => {
         }
     };
 
+    const getTaxeValueById = (taxeId) => {
+        const tax = taxe.find(tax => tax._id === taxeId);
+        if (!tax) return 'Tax not found';
+        else return `${tax.value}`;
+    };
+
+    const getBadgeColor = (status) => {
+        switch (status) {
+            case 'Paid':
+                return 'success'; // Green
+            case 'Sent':
+                return 'info'; // Blue
+            case 'Draft':
+                return 'secondary'; // Gray
+            case 'Unpaid':
+                return 'danger'; // Red
+            case 'Canceled':
+                return 'warning'; // Yellow
+            default:
+                return 'light'; // Default color
+        }
+    };
+
     const handleDownloadPDF = async () => {
-      console.log(invoice._id);
-  
-      try {
-          const response = await axios.get(`http://localhost:5000/api/invoices/export-pdf/${invoice._id}/${invoice.createdBy}`, {
-              responseType: 'blob', 
-          });
-  
-          const url = window.URL.createObjectURL(new Blob([response.data]));
-          const link = document.createElement('a');
-          link.href = url;
-          link.setAttribute('download', `invoice-${invoice.number}.pdf`);
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-      } catch (error) {
-          console.error('Error downloading PDF:', error);
-          alert('Error downloading PDF. Please try again.');
-      }
-  };
-  
+        console.log(invoice);
+
+        try {
+            const response = await axios.get(`http://localhost:5000/api/invoices/export-pdf/${invoice._id}/${invoice.createdBy}`, {
+                responseType: 'blob', 
+            });
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `invoice-${invoice.number}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error('Error downloading PDF:', error);
+            alert('Error downloading PDF. Please try again.');
+        }
+    };
 
     return (
         <Modal isOpen={isOpen} toggle={toggle} size="lg">
@@ -72,14 +94,12 @@ const DisplayInvoiceModal = ({ isOpen, toggle, invoice, clients }) => {
                 <div className="invoice-header">
                     <h4>Facture # {invoice.number}/{invoice.year}</h4>
                     <div className="status-badges">
-                        {/* <Badge color="success">Envoyé</Badge> */}
-                        <Badge color="danger">Impayé</Badge>
+                        <Badge color={getBadgeColor(invoice.status)}>{invoice.status}</Badge>
                     </div>
                     <div className="amounts-summary">
                         <div>Status: {invoice.status}</div>
                         <div>Sous-total: ${invoice.subtotal}</div>
                         <div>Total: ${invoice.total}</div>
-                        {/* <div>Payé: ${invoice.paid}</div> */}
                     </div>
                 </div>
 
@@ -93,8 +113,7 @@ const DisplayInvoiceModal = ({ isOpen, toggle, invoice, clients }) => {
                     <thead>
                         <tr>
                             <th>Produit</th>
-                            <th>description</th>
-
+                            <th>Description</th>
                             <th>Prix</th>
                             <th>Quantité</th>
                             <th>Total</th>
@@ -115,7 +134,7 @@ const DisplayInvoiceModal = ({ isOpen, toggle, invoice, clients }) => {
 
                 <div className="totals-section">
                     <p>Sous-total: ${invoice.subtotal}</p>
-                    <p>Total des taxes ({invoice.taxRate}%): ${invoice.taxTotal}</p>
+                    <p>Total des taxes ({getTaxeValueById(invoice.tax)}%): ${invoice.taxAmount}</p>
                     <p><strong>Total:</strong> ${invoice.total}</p>
                 </div>
 
@@ -123,7 +142,6 @@ const DisplayInvoiceModal = ({ isOpen, toggle, invoice, clients }) => {
                     <Button color="secondary" onClick={toggle}>Fermer</Button>
                     <Button color="info" onClick={handleDownloadPDF}>Télécharger PDF</Button>
                     <Button color="primary">Envoyer par email</Button>
-                    <Button color="primary">Modifier</Button>
                 </div>
             </ModalBody>
         </Modal>

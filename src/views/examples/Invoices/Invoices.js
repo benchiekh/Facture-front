@@ -16,6 +16,7 @@ import {
     PaginationItem,
     PaginationLink,
     CardFooter,
+    Badge,
 } from "reactstrap";
 import Header from "components/Headers/ElementHeader";
 import { toast, ToastContainer } from 'react-toastify';
@@ -25,8 +26,7 @@ import { faEllipsisH } from "@fortawesome/free-solid-svg-icons";
 import DisplayInvoiceModal from "../Invoices/DisplayInvoicemodal";
 import AddInvoiceModal from "../Invoices/AddInvoiceModal";
 import EditInvoiceModal from "./EditInvoiceModal";
-
-import ConfirmDeleteModal from "./ConfirmDeleteModal"
+import ConfirmDeleteModal from "./ConfirmDeleteModal";
 
 const decodeToken = (token) => {
     const base64Url = token.split('.')[1];
@@ -38,7 +38,6 @@ const decodeToken = (token) => {
 const Invoices = () => {
     const [invoices, setInvoices] = useState([]);
     const [selectedInvoice, setSelectedInvoice] = useState([]);
-
     const [clients, setClients] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [invoicesPerPage] = useState(5);
@@ -50,40 +49,46 @@ const Invoices = () => {
     const [invoiceToDelete, setInvoiceToDelete] = useState(null);
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [invoiceToEdit, setInvoiceToEdit] = useState(null);
-
+    const [taxe, setTaxe] = useState([]);
 
     const token = localStorage.getItem('token');
     const decodedToken = token ? decodeToken(token) : {};
     const currentUserId = decodedToken.AdminID;
-    const username = decodedToken.name
-    const userlastname = decodedToken.surname
-
-
+    const username = decodedToken.name;
+    const userlastname = decodedToken.surname;
 
     const fetchInvoices = async () => {
         try {
             const response = await axios.get(`http://localhost:5000/api/invoices?createdBy=${currentUserId}`);
-            console.log(response.data)
+            console.log(response.data);
             setInvoices(response.data);
         } catch (error) {
             console.error("Error fetching invoices:", error);
         }
     };
+
     const refreshInvoices = () => {
         fetchInvoices();
     };
+
     const fetchClients = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/client', {
                 params: { createdBy: currentUserId }
             });
-
             setClients(response.data);
-            console.log("les clients cree par moi " + clients)
-
+            console.log("les clients cree par moi " + clients);
         } catch (err) {
-
             toast.error('Failed to fetch clients');
+        }
+    };
+
+    const fetchTaxes = async () => {
+        try {
+            const response = await axios.get("http://localhost:5000/api/taxes", { params: { createdBy: currentUserId } });
+            setTaxe(response.data);
+        } catch (error) {
+            console.error("Error fetching taxes:", error);
         }
     };
 
@@ -103,15 +108,18 @@ const Invoices = () => {
     useEffect(() => {
         fetchInvoices();
         fetchClients();
+        fetchTaxes();
     }, []);
 
     const handleSearchChange = (e) => {
         setSearchQuery(e.target.value);
     };
+
     const handleDeleteClick = (id) => {
         setInvoiceToDelete(id);
         toggleDeleteModal();
     };
+
     const confirmDeleteInvoice = async () => {
         try {
             await axios.delete(`http://localhost:5000/api/invoices/${invoiceToDelete}`, {
@@ -130,7 +138,7 @@ const Invoices = () => {
                 progress: undefined,
             });
         } catch (error) {
-            console.error("Error deleting currency:", error);
+            console.error("Error deleting invoice:", error);
         }
     };
 
@@ -142,7 +150,6 @@ const Invoices = () => {
             invoice?.status?.toLowerCase().includes(searchQuery.toLowerCase())
         );
     });
-
 
     const indexOfLastInvoice = currentPage * invoicesPerPage;
     const indexOfFirstInvoice = indexOfLastInvoice - invoicesPerPage;
@@ -157,16 +164,20 @@ const Invoices = () => {
     const toggleDisplayModal = () => {
         setDisplayModalOpen(!displayModalOpen);
     };
+
     const handleDisplayClick = (invoice) => {
         setSelectedInvoice(invoice);
         toggleDisplayModal();
     };
+
     const toggleModal = () => {
         setModalOpen(!modalOpen);
     };
+
     const toggleDeleteModal = () => {
         setDeleteModalOpen(!deleteModalOpen);
     };
+
     const toggleEditModal = () => {
         setEditModalOpen(!editModalOpen);
     };
@@ -177,6 +188,21 @@ const Invoices = () => {
         toggleEditModal();
     };
 
+    const getStatusStyle = (status) => {
+        switch (status) {
+            case 'Paid':
+                return 'success'; 
+            case 'Sent':
+                return 'info'; 
+            case 'Draft':
+                return 'warning'; 
+            
+            case 'Cancelled':
+                return 'danger'; 
+            default:
+                return 'light'; 
+        }
+    };
 
     return (
         <>
@@ -209,8 +235,7 @@ const Invoices = () => {
                                             <th scope="col">Expiration Date</th>
                                             <th scope="col">Total</th>
                                             <th scope="col">Status</th>
-                                            <th scope="col">Créer par</th>
-
+                                            <th scope="col">Created by</th>
                                             <th scope="col"></th>
                                         </tr>
                                     </thead>
@@ -223,9 +248,12 @@ const Invoices = () => {
                                                     <td>{new Date(invoice.date).toLocaleDateString()}</td>
                                                     <td>{new Date(invoice.expirationDate).toLocaleDateString()}</td>
                                                     <td>{invoice.total}</td>
-                                                    <td>{invoice.status}</td>
+                                                    <td>
+                                                        <Badge color={getStatusStyle(invoice.status)}>
+                                                            {invoice.status}
+                                                        </Badge>
+                                                    </td>
                                                     <td>{username + " " + userlastname}</td>
-
                                                     <td>
                                                         <Dropdown isOpen={dropdownOpen === invoice._id} toggle={() => toggleDropdown(invoice._id)} >
                                                             <DropdownToggle tag="span" data-toggle="dropdown" style={{ cursor: 'pointer' }}>
@@ -258,7 +286,7 @@ const Invoices = () => {
                                             ))
                                         ) : (
                                             <tr>
-                                                <td colSpan="6">
+                                                <td colSpan="8">
                                                     <div style={{ textAlign: 'center' }}>
                                                         <i className="fa-solid fa-ban" style={{ display: 'block', marginBottom: '10px', fontSize: '50px', opacity: '0.5' }}></i>
                                                         No invoices found
@@ -267,7 +295,6 @@ const Invoices = () => {
                                             </tr>
                                         )}
                                     </tbody>
-
                                 </Table>
                             </div>
                             <CardFooter className="py-4">
@@ -293,29 +320,27 @@ const Invoices = () => {
                 refreshInvoices={fetchInvoices}
                 userId={currentUserId}
             />
-             <ConfirmDeleteModal
+            <ConfirmDeleteModal
                 isOpen={deleteModalOpen}
                 toggle={toggleDeleteModal}
                 onConfirm={confirmDeleteInvoice}
             />
-
             {displayModalOpen && (
                 <DisplayInvoiceModal
                     isOpen={displayModalOpen}
                     toggle={toggleDisplayModal}
                     invoice={selectedInvoice}
                     clients={clients}
-
+                    taxe={taxe}
                 />
             )}
-             {editModalOpen && (
+            {editModalOpen && (
                 <EditInvoiceModal
                     isOpen={editModalOpen}
                     toggle={toggleEditModal}
                     invoiceData={invoiceToEdit}
                     refreshInvoices={refreshInvoices}
                     userId={currentUserId}
-
                 />
             )}
         </>
