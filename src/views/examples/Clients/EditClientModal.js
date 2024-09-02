@@ -38,8 +38,8 @@ const EditClientModal = ({ isOpen, toggle, refreshClients, userId, client }) => 
 
   const fetchPersonsAndCompanies = async () => {
     try {
-      const personsResponse = await axios.get('http://localhost:5000/api/people'); // Update the URL as needed
-      const companiesResponse = await axios.get('http://localhost:5000/api/entreprise'); // Update the URL as needed
+      const personsResponse = await axios.get('http://localhost:5000/api/people'); 
+      const companiesResponse = await axios.get('http://localhost:5000/api/entreprise'); 
       setPersons(personsResponse.data);
       setCompanies(companiesResponse.data);
       filterData(personsResponse.data, companiesResponse.data);
@@ -70,7 +70,7 @@ const EditClientModal = ({ isOpen, toggle, refreshClients, userId, client }) => 
         person: clientType === 'Person' ? selectedPerson?.value : null,
         createdBy: userId
       };
-      await axios.put(`http://localhost:5000/api/client/${client._id}`, updatedClient); // Update the URL as needed
+      await axios.put(`http://localhost:5000/api/client/${client._id}`, updatedClient); 
       toast.success('Client updated successfully');
       refreshClients();
       toggle();

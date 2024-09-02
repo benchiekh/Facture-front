@@ -7,7 +7,6 @@ import EditClientModal from "./EditClientModal";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import countryList from 'react-select-country-list';
 import { Button, Card, CardFooter, CardHeader, Container, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Input, Pagination, PaginationItem, PaginationLink, Row, Table } from 'reactstrap';
-import { Rings } from 'react-loader-spinner'; // Import the loader spinner component
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsisH } from '@fortawesome/free-solid-svg-icons';
 import DisplayClient from "./DisplayClientModal"
@@ -40,7 +39,6 @@ function Clients() {
 
     const adminId = currentUserId;
 
-    // Get the list of countries
     const countries = countryList().getData();
     const countryOptions = countries.reduce((acc, country) => {
         acc[country.value] = country.label;

@@ -53,17 +53,17 @@ const DisplayInvoiceModal = ({ isOpen, toggle, invoice, clients, taxe }) => {
     const getBadgeColor = (status) => {
         switch (status) {
             case 'Paid':
-                return 'success'; // Green
+                return 'success'; 
             case 'Sent':
-                return 'info'; // Blue
+                return 'info'; 
             case 'Draft':
-                return 'secondary'; // Gray
+                return 'secondary'; 
             case 'Unpaid':
-                return 'danger'; // Red
+                return 'danger'; 
             case 'Canceled':
-                return 'warning'; // Yellow
+                return 'warning'; 
             default:
-                return 'light'; // Default color
+                return 'light'; 
         }
     };
 

@@ -90,7 +90,7 @@ const AddCurrency = ({ isOpen, toggle, refreshCurrencies, userId }) => {
                 id="currencyCode"
                 value={code}
                 placeholder="Enter currency code (e.g., USD)"
-                onChange={(e) => setCode(e.target.value.toUpperCase())} // Ensure code is uppercase
+                onChange={(e) => setCode(e.target.value.toUpperCase())} 
               />
             </InputGroup>
           </FormGroup>

@@ -7,7 +7,7 @@ import {
   Button,
   Table
 } from 'reactstrap';
-import ToggleSwitch from './ToggleSwitch'; // Import ToggleSwitch
+import ToggleSwitch from './ToggleSwitch'; 
 
 const DisplayCategoryModal = ({ isOpen, toggle, category }) => {
   const thStyle = {
@@ -38,7 +38,7 @@ const DisplayCategoryModal = ({ isOpen, toggle, category }) => {
             </tr>
             <tr>
               <th><span style={thStyle}>Enabled</span></th>
-              <td><ToggleSwitch isChecked={category.enabled} /> {/* Unchangeable */}</td>
+              <td><ToggleSwitch isChecked={category.enabled} /> </td>
             </tr>
           </tbody>
         </Table>

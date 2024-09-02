@@ -39,7 +39,7 @@ const EditPersonModal = ({ isOpen, toggle, person, refreshPeople, refreshCompani
   const [initialEmail, setInitialEmail] = useState("");
   const [initialPhone, setInitialPhone] = useState("");
 
-  const options = countryList().getData(); // Country options for react-select
+  const options = countryList().getData(); 
 
   useEffect(() => {
     fetchCompanies();
@@ -51,7 +51,6 @@ const EditPersonModal = ({ isOpen, toggle, person, refreshPeople, refreshCompani
       setTelephone(person.telephone);
       setEmail(person.email);
 
-      // Initialize with the current values
       setInitialEmail(person.email);
       setInitialPhone(person.telephone);
     }
@@ -82,7 +81,6 @@ const EditPersonModal = ({ isOpen, toggle, person, refreshPeople, refreshCompani
       });
       const userPersons = response.data;
 
-      // Exclude the current person from the uniqueness check
       const isEmailUnique = !userPersons.some(p => p.email === email && p._id !== person._id);
       const isPhoneUnique = !userPersons.some(p => p.telephone === telephone && p._id !== person._id);
 
@@ -153,7 +151,6 @@ const EditPersonModal = ({ isOpen, toggle, person, refreshPeople, refreshCompani
       }
     }
 
-    // Only check uniqueness if email or phone number have changed
     const emailChanged = email !== initialEmail;
     const phoneChanged = telephone !== initialPhone;
 
@@ -197,7 +194,6 @@ const EditPersonModal = ({ isOpen, toggle, person, refreshPeople, refreshCompani
     }
   };
 
-  // Get placeholder text based on selected country
   const getPhoneNumberPlaceholder = () => {
     if (pays) {
       const countryCode = pays.value;
@@ -211,7 +207,6 @@ const EditPersonModal = ({ isOpen, toggle, person, refreshPeople, refreshCompani
     return 'Enter phone number';
   };
 
-  // Custom Single Value Component
   const customSingleValue = ({ data }) => (
     <div className="custom-single-value">
       <Flag code={data.value} alt={data.label} style={{ width: 20, marginRight: 10 }} />
@@ -219,7 +214,6 @@ const EditPersonModal = ({ isOpen, toggle, person, refreshPeople, refreshCompani
     </div>
   );
 
-  // Custom Option Component
   const customOption = (props) => {
     const { data, innerRef, innerProps } = props;
     return (

@@ -1,4 +1,3 @@
-// src/components/DisplayPerson.js
 import React from 'react';
 import {
   Modal,
@@ -12,7 +11,6 @@ import countryList from 'react-select-country-list';
 
 const DisplayCompanyModal = ({ isOpen, toggle, client }) => {
 
-  // Get the list of countries and map codes to names
   const countryOptions = countryList().getData();
   const countryMap = countryOptions.reduce((acc, country) => {
     acc[country.value] = country.label;

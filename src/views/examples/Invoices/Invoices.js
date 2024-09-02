@@ -272,6 +272,12 @@ const Invoices = () => {
                                                                         Edit
                                                                     </span>
                                                                 </DropdownItem>
+                                                                <DropdownItem >
+                                                                    <span className="d-flex align-items-center">
+                                                                        <i className="fa-solid fa-dollar-sign" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
+                                                                        Save payment
+                                                                    </span>
+                                                                </DropdownItem>
                                                                 <DropdownItem divider />
                                                                 <DropdownItem onClick={() => handleDeleteClick(invoice._id)}>
                                                                     <span className="d-flex align-items-center">

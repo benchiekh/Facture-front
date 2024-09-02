@@ -17,7 +17,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import Switch from "react-switch";
 import { colorOptions } from './colorOptions';
 
-// Function to decode the JWT token and get payload
 const decodeToken = (token) => {
   const base64Url = token.split('.')[1];
   const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -25,7 +24,6 @@ const decodeToken = (token) => {
   return payload;
 };
 
-// Function to determine if the color is light or dark
 const isColorLight = (color) => {
   const hex = color.replace('#', '');
   const r = parseInt(hex.substring(0, 2), 16);
@@ -93,8 +91,8 @@ const AddProductCategoryModal = ({ isOpen, toggle, userId, refreshCategories }) 
         ':before': {
           content: '""',
           display: 'inline-block',
-          marginRight: '10px', // Space between color block and text
-          padding: '5px 10px', // Padding to make the width adaptive
+          marginRight: '10px', 
+          padding: '5px 10px', 
           backgroundColor: color,
           borderRadius: '3px',
         },
@@ -111,8 +109,8 @@ const AddProductCategoryModal = ({ isOpen, toggle, userId, refreshCategories }) 
         ':before': {
           content: '""',
           display: 'inline-block',
-          marginRight: '10px', // Space between color block and text
-          padding: '5px 10px', // Padding to make the width adaptive
+          marginRight: '10px', 
+          padding: '5px 10px', 
           backgroundColor: color,
           borderRadius: '3px',
         },
@@ -155,7 +153,7 @@ const AddProductCategoryModal = ({ isOpen, toggle, userId, refreshCategories }) 
               onChange={(selectedOption) => setColor(selectedOption)}
               isClearable={false}
               placeholder="Select a color"
-              //styles={customStyles} // Applying custom styles
+              //styles={customStyles} 
               formatOptionLabel={(option) => (
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   <div

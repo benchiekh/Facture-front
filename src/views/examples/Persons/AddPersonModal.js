@@ -23,7 +23,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import AddCompanyModal from "../Companies/AddCompanyModal";
 import countryList from 'react-select-country-list';
 import { getCountryCallingCode, parsePhoneNumber, isValidPhoneNumber } from 'libphonenumber-js';
-import Flag from 'react-world-flags'; // Import the flag library
+import Flag from 'react-world-flags'; 
 
 const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
   const [prenom, setPrenom] = useState("");
@@ -66,7 +66,6 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
     const countryCode = selectedOption?.value ? `+${getCountryCallingCode(selectedOption.value)}` : "";
 
     setTelephone((prev) => {
-      // Remove existing country code if present
       const prevWithoutCode = prev.replace(/^\+\d+\s*/, '');
       return `${countryCode} ${prevWithoutCode}`;
     });
@@ -83,14 +82,12 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
 
   const checkUniqueness = async () => {
     try {
-      // Fetch the list of people created by the current user
       const response = await axios.get("http://localhost:5000/api/people", {
         params: { createdBy: userId }
       });
 
       const userPersons = response.data.filter(person => person.createdBy === userId);;
 
-      // Check if the email already exists among the user's contacts
       const isEmailUnique = !userPersons.some(person => person.email === email);
 
       if (!isEmailUnique) {
@@ -105,7 +102,6 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
         return false;
       }
 
-      // Check if the phone number already exists among the user's contacts
       const isPhoneUnique = !userPersons.some(person => person.telephone === telephone);
 
       if (!isPhoneUnique) {

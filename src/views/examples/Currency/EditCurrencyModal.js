@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, FormGroup, Label, Input } from 'reactstrap';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import Switch from 'react-switch'; // Import Switch component
+import Switch from 'react-switch'; 
 
 const EditCurrencyModal = ({ isOpen, toggle, currency, refreshCurrencies }) => {
   const [formData, setFormData] = useState({

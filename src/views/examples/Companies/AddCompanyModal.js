@@ -23,7 +23,6 @@ import Flag from 'react-world-flags';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBuilding, faGlobe, faEnvelope, faPhone } from '@fortawesome/free-solid-svg-icons';
 
-// Function to decode the JWT token and get payload
 const decodeToken = (token) => {
   const base64Url = token.split('.')[1];
   const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -31,7 +30,6 @@ const decodeToken = (token) => {
   return payload;
 };
 
-// Function to validate phone number based on country
 const validatePhoneNumber = (number, countryCode) => {
   if (!countryCode || !number) return false;
 
@@ -82,7 +80,6 @@ const AddCompanyModal = ({ isOpen, toggle, refreshCompany, userId }) => {
 
     const countryCode = selectedOption?.value ? `+${getCountryCallingCode(selectedOption.value)}` : "";
 
-    // Remove any existing country code and set the new one
     setTelephone((prev) => {
       const numberWithoutCode = prev.replace(/^\+\d+\s*/, '');
       return `${countryCode} ${numberWithoutCode}`;
@@ -127,7 +124,6 @@ const AddCompanyModal = ({ isOpen, toggle, refreshCompany, userId }) => {
         progress: undefined,
       });
 
-      // Clear the form
       setNom("");
       setPays(null);
       setTelephone("");
@@ -183,7 +179,7 @@ const AddCompanyModal = ({ isOpen, toggle, refreshCompany, userId }) => {
               placeholder="Select country"
               isClearable
               isSearchable
-              filterOption={filterOption} // Custom filter function
+              filterOption={filterOption} 
               styles={{
                 control: (provided) => ({
                   ...provided,

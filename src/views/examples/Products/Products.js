@@ -27,7 +27,6 @@ import ConfirmDeleteModal from "./ConfirmDeleteModal"
 import DisplayProductModal from "./DisplayProductModal"
 import EditProductModal from "./EditProductModal"
 
-// Helper function to decode token
 const decodeToken = (token) => {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');

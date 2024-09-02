@@ -23,7 +23,6 @@ import AddCompanyModal from "./AddCompanyModal";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import EditCompanyModal from "./EditCompanyModal";
 import countryList from 'react-select-country-list';
-import { Rings } from 'react-loader-spinner'; // Import the loader spinner component
 import 'react-toastify/dist/ReactToastify.css';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsisH } from "@fortawesome/free-solid-svg-icons";
@@ -59,7 +58,6 @@ const Company = () => {
   const decodedToken = token ? decodeToken(token) : {};
   const currentUserId = decodedToken.AdminID;
 
-  // Get the list of countries
   const countries = countryList().getData();
   const countryOptions = countries.reduce((acc, country) => {
     acc[country.value] = country.label;
@@ -141,15 +139,12 @@ const Company = () => {
     };
   }, []);
 
-  // Get current companies
   const indexOfLastCompany = currentPage * companiesPerPage;
   const indexOfFirstCompany = indexOfLastCompany - companiesPerPage;
   const currentCompanies = filteredCompanies.slice(indexOfFirstCompany, indexOfLastCompany);
 
-  // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  // Toggle modals
   const toggleModal = () => {
     setModalOpen(!modalOpen);
   };

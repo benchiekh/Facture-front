@@ -32,8 +32,8 @@ const AddClientModal = ({ isOpen, toggle, refreshClients, userId }) => {
 
   const fetchPersonsAndCompanies = async () => {
     try {
-      const personsResponse = await axios.get('http://localhost:5000/api/people'); // Update the URL as needed
-      const companiesResponse = await axios.get('http://localhost:5000/api/entreprise'); // Update the URL as needed
+      const personsResponse = await axios.get('http://localhost:5000/api/people'); 
+      const companiesResponse = await axios.get('http://localhost:5000/api/entreprise'); 
       setPersons(personsResponse.data);
       setCompanies(companiesResponse.data);
       filterData(personsResponse.data, companiesResponse.data);
@@ -64,7 +64,7 @@ const AddClientModal = ({ isOpen, toggle, refreshClients, userId }) => {
         person: clientType === 'Person' ? selectedPerson?.value : null,
         createdBy: userId
       };
-      await axios.post('http://localhost:5000/api/client', newClient); // Update the URL as needed
+      await axios.post('http://localhost:5000/api/client', newClient);
       toast.success('Client added successfully');
       refreshClients();
       toggle();

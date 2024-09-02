@@ -137,7 +137,6 @@ const Taxes = () => {
             return;
         }
 
-        // Find the tax to be deleted
         const taxToBeDeleted = taxes.find((tax) => tax._id === taxToDelete);
 
         if (taxToBeDeleted && taxToBeDeleted.isDefault) {

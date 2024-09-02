@@ -1,4 +1,3 @@
-// src/components/ToggleSwitch.js
 import React from 'react';
 
 const ToggleSwitch = ({ isChecked, onChange }) => {

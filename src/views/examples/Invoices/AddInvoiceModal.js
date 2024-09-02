@@ -20,7 +20,7 @@ const AddInvoiceModal = ({ isOpen, toggle, refreshInvoices, userId }) => {
         number: 1,
         year: new Date().getFullYear(),
         currency: '',
-        status: 'Brouillon', // Default status
+        status: 'Brouillon', 
         date: new Date().toISOString().substring(0, 10),
         expirationDate: '',
         note: '',
@@ -269,7 +269,6 @@ const AddInvoiceModal = ({ isOpen, toggle, refreshInvoices, userId }) => {
                             >
                                 <option value="Brouillon">Draft</option>
                                 <option value="Envoyé">Sent</option>
-                                <option value="Payé">Paid</option>
                                 <option value="Annulé">Cancelled</option>
                             </Input>
                         </FormGroup>

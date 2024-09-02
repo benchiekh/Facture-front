@@ -24,7 +24,6 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Flag from 'react-world-flags';
 
-// Decode token function
 const decodeToken = (token) => {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -32,24 +31,22 @@ const decodeToken = (token) => {
     return payload;
 };
 
-// Custom Option component for react-select
 const CustomOption = (props) => {
     const { data, innerRef, innerProps } = props;
     return (
         <div ref={innerRef} {...innerProps} className="custom-option">
             <Flag code={data.value} style={{ width: 24, height: 16, marginRight: 10 }} />
-            {data.label} {/* Display full country name */}
+            {data.label}
         </div>
     );
 };
 
-// Custom SingleValue component for react-select
 const CustomSingleValue = (props) => {
     const { data } = props;
     return (
         <div className="custom-single-value">
             <Flag code={data.value} style={{ width: 24, height: 16, marginRight: 10 }} />
-            {data.label} {/* Display full country name */}
+            {data.label} 
             
         </div>
     );
@@ -112,7 +109,6 @@ const CompanyComponent = () => {
         setCountry(selectedOption);
         const countryCode = selectedOption?.value ? `+${getCountryCallingCode(selectedOption.value)}` : "";
 
-        // Format phone number with new country code
         const formattedPhone = phone.replace(/^\+\d+\s*/, '');
         setPhone(`${countryCode} ${formattedPhone}`);
     };

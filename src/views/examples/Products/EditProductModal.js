@@ -17,7 +17,7 @@ import Select from 'react-select';
 
 const EditProductModal = ({ isOpen, toggle, product, refreshProducts, refreshCategories, categories }) => {
     const [name, setName] = useState("");
-    const [category, setCategory] = useState(null); // Initialize as null
+    const [category, setCategory] = useState(null); 
     const [currency, setCurrency] = useState("");
     const [price, setPrice] = useState("");
     const [description, setDescription] = useState("");

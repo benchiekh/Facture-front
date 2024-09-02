@@ -10,27 +10,27 @@ const GoogleAuthSuccess = () => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const url = `http://localhost:5000/auth/login/success`; // Use environment variable for backend URL
+        const url = `http://localhost:5000/auth/login/success`; 
         const response = await axios.get(url, { withCredentials: true });
 
         if (response.data.token) {
-          localStorage.setItem('token', response.data.token); // Save token to localStorage
-          navigate("/admin/index"); // Redirect to admin page
+          localStorage.setItem('token', response.data.token); 
+          navigate("/admin/index"); 
         } else {
           setError("No token received");
-          navigate("/login"); // Redirect to login page if no token
+          navigate("/login"); 
         }
       } catch (error) {
         console.error("Error during authentication:", error);
         setError("Authentication error");
-        navigate("/login"); // Redirect to login page on error
+        navigate("/login"); 
       } finally {
-        setLoading(false); // Set loading state to false after completion
+        setLoading(false); 
       }
     };
 
     getUser();
-  }, [navigate]); // Dependency array to ensure useEffect runs only once
+  }, [navigate]); 
 
   return (
     <div>

@@ -146,6 +146,5 @@ const routes = [
     component: <ForgotPassword />,
     layout: "/password-reset",
   }
-].filter(Boolean); // Filter out any false values
-
+].filter(Boolean); 
 export default routes;

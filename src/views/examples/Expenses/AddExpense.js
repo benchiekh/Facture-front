@@ -155,9 +155,9 @@ const AddExpense = ({ isOpen, toggle, refreshExpenses, userId }) => {
               <Input
                 type="number"
                 id="expenseAmount"
-                value={price} // Changed to 'price'
+                value={price} 
                 placeholder="Enter amount"
-                onChange={(e) => setPrice(e.target.value)} // Changed to 'price'
+                onChange={(e) => setPrice(e.target.value)} 
               />
             </InputGroup>
           </FormGroup>

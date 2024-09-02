@@ -25,15 +25,15 @@ const ForgotPassword = () => {
   const [step, setStep] = useState(1);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(false);  // New loading state
+  const [loading, setLoading] = useState(false); 
   const [passwordStrength, setPasswordStrength] = useState('weak');
   const navigate = useNavigate();
   const MIN_PASSWORD_LENGTH = 6;
 
   const handleRequestOtp = async (e) => {
     e.preventDefault();
-    setLoading(true); // Set loading to true
-    setError(''); // Clear previous error
+    setLoading(true); 
+    setError(''); 
     try {
       const response = await axios.post('http://localhost:5000/api/sendotp', { email });
       setMessage(response.data.message);
@@ -41,14 +41,14 @@ const ForgotPassword = () => {
     } catch (error) {
       setError(error.response?.data?.error || 'Error requesting OTP');
     } finally {
-      setLoading(false); // Set loading to false
+      setLoading(false); 
     }
   };
 
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
-    setLoading(true); // Set loading to true
-    setError(''); // Clear previous error
+    setLoading(true); 
+    setError(''); 
     try {
       const response = await axios.post('http://localhost:5000/api/verfieropt', { email, otp });
       setMessage(response.data.message);
@@ -56,7 +56,7 @@ const ForgotPassword = () => {
     } catch (error) {
       setError(error.response?.data?.error || 'Invalid or expired OTP');
     } finally {
-      setLoading(false); // Set loading to false
+      setLoading(false); 
     }
   };
 
@@ -70,8 +70,8 @@ const ForgotPassword = () => {
       setError('Passwords do not match');
       return;
     }
-    setLoading(true); // Set loading to true
-    setError(''); // Clear previous error
+    setLoading(true); 
+    setError(''); 
     try {
       const response = await axios.post('http://localhost:5000/api/resetpassword', { email, newpassword: newPassword });
       setMessage(response.data.message);
@@ -79,7 +79,7 @@ const ForgotPassword = () => {
     } catch (error) {
       setError(error.response?.data?.error || 'Error resetting password');
     } finally {
-      setLoading(false); // Set loading to false
+      setLoading(false); 
     }
   };
 
