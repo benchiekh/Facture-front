@@ -234,6 +234,8 @@ const Invoices = () => {
                                             <th scope="col">Date</th>
                                             <th scope="col">Expiration Date</th>
                                             <th scope="col">Total</th>
+                                            <th scope="col">Paid</th>
+
                                             <th scope="col">Status</th>
                                             <th scope="col">Created by</th>
                                             <th scope="col"></th>
@@ -248,6 +250,8 @@ const Invoices = () => {
                                                     <td>{new Date(invoice.date).toLocaleDateString()}</td>
                                                     <td>{new Date(invoice.expirationDate).toLocaleDateString()}</td>
                                                     <td>{invoice.total}</td>
+                                                    <td></td>
+
                                                     <td>
                                                         <Badge color={getStatusStyle(invoice.status)}>
                                                             {invoice.status}

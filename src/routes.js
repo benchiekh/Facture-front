@@ -16,6 +16,12 @@ import Currency from "views/examples/Currency/Currency";
 import Taxes from "views/examples/Taxes/Taxes";
 import Mycompany from "views/examples/Mycompany/Mycompany";
 import Invoices from "views/examples/Invoices/Invoices";
+import ProformaInvoice from "views/examples/ProformaInvoice/ProformaInvoice";
+import Payment from "views/examples/Payment/Payment";
+import Report from "views/examples/Report/Report";
+
+
+
 
 
 
@@ -50,7 +56,7 @@ const routes = [
   },
   {
     path: "/company",
-    name: "Company",
+    name: "Companies",
     icon: "ni ni-building text-orange",
     component: <Company />,
     layout: "/admin",
@@ -78,7 +84,7 @@ const routes = [
   },
   {
     path: "/product",
-    name: "Product",
+    name: "Products",
     icon: "fa-solid fa-box text-green",
     component: <Product />,
     layout: "/admin",
@@ -100,8 +106,36 @@ const routes = [
   {
     path: "/invoices",
     name: "Invoices",
-    icon: "fa-solid fa-file-invoice text-red",
+    icon: "fa-solid fa-file-invoice-dollar text-red",
     component: <Invoices />,
+    layout: "/admin",
+
+    
+  },
+  {
+    path: "/proforma-invoice",
+    name: "Proforma Invoices",
+    icon: "fa-solid fa-file-invoice text-blue",
+    component: <ProformaInvoice />,
+    layout: "/admin",
+
+    
+  },
+
+  {
+    path: "/payment",
+    name: "Payments",
+    icon: "fa-solid fa-credit-card text-yellow",
+    component: <Payment />,
+    layout: "/admin",
+
+    
+  },
+  {
+    path: "/report",
+    name: "Report",
+    icon: "fa-solid fa-chart-pie text-green",
+    component: <Report />,
     layout: "/admin",
 
     
