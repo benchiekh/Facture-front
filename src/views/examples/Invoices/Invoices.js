@@ -50,6 +50,8 @@ const Invoices = () => {
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [invoiceToEdit, setInvoiceToEdit] = useState(null);
     const [taxe, setTaxe] = useState([]);
+    const [currencies, setCurrencies] = useState([]);
+
 
     const token = localStorage.getItem('token');
     const decodedToken = token ? decodeToken(token) : {};
@@ -92,6 +94,19 @@ const Invoices = () => {
         }
     };
 
+    const fetchCurrencies = async () => {
+        try {
+            const response = await axios.get("http://localhost:5000/api/currency", {
+                params: { createdBy: currentUserId },
+               
+            });
+            setCurrencies(response.data);
+        } catch (error) {
+            console.error("Error fetching currencies:", error);
+        }
+    };
+    
+
     const getClientNameById = (clientId) => {
         const client = clients.find(client => client._id === clientId);
         if (!client) return 'Client not found';
@@ -109,6 +124,7 @@ const Invoices = () => {
         fetchInvoices();
         fetchClients();
         fetchTaxes();
+        fetchCurrencies();
     }, []);
 
     const handleSearchChange = (e) => {
@@ -342,6 +358,7 @@ const Invoices = () => {
                     invoice={selectedInvoice}
                     clients={clients}
                     taxe={taxe}
+                    currency={currencies}
                 />
             )}
             {editModalOpen && (

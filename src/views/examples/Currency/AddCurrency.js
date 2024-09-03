@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Form, FormGroup, Label, Input, InputGroup, InputGroupAddon, InputGroupText } from 'reactstrap';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDollarSign, faTag, faFont, faExchangeAlt, faHashtag } from '@fortawesome/free-solid-svg-icons';
-import Switch from 'react-switch';
-
+import currencies from './Currencies'; // Import the currencies
+import Switch from 'react-switch'
 
 const AddCurrency = ({ isOpen, toggle, refreshCurrencies, userId }) => {
   const [name, setName] = useState('');
@@ -17,8 +17,46 @@ const AddCurrency = ({ isOpen, toggle, refreshCurrencies, userId }) => {
   const [precision, setPrecision] = useState(2);
   const [zeroFormat, setZeroFormat] = useState('show');
   const [active, setActive] = useState(true);
+  const [userCurrencies, setUserCurrencies] = useState([]); // Store the existing currencies for the user
+
+  useEffect(() => {
+    // Fetch existing currencies for the current user when component mounts
+    const fetchUserCurrencies = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/api/currency`, { params: { createdBy: userId } });
+        setUserCurrencies(response.data);
+      } catch (error) {
+        console.error("Error fetching user currencies:", error);
+        toast.error('Error fetching existing currencies.');
+      }
+    };
+
+    if (userId) {
+      fetchUserCurrencies();
+    }
+  }, [userId]);
+
+  const handleCurrencyChange = (e) => {
+    const selectedCode = e.target.value;
+    setCode(selectedCode);
+  
+    const selectedCurrency = currencies.find(currency => currency.code === selectedCode);
+    if (selectedCurrency) {
+      setSymbol(selectedCurrency.symbol);
+      setName(selectedCurrency.name); 
+    } else {
+      setSymbol(''); 
+      setName(''); 
+    }
+  };
+  
 
   const handleAddCurrency = async () => {
+    if (userCurrencies.some(currency => currency.code === code)) {
+      toast.error('Currency already exists .');
+      return;
+    }
+
     try {
       const newCurrency = {
         name,
@@ -39,9 +77,22 @@ const AddCurrency = ({ isOpen, toggle, refreshCurrencies, userId }) => {
         },
       });
 
+      // Refresh the currency list and close the modal
       refreshCurrencies();
       toggle();
       toast.success('Currency added successfully');
+
+      // Reset the form fields to their initial state
+      setName('');
+      setCode('');
+      setSymbol('');
+      setSymbolPosition('before');
+      setDecimalSeparator('.');
+      setThousandSeparator(',');
+      setPrecision(2);
+      setZeroFormat('show');
+      setActive(true);
+      setUserCurrencies([...userCurrencies, newCurrency]); // Update local state
     } catch (error) {
       console.error("Error adding currency:", error);
 
@@ -61,6 +112,29 @@ const AddCurrency = ({ isOpen, toggle, refreshCurrencies, userId }) => {
       <ModalBody>
         <Form>
           <FormGroup>
+            <Label for="currencyCode">Code</Label>
+            <InputGroup>
+              <InputGroupAddon addonType="prepend">
+                <InputGroupText>
+                  <FontAwesomeIcon icon={faFont} />
+                </InputGroupText>
+              </InputGroupAddon>
+              <Input
+                type="select"
+                id="currencyCode"
+                value={code}
+                onChange={handleCurrencyChange}
+              >
+                <option value="">Select currency code</option>
+                {currencies.map((currency) => (
+                  <option key={currency.code} value={currency.code}>
+                    {currency.code} - {currency.name}
+                  </option>
+                ))}
+              </Input>
+            </InputGroup>
+          </FormGroup>
+          <FormGroup>
             <Label for="currencyName">Name</Label>
             <InputGroup>
               <InputGroupAddon addonType="prepend">
@@ -77,23 +151,7 @@ const AddCurrency = ({ isOpen, toggle, refreshCurrencies, userId }) => {
               />
             </InputGroup>
           </FormGroup>
-          <FormGroup>
-            <Label for="currencyCode">Code</Label>
-            <InputGroup>
-              <InputGroupAddon addonType="prepend">
-                <InputGroupText>
-                  <FontAwesomeIcon icon={faFont} />
-                </InputGroupText>
-              </InputGroupAddon>
-              <Input
-                type="text"
-                id="currencyCode"
-                value={code}
-                placeholder="Enter currency code (e.g., USD)"
-                onChange={(e) => setCode(e.target.value.toUpperCase())} 
-              />
-            </InputGroup>
-          </FormGroup>
+
           <FormGroup>
             <Label for="currencySymbol">Symbol</Label>
             <InputGroup>
@@ -106,16 +164,16 @@ const AddCurrency = ({ isOpen, toggle, refreshCurrencies, userId }) => {
                 type="text"
                 id="currencySymbol"
                 value={symbol}
-                placeholder="Enter currency symbol (e.g., $)"
+                placeholder="Enter currency symbol"
                 onChange={(e) => setSymbol(e.target.value)}
               />
             </InputGroup>
           </FormGroup>
           <FormGroup>
-            <Label for="currencySymbolPosition">Symbol Position</Label>
+            <Label for="symbolPosition">Symbol Position</Label>
             <Input
               type="select"
-              id="currencySymbolPosition"
+              id="symbolPosition"
               value={symbolPosition}
               onChange={(e) => setSymbolPosition(e.target.value)}
             >
@@ -124,79 +182,61 @@ const AddCurrency = ({ isOpen, toggle, refreshCurrencies, userId }) => {
             </Input>
           </FormGroup>
           <FormGroup>
-            <Label for="currencyDecimalSeparator">Decimal Separator</Label>
-            <InputGroup>
-              <InputGroupAddon addonType="prepend">
-                <InputGroupText>
-                  <FontAwesomeIcon icon={faExchangeAlt} />
-                </InputGroupText>
-              </InputGroupAddon>
-              <Input
-                type="text"
-                id="currencyDecimalSeparator"
-                value={decimalSeparator}
-                placeholder="Enter decimal separator (e.g., .)"
-                onChange={(e) => setDecimalSeparator(e.target.value)}
-              />
-            </InputGroup>
-          </FormGroup>
-          <FormGroup>
-            <Label for="currencyThousandSeparator">Thousand Separator</Label>
-            <InputGroup>
-              <InputGroupAddon addonType="prepend">
-                <InputGroupText>
-                  <FontAwesomeIcon icon={faHashtag} />
-                </InputGroupText>
-              </InputGroupAddon>
-              <Input
-                type="text"
-                id="currencyThousandSeparator"
-                value={thousandSeparator}
-                placeholder="Enter thousand separator (e.g., ,)"
-                onChange={(e) => setThousandSeparator(e.target.value)}
-              />
-            </InputGroup>
-          </FormGroup>
-          <FormGroup>
-            <Label for="currencyPrecision">Precision</Label>
+            <Label for="decimalSeparator">Decimal Separator</Label>
             <Input
-              type="number"
-              id="currencyPrecision"
-              value={precision}
-              min="0"
-              placeholder="Enter number of decimal places"
-              onChange={(e) => setPrecision(e.target.value)}
+              type="text"
+              id="decimalSeparator"
+              value={decimalSeparator}
+              placeholder="Enter decimal separator"
+              onChange={(e) => setDecimalSeparator(e.target.value)}
             />
           </FormGroup>
           <FormGroup>
-            <Label for="currencyZeroFormat">Zero Format</Label>
+            <Label for="thousandSeparator">Thousand Separator</Label>
+            <Input
+              type="text"
+              id="thousandSeparator"
+              value={thousandSeparator}
+              placeholder="Enter thousand separator"
+              onChange={(e) => setThousandSeparator(e.target.value)}
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label for="precision">Precision</Label>
+            <Input
+              type="number"
+              id="precision"
+              value={precision}
+              min="0"
+              onChange={(e) => setPrecision(parseInt(e.target.value, 10))}
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label for="zeroFormat">Zero Format</Label>
             <Input
               type="select"
-              id="currencyZeroFormat"
+              id="zeroFormat"
               value={zeroFormat}
               onChange={(e) => setZeroFormat(e.target.value)}
             >
-              <option value="hide">Hide</option>
               <option value="show">Show</option>
+              <option value="hide">Hide</option>
             </Input>
           </FormGroup>
           <FormGroup>
-                    <Label for="isActive">Active</Label>
-                    <Switch
-                        checked={active}
-                        onChange={() => setActive(!active)}
-                        onColor="#86d3ff"
-                        offColor="#888"
-                        onHandleColor="#002395"
-                        offHandleColor="#d4d4d4"
-                        handleDiameter={15}
-                        uncheckedIcon={false}
-                        checkedIcon={false}
-                        height={10}
-                        width={30}
-                        className="react-switch"
-                    />
-                </FormGroup>
+            <Label for="active">Active</Label>
+            <Switch
+              checked={active}
+              onChange={() => setActive(!active)}
+              offColor="#888"
+              onColor="#0d6efd"
+              handleDiameter={20}
+              uncheckedIcon={false}
+              checkedIcon={false}
+              height={20}
+              width={48}
+            />
+          </FormGroup>
         </Form>
       </ModalBody>
       <ModalFooter>

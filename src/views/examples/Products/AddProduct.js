@@ -26,6 +26,7 @@ const AddProduct = ({ isOpen, toggle, refreshProducts, userId }) => {
   const [description, setDescription] = useState('');
   const [reference, setReference] = useState('');
   const [categories, setCategories] = useState([]);
+  const [currencies, setCurrencies] = useState([]);
 
   const fetchCategories = async () => {
     try {
@@ -36,8 +37,18 @@ const AddProduct = ({ isOpen, toggle, refreshProducts, userId }) => {
     }
   };
 
+  const fetchCurrencies = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/currency", { params: { createdBy: userId } });
+      setCurrencies(response.data);
+    } catch (error) {
+      console.error("Error fetching currencies:", error);
+    }
+  };
+
   useEffect(() => {
     fetchCategories();
+    fetchCurrencies();
   }, [userId]);
 
   const handleAddProduct = async () => {
@@ -64,7 +75,6 @@ const AddProduct = ({ isOpen, toggle, refreshProducts, userId }) => {
 
   return (
     <Modal isOpen={isOpen} toggle={toggle} className="modal-right">
-
       <ModalHeader toggle={toggle}>Add New Product</ModalHeader>
       <ModalBody>
         <Form>
@@ -101,14 +111,13 @@ const AddProduct = ({ isOpen, toggle, refreshProducts, userId }) => {
               >
                 <option value="" disabled>Select a category</option>
                 {categories
-                  .filter((category) => category.enabled) 
+                  .filter((category) => category.enabled)
                   .map((category) => (
                     <option key={category._id} value={category._id}>
                       {category.name}
                     </option>
                   ))}
               </Input>
-
             </InputGroup>
           </FormGroup>
           <FormGroup>
@@ -120,12 +129,20 @@ const AddProduct = ({ isOpen, toggle, refreshProducts, userId }) => {
                 </InputGroupText>
               </InputGroupAddon>
               <Input
-                type="text"
+                type="select"
                 id="productCurrency"
                 value={currency}
-                placeholder="Enter currency (e.g., USD)"
                 onChange={(e) => setCurrency(e.target.value)}
-              />
+              >
+                <option value="" disabled>Select a currency</option>
+                {currencies
+                  .filter((currency) => currency.active) // Ensure only active currencies are displayed
+                  .map((currency) => (
+                    <option key={currency._id} value={currency._id}>
+                      {currency.name} ({currency.code})
+                    </option>
+                  ))}
+              </Input>
             </InputGroup>
           </FormGroup>
           <FormGroup>
@@ -185,7 +202,6 @@ const AddProduct = ({ isOpen, toggle, refreshProducts, userId }) => {
         <Button color="primary" onClick={handleAddProduct}>Add Product</Button>{' '}
         <Button color="secondary" onClick={toggle}>Cancel</Button>
       </ModalFooter>
-
     </Modal>
   );
 };

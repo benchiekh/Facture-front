@@ -26,6 +26,7 @@ import AddProduct from "./AddProduct"
 import ConfirmDeleteModal from "./ConfirmDeleteModal"
 import DisplayProductModal from "./DisplayProductModal"
 import EditProductModal from "./EditProductModal"
+import "./style.css"
 
 const decodeToken = (token) => {
     const base64Url = token.split('.')[1];
@@ -49,6 +50,8 @@ const Products = () => {
     const [dropdownOpen, setDropdownOpen] = useState(null);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [displayModalOpen, setDisplayModalOpen] = useState(false);
+    const [currencies, setCurrencies] = useState([]);
+
 
     const token = localStorage.getItem('token');
     const decodedToken = token ? decodeToken(token) : {};
@@ -75,9 +78,21 @@ const Products = () => {
         }
     };
 
+    const fetchCurrencies = async () => {
+        try {
+            const response = await axios.get("http://localhost:5000/api/currency", { params: { createdBy: currentUserId } });
+
+            setCurrencies(response.data);
+        } catch (error) {
+            console.error("Error fetching categories:", error);
+        }
+    };
+
+
     useEffect(() => {
         fetchProducts();
         fetchCategories();
+        fetchCurrencies();
     }, []);
 
     const refreshProducts = () => {
@@ -96,6 +111,20 @@ const Products = () => {
         const category = categories.find(category => category._id === id);
         return category ? category.name : 'Category Not Found';
     };
+
+    const getCurrencyCodeById = (id) => {
+        const currency = currencies.find(currency => currency._id === id);
+        return currency ? currency.code : 'Currency Not Found';
+    };
+
+
+    const getCurrencySymbolById = (id,price) => {
+        const currency = currencies.find(currency => currency._id === id);
+        if (currency.symbolPosition ==="after") return price+currency.symbol
+        else if (currency.symbolPosition ==="before") return currency.symbol+price
+        else return currency ? currency.symbol : 'Currency Not Found';
+    };
+
 
     const filteredProducts = products.filter((product) => {
         const categoryName = getCategoryNameById(product.productCategory);
@@ -187,12 +216,12 @@ const Products = () => {
     return (
         <>
             <ToastContainer />
-            <Header />
-            <Container className="mt--7" fluid>
-                <Row>
-                    <div className="col">
-                        <Card className="shadow">
-                            <CardHeader className="border-0 d-flex justify-content-between align-items-center">
+            <Header  />
+            <Container className="mt--7 " fluid>
+                <Row >
+                    <div className="col " >
+                        <Card className="shadow ">
+                            <CardHeader className="border-0 d-flex justify-content-between align-items-center ">
                                 <h3 className="mb-0">Products list</h3>
                                 <div className="d-flex">
                                     <Input
@@ -206,7 +235,7 @@ const Products = () => {
                                 </div>
                             </CardHeader>
                             <div className="table-wrapper">
-                                <Table className="align-items-center table-flush" responsive>
+                                <Table className="align-items-center table-flush "responsive >
                                     <thead className="thead-light">
                                         <tr>
                                             <th scope="col">Name</th>
@@ -230,8 +259,8 @@ const Products = () => {
                                                             getCategoryNameById(product.productCategory._id)
                                                         )}
                                                     </td>
-                                                    <td>{product.currency}</td>
-                                                    <td>{product.price}</td>
+                                                    <td>{getCurrencyCodeById(product.currency)}</td>
+                                                    <td>{getCurrencySymbolById(product.currency,product.price)}</td>
                                                     <td>{product.description}</td>
                                                     <td>{product.reference}</td>
                                                     <td>
@@ -239,7 +268,7 @@ const Products = () => {
                                                             <DropdownToggle tag="span" data-toggle="dropdown" style={{ cursor: 'pointer' }}>
                                                                 <FontAwesomeIcon icon={faEllipsisH} style={{ fontSize: '1rem' }} />
                                                             </DropdownToggle>
-                                                            <DropdownMenu right style={{ marginTop: "-25px" }}>
+                                                            <DropdownMenu right style={{ marginTop: "-25px"}}>
                                                                 <DropdownItem onClick={() => handleDisplayClick(product)}>
                                                                     <span className="d-flex align-items-center">
                                                                         <i className="fa-solid fa-eye" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
@@ -313,6 +342,8 @@ const Products = () => {
                     toggle={toggleDisplayModal}
                     product={selectedProduct}
                     categories={categories}
+                    currencies={currencies}
+
 
                 />)}
             {editModalOpen &&

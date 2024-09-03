@@ -3,7 +3,8 @@ import { Modal, ModalBody, Button, Badge, Table } from 'reactstrap';
 import axios from 'axios';
 import "./style.css"
 
-const DisplayInvoiceModal = ({ isOpen, toggle, invoice, clients, taxe }) => {
+const DisplayInvoiceModal = ({ isOpen, toggle, invoice, clients, taxe,currency }) => {
+    console.log(currency)
 
     const getClientNameById = (clientId) => {
         const client = clients.find(client => client._id === clientId);
