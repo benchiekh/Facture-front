@@ -14,17 +14,18 @@ import {
 } from 'reactstrap';
 import { toast } from 'react-toastify';
 
-const AddInvoiceModal = ({ isOpen, toggle, refreshInvoices, userId }) => {
+const AddProformaInvoice = ({ isOpen, toggle, refreshInvoices, userId }) => {
     const [invoice, setInvoice] = useState({
         client: '',
         number: 1,
         year: new Date().getFullYear(),
         currency: '',
-        status: 'Brouillon', 
+        status: 'Brouillon',
         date: new Date().toISOString().substring(0, 10),
         expirationDate: '',
         note: '',
         items: [{ article: '', description: '', quantity: 1, price: 0, total: 0 }],
+        type: 'Proforma' 
     });
 
     const [taxOptions, setTaxOptions] = useState([]);
@@ -147,7 +148,7 @@ const AddInvoiceModal = ({ isOpen, toggle, refreshInvoices, userId }) => {
             console.log("Payload being sent:", payload);
 
             await axios.post('http://localhost:5000/api/invoices', payload);
-            toast.success('Invoice added successfully', {
+            toast.success('Proforma invoice added successfully', {
                 autoClose: 2000,
                 hideProgressBar: false,
                 closeOnClick: true,
@@ -158,13 +159,13 @@ const AddInvoiceModal = ({ isOpen, toggle, refreshInvoices, userId }) => {
             refreshInvoices();
             toggle();
         } catch (error) {
-            console.error("Error saving invoice:", error);
+            console.error("Error saving proforma invoice:", error);
         }
     };
 
     return (
         <Modal isOpen={isOpen} toggle={toggle} size="lg">
-            <ModalHeader toggle={toggle}>New Invoice</ModalHeader>
+            <ModalHeader toggle={toggle}>New Proforma Invoice</ModalHeader>
             <ModalBody>
                 <Row form>
                     <Col md={6}>
@@ -267,9 +268,9 @@ const AddInvoiceModal = ({ isOpen, toggle, refreshInvoices, userId }) => {
                                 value={invoice.status}
                                 onChange={handleInputChange}
                             >
-                                <option value="Brouillon">Brouillon</option>
-                                <option value="Envoyé">Envoyé</option>
-                                <option value="Annulé">Annulé</option>
+                                <option value="Brouillon">Draft</option>
+                                <option value="Envoyé">Sent</option>
+                                <option value="Annulé">Cancelled</option>
                             </Input>
                         </FormGroup>
                     </Col>
@@ -334,7 +335,6 @@ const AddInvoiceModal = ({ isOpen, toggle, refreshInvoices, userId }) => {
                         <Col md={1} className="text-center">
                             <Button close onClick={() => removeItem(index)} />
                         </Col>
-                        
                     </Row>
                 ))}
                 <Button color="primary" onClick={addItem}>Add Item</Button>
@@ -403,4 +403,5 @@ const AddInvoiceModal = ({ isOpen, toggle, refreshInvoices, userId }) => {
     );
 };
 
-export default AddInvoiceModal;
+export default AddProformaInvoice;
+

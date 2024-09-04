@@ -14,13 +14,13 @@ import {
 } from 'reactstrap';
 import { toast } from 'react-toastify';
 
-const AddInvoiceModal = ({ isOpen, toggle, refreshInvoices, userId }) => {
+const EditProformaInvoiceModal = ({ isOpen, toggle, invoiceData, refreshInvoices, userId }) => {
     const [invoice, setInvoice] = useState({
         client: '',
         number: 1,
         year: new Date().getFullYear(),
         currency: '',
-        status: 'Brouillon', 
+        status: 'Brouillon',
         date: new Date().toISOString().substring(0, 10),
         expirationDate: '',
         note: '',
@@ -33,6 +33,7 @@ const AddInvoiceModal = ({ isOpen, toggle, refreshInvoices, userId }) => {
     const [invoiceTotal, setInvoiceTotal] = useState(0);
     const [clientOptions, setClientOptions] = useState([]);
     const [currencyOptions, setCurrencyOptions] = useState([]);
+    const [statusOptions] = useState(['Brouillon', 'Envoyé', 'Annulé', 'En attente', 'Accepté', 'Refusé']); 
 
     useEffect(() => {
         const fetchTaxes = async () => {
@@ -48,6 +49,7 @@ const AddInvoiceModal = ({ isOpen, toggle, refreshInvoices, userId }) => {
                 console.error("Error fetching taxes:", error);
             }
         };
+
         const fetchClients = async () => {
             try {
                 const response = await axios.get('http://localhost:5000/api/client', {
@@ -57,7 +59,7 @@ const AddInvoiceModal = ({ isOpen, toggle, refreshInvoices, userId }) => {
                     if (client.type === 'Person' && client.person) {
                         return {
                             value: client._id,
-                            label: `${client.person.nom} ${client.person.prenom} `
+                            label: `${client.person.nom} ${client.person.prenom}`
                         };
                     } else if (client.type === 'Company' && client.entreprise) {
                         return {
@@ -94,6 +96,13 @@ const AddInvoiceModal = ({ isOpen, toggle, refreshInvoices, userId }) => {
         fetchClients();
         fetchCurrencies();
     }, [userId]);
+
+    useEffect(() => {
+        if (invoiceData) {
+            setInvoice(invoiceData);
+            setSelectedTax(invoiceData.tax);
+        }
+    }, [invoiceData]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -144,10 +153,8 @@ const AddInvoiceModal = ({ isOpen, toggle, refreshInvoices, userId }) => {
                 createdBy: userId
             };
 
-            console.log("Payload being sent:", payload);
-
-            await axios.post('http://localhost:5000/api/invoices', payload);
-            toast.success('Invoice added successfully', {
+            await axios.put(`http://localhost:5000/api/invoices/${invoice._id}`, payload);
+            toast.success('Proforma invoice updated successfully', {
                 autoClose: 2000,
                 hideProgressBar: false,
                 closeOnClick: true,
@@ -158,13 +165,13 @@ const AddInvoiceModal = ({ isOpen, toggle, refreshInvoices, userId }) => {
             refreshInvoices();
             toggle();
         } catch (error) {
-            console.error("Error saving invoice:", error);
+            console.error("Error updating proforma invoice:", error);
         }
     };
 
     return (
         <Modal isOpen={isOpen} toggle={toggle} size="lg">
-            <ModalHeader toggle={toggle}>New Invoice</ModalHeader>
+            <ModalHeader toggle={toggle}>Edit Proforma Invoice</ModalHeader>
             <ModalBody>
                 <Row form>
                     <Col md={6}>
@@ -267,9 +274,11 @@ const AddInvoiceModal = ({ isOpen, toggle, refreshInvoices, userId }) => {
                                 value={invoice.status}
                                 onChange={handleInputChange}
                             >
-                                <option value="Brouillon">Brouillon</option>
-                                <option value="Envoyé">Envoyé</option>
-                                <option value="Annulé">Annulé</option>
+                                {statusOptions.map((status) => (
+                                    <option key={status} value={status}>
+                                        {status}
+                                    </option>
+                                ))}
                             </Input>
                         </FormGroup>
                     </Col>
@@ -287,18 +296,18 @@ const AddInvoiceModal = ({ isOpen, toggle, refreshInvoices, userId }) => {
                 <h5>Items</h5>
                 {invoice.items.map((item, index) => (
                     <Row form key={index} className="align-items-center items-row">
-                        <Col md={2}>
+                        <Col md={3}>
                             <FormGroup>
                                 <Input
                                     type="text"
                                     name="article"
-                                    placeholder="Article"
+                                    placeholder="Item Name"
                                     value={item.article}
                                     onChange={(e) => handleItemChange(index, e)}
                                 />
                             </FormGroup>
                         </Col>
-                        <Col md={3}>
+                        <Col md={4}>
                             <FormGroup>
                                 <Input
                                     type="text"
@@ -314,7 +323,7 @@ const AddInvoiceModal = ({ isOpen, toggle, refreshInvoices, userId }) => {
                                 <Input
                                     type="number"
                                     name="quantity"
-                                    placeholder="Quantity"
+                                    placeholder="Qty"
                                     value={item.quantity}
                                     onChange={(e) => handleItemChange(index, e)}
                                 />
@@ -334,64 +343,35 @@ const AddInvoiceModal = ({ isOpen, toggle, refreshInvoices, userId }) => {
                         <Col md={1} className="text-center">
                             <Button close onClick={() => removeItem(index)} />
                         </Col>
-                        
                     </Row>
                 ))}
                 <Button color="primary" onClick={addItem}>Add Item</Button>
-                <hr />
-                <Row>
+                <Row form className="mt-3">
                     <Col md={6}>
                         <FormGroup>
                             <Label for="tax">Tax</Label>
                             <Input
                                 type="select"
+                                name="tax"
                                 id="tax"
                                 value={selectedTax}
                                 onChange={handleTaxChange}
                             >
-                                <option value="">Select Tax</option>
-                                {taxOptions.map((option) => (
-                                    <option key={option.value} value={option.value}>
-                                        {option.label}
+                                <option value="">No Tax</option>
+                                {taxOptions.map((tax) => (
+                                    <option key={tax.value} value={tax.value}>
+                                        {tax.label}
                                     </option>
                                 ))}
                             </Input>
                         </FormGroup>
                     </Col>
-                    <Col md={6}>
-                        <FormGroup>
-                            <Label for="subtotal">Subtotal</Label>
-                            <Input
-                                type="text"
-                                id="subtotal"
-                                value={calculateSubtotal()}
-                                readOnly
-                            />
-                        </FormGroup>
-                    </Col>
                 </Row>
                 <Row>
                     <Col md={6}>
-                        <FormGroup>
-                            <Label for="taxAmount">Tax Amount</Label>
-                            <Input
-                                type="text"
-                                id="taxAmount"
-                                value={taxAmount}
-                                readOnly
-                            />
-                        </FormGroup>
-                    </Col>
-                    <Col md={6}>
-                        <FormGroup>
-                            <Label for="total">Total</Label>
-                            <Input
-                                type="text"
-                                id="total"
-                                value={invoiceTotal}
-                                readOnly
-                            />
-                        </FormGroup>
+                        <div>Subtotal: ${calculateSubtotal().toFixed(2)}</div>
+                        <div>Tax: ${taxAmount.toFixed(2)}</div>
+                        <div>Total: ${invoiceTotal.toFixed(2)}</div>
                     </Col>
                 </Row>
             </ModalBody>
@@ -403,4 +383,4 @@ const AddInvoiceModal = ({ isOpen, toggle, refreshInvoices, userId }) => {
     );
 };
 
-export default AddInvoiceModal;
+export default EditProformaInvoiceModal;

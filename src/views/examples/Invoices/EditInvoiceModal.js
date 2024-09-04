@@ -25,7 +25,9 @@ const EditInvoiceModal = ({ isOpen, toggle, invoiceData, refreshInvoices, userId
         expirationDate: '',
         note: '',
         items: [{ article: '', description: '', quantity: 1, price: 0, total: 0 }],
+        paidAmount: 0, 
     });
+    
 
     const [taxOptions, setTaxOptions] = useState([]);
     const [selectedTax, setSelectedTax] = useState('');
@@ -33,7 +35,7 @@ const EditInvoiceModal = ({ isOpen, toggle, invoiceData, refreshInvoices, userId
     const [invoiceTotal, setInvoiceTotal] = useState(0);
     const [clientOptions, setClientOptions] = useState([]);
     const [currencyOptions, setCurrencyOptions] = useState([]);
-    const [statusOptions] = useState(['Draft', 'Sent', 'Cancelled']); 
+    const [statusOptions] = useState(['Brouillon', 'Envoyé', 'Annulé']); 
 
     useEffect(() => {
         const fetchTaxes = async () => {
@@ -135,6 +137,7 @@ const EditInvoiceModal = ({ isOpen, toggle, invoiceData, refreshInvoices, userId
     };
 
     useEffect(() => {
+        console.log(invoice.paidAmount)
         const subtotal = calculateSubtotal();
         const selectedTaxOption = taxOptions.find(tax => tax.value === selectedTax);
         const calculatedTax = selectedTaxOption ? (subtotal * parseFloat(selectedTaxOption.label.split(' - ')[1])) / 100 : 0;
@@ -152,8 +155,21 @@ const EditInvoiceModal = ({ isOpen, toggle, invoiceData, refreshInvoices, userId
                 total: invoiceTotal,
                 createdBy: userId
             };
-
+    
+            let paymentStatus = invoice.paidAmount >= payload.total ? 'Paid' : 'Unpaid';
+    
             await axios.put(`http://localhost:5000/api/invoices/${invoice._id}`, payload);
+    
+            if (paymentStatus === 'Unpaid') {
+                await axios.put(`http://localhost:5000/api/invoices/${invoice._id}`, {
+                    paymentStatus: paymentStatus
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+            }
+    
             toast.success('Invoice updated successfully', {
                 autoClose: 2000,
                 hideProgressBar: false,
@@ -168,6 +184,7 @@ const EditInvoiceModal = ({ isOpen, toggle, invoiceData, refreshInvoices, userId
             console.error("Error updating invoice:", error);
         }
     };
+    
 
     return (
         <Modal isOpen={isOpen} toggle={toggle} size="lg">
@@ -357,7 +374,7 @@ const EditInvoiceModal = ({ isOpen, toggle, invoiceData, refreshInvoices, userId
                                 value={selectedTax}
                                 onChange={handleTaxChange}
                             >
-                                <option value="">No Tax</option>
+                               
                                 {taxOptions.map((tax) => (
                                     <option key={tax.value} value={tax.value}>
                                         {tax.label}
@@ -374,6 +391,7 @@ const EditInvoiceModal = ({ isOpen, toggle, invoiceData, refreshInvoices, userId
                         <div>Total: ${invoiceTotal.toFixed(2)}</div>
                     </Col>
                 </Row>
+                
             </ModalBody>
             <ModalFooter>
                 <Button color="secondary" onClick={toggle}>Cancel</Button>

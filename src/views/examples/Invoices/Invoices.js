@@ -27,6 +27,8 @@ import DisplayInvoiceModal from "../Invoices/DisplayInvoicemodal";
 import AddInvoiceModal from "../Invoices/AddInvoiceModal";
 import EditInvoiceModal from "./EditInvoiceModal";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
+import PaymentModal from "./payment";
+
 
 const decodeToken = (token) => {
     const base64Url = token.split('.')[1];
@@ -51,6 +53,10 @@ const Invoices = () => {
     const [invoiceToEdit, setInvoiceToEdit] = useState(null);
     const [taxe, setTaxe] = useState([]);
     const [currencies, setCurrencies] = useState([]);
+    const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+    const [invoiceToPay, setInvoiceToPay] = useState(null);
+
+
 
 
     const token = localStorage.getItem('token');
@@ -61,9 +67,10 @@ const Invoices = () => {
 
     const fetchInvoices = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/invoices?createdBy=${currentUserId}`);
-            console.log(response.data);
+            const response = await axios.get(`http://localhost:5000/api/invoices`, { params: { createdBy: currentUserId } });
+
             setInvoices(response.data);
+            console.log(response.data)
         } catch (error) {
             console.error("Error fetching invoices:", error);
         }
@@ -79,7 +86,7 @@ const Invoices = () => {
                 params: { createdBy: currentUserId }
             });
             setClients(response.data);
-            console.log("les clients cree par moi " + clients);
+            console.log(response.data);
         } catch (err) {
             toast.error('Failed to fetch clients');
         }
@@ -98,27 +105,32 @@ const Invoices = () => {
         try {
             const response = await axios.get("http://localhost:5000/api/currency", {
                 params: { createdBy: currentUserId },
-               
+
             });
             setCurrencies(response.data);
         } catch (error) {
             console.error("Error fetching currencies:", error);
         }
     };
-    
+
 
     const getClientNameById = (clientId) => {
         const client = clients.find(client => client._id === clientId);
         if (!client) return 'Client not found';
 
         if (client.type === 'Person' && client.person) {
-            return `${client.person.prenom} ${client.person.nom}`;
+            return (
+                <>
+                    {client.person.prenom} <br /> {client.person.nom}
+                </>
+            );
         } else if (client.type === 'Company' && client.entreprise) {
             return client.entreprise.nom;
         } else {
             return 'Client type not recognized';
         }
     };
+
 
     useEffect(() => {
         fetchInvoices();
@@ -160,10 +172,13 @@ const Invoices = () => {
 
     const filteredInvoices = invoices.filter((invoice) => {
         return (
-            invoice?.client?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            invoice?.number?.toString().includes(searchQuery) ||
-            invoice?.currency?.code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            invoice?.status?.toLowerCase().includes(searchQuery.toLowerCase())
+            invoice?.type === 'Standard' &&
+            (
+                invoice?.client?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                invoice?.number?.toString().includes(searchQuery) ||
+                invoice?.currency?.code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                invoice?.status?.toLowerCase().includes(searchQuery.toLowerCase())
+            )
         );
     });
 
@@ -204,19 +219,56 @@ const Invoices = () => {
         toggleEditModal();
     };
 
+    const togglePaymentModal = () => {
+        setPaymentModalOpen(!paymentModalOpen);
+    };
+
+    const handleSavePaymentClick = (invoice) => {
+        setInvoiceToPay(invoice);
+        togglePaymentModal();
+    };
+
     const getStatusStyle = (status) => {
         switch (status) {
-            case 'Paid':
-                return 'success'; 
-            case 'Sent':
-                return 'info'; 
-            case 'Draft':
-                return 'warning'; 
-            
+            case 'Envoyé':
+                return 'success';
+            case 'Annulé':
+                return 'danger';
+            case 'Brouillon':
+                return 'light';
+
             case 'Cancelled':
-                return 'danger'; 
+                return 'danger';
             default:
-                return 'light'; 
+                return 'light';
+        }
+    };
+
+    const getPaymentStatusStyle = (status) => {
+        switch (status) {
+            case 'Paid':
+                return 'success';
+            case 'Unpaid':
+                return 'danger';
+            case 'Partially Paid':
+                return 'info';
+            default:
+                return 'light';
+        }
+    };
+    const getCurrencySymbolById = (id, price) => {
+        const currency = currencies.find(currency => currency._id === id);
+
+        if (!currency) {
+            return 'Currency Not Found'; // or handle it in a way that makes sense for your application
+        }
+
+        if (currency.symbolPosition === "after") {
+            return price + currency.symbol;
+        } else if (currency.symbolPosition === "before") {
+            return currency.symbol + price;
+        } else {
+            return currency.symbol; // assuming you still want to return the symbol if symbolPosition is not specified
         }
     };
 
@@ -251,8 +303,9 @@ const Invoices = () => {
                                             <th scope="col">Expiration Date</th>
                                             <th scope="col">Total</th>
                                             <th scope="col">Paid</th>
-
                                             <th scope="col">Status</th>
+                                            <th scope="col">Payment</th>
+
                                             <th scope="col">Created by</th>
                                             <th scope="col"></th>
                                         </tr>
@@ -262,18 +315,26 @@ const Invoices = () => {
                                             currentInvoices.map((invoice) => (
                                                 <tr key={invoice._id}>
                                                     <td>{invoice.number}</td>
-                                                    <td>{getClientNameById(invoice.client)}</td>
+                                                    <td>{getClientNameById(invoice.client._id)}</td>
                                                     <td>{new Date(invoice.date).toLocaleDateString()}</td>
                                                     <td>{new Date(invoice.expirationDate).toLocaleDateString()}</td>
-                                                    <td>{invoice.total}</td>
-                                                    <td></td>
+                                                    <td>
+                                                        {invoice.currency ? getCurrencySymbolById(invoice.currency._id, invoice.total) : 'Currency Not Available'}
+                                                    </td>
 
+
+                                                    <td> {invoice.currency ? getCurrencySymbolById(invoice.currency._id, invoice.paidAmount) : 'Currency Not Available'}</td>
                                                     <td>
                                                         <Badge color={getStatusStyle(invoice.status)}>
                                                             {invoice.status}
                                                         </Badge>
                                                     </td>
-                                                    <td>{username + " " + userlastname}</td>
+                                                    <td>
+                                                        <Badge color={getPaymentStatusStyle(invoice.paymentStatus)}>
+                                                            {invoice.paymentStatus}
+                                                        </Badge>
+                                                    </td>
+                                                    <td>{username} <br />{userlastname}</td>
                                                     <td>
                                                         <Dropdown isOpen={dropdownOpen === invoice._id} toggle={() => toggleDropdown(invoice._id)} >
                                                             <DropdownToggle tag="span" data-toggle="dropdown" style={{ cursor: 'pointer' }}>
@@ -292,12 +353,13 @@ const Invoices = () => {
                                                                         Edit
                                                                     </span>
                                                                 </DropdownItem>
-                                                                <DropdownItem >
+                                                                <DropdownItem onClick={() => handleSavePaymentClick(invoice)}>
                                                                     <span className="d-flex align-items-center">
                                                                         <i className="fa-solid fa-dollar-sign" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
                                                                         Save payment
                                                                     </span>
                                                                 </DropdownItem>
+
                                                                 <DropdownItem divider />
                                                                 <DropdownItem onClick={() => handleDeleteClick(invoice._id)}>
                                                                     <span className="d-flex align-items-center">
@@ -308,6 +370,7 @@ const Invoices = () => {
                                                             </DropdownMenu>
                                                         </Dropdown>
                                                     </td>
+
                                                 </tr>
                                             ))
                                         ) : (
@@ -359,6 +422,8 @@ const Invoices = () => {
                     clients={clients}
                     taxe={taxe}
                     currency={currencies}
+                    refreshInvoices={refreshInvoices}
+
                 />
             )}
             {editModalOpen && (
@@ -368,8 +433,21 @@ const Invoices = () => {
                     invoiceData={invoiceToEdit}
                     refreshInvoices={refreshInvoices}
                     userId={currentUserId}
+                    paidAmount
                 />
             )}
+            {paymentModalOpen && (
+                <PaymentModal
+                    isOpen={paymentModalOpen}
+                    toggle={togglePaymentModal}
+                    invoice={invoiceToPay}
+                    refreshInvoices={refreshInvoices}
+                    clients={clients}
+
+
+                />
+            )}
+
         </>
     );
 };

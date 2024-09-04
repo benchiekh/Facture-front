@@ -5,41 +5,31 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import "./style.css";
 
-const DisplayInvoiceModal = ({ isOpen, toggle, invoice,refreshInvoices }) => {
+const DisplayProformaInvoiceModal = ({ isOpen, toggle, proformaInvoice }) => {
     const [loading, setLoading] = useState(false); 
-    const getBadgeColor = (status) => {
-        switch (status) {
-            case 'Envoyé':
-                return 'success'; 
-           
-            case 'Brouillon':
-                return 'light'; 
-            case 'Annulé':
-                return 'danger'; 
-          
-            default:
-                return 'light'; 
-        }
-    };
 
-    const getPaymentBadgeColor = (status) => {
+    const getBadgeColor = (status) => {
         switch (status) {
             case 'Paid':
                 return 'success'; 
-            case 'Partially Paid':
+            case 'Sent':
                 return 'info'; 
+            case 'Draft':
+                return 'secondary'; 
             case 'Unpaid':
                 return 'danger'; 
+            case 'Canceled':
+                return 'warning'; 
             default:
                 return 'light'; 
         }
     };
 
     const handleDownloadPDF = async () => {
-        console.log('Downloading PDF for invoice:', invoice);
+        console.log('Downloading PDF for proforma invoice:', proformaInvoice);
     
         try {
-            const response = await axios.get(`http://localhost:5000/api/invoices/export-pdf/${invoice._id}/${invoice.createdBy}`, {
+            const response = await axios.get(`http://localhost:5000/api/invoices/export-pdf/${proformaInvoice._id}/${proformaInvoice.createdBy}`, {
                 responseType: 'blob', 
             });
     
@@ -47,7 +37,7 @@ const DisplayInvoiceModal = ({ isOpen, toggle, invoice,refreshInvoices }) => {
                 const url = window.URL.createObjectURL(new Blob([response.data]));
                 const link = document.createElement('a');
                 link.href = url;
-                link.setAttribute('download', `invoice-${invoice.number}.pdf`);
+                link.setAttribute('download', `proforma-invoice-${proformaInvoice.number}.pdf`);
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -60,58 +50,45 @@ const DisplayInvoiceModal = ({ isOpen, toggle, invoice,refreshInvoices }) => {
             toast.error('Error downloading PDF. Please try again.');
         }
     };
-    
 
     const handleSendEmail = async () => {
         setLoading(true); 
-        console.log('Sending invoice via email...');
-    
+        console.log('Sending proforma invoice via email...');
+
         try {
-            const response = await axios.get(`http://localhost:5000/api/invoices/export-pdf/send-email/${invoice._id}/${invoice.createdBy}`);
+            const response = await axios.get(`http://localhost:5000/api/invoices/export-pdf/send-email/${proformaInvoice._id}/${proformaInvoice.createdBy}`);
             if (response.status === 200) {
-                await axios.put(`http://localhost:5000/api/invoices/${invoice._id}`, {
-                    status: 'Envoyé'
-                }, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-    
-                toast.success('Invoice sent via email successfully.');
-                refreshInvoices();  
-    
+                toast.success('Proforma invoice sent via email successfully.');
             } else {
-                toast.error('Failed to send the invoice. Please try again.');
+                toast.error('Failed to send the proforma invoice. Please try again.');
             }
         } catch (error) {
-            console.error('Error sending invoice via email:', error);
-            toast.error('Error sending invoice via email. Please try again.');
+            console.error('Error sending proforma invoice via email:', error);
+            toast.error('Error sending proforma invoice via email. Please try again.');
         } finally {
             setLoading(false); 
         }
     };
-    
 
     return (
         <Modal isOpen={isOpen} toggle={toggle} size="lg">
             <ModalBody>
                 <div className="invoice-header">
-                    <h4>Facture # {invoice.number}/{invoice.year}</h4>
+                    <h4>Proforma Facture # {proformaInvoice.number}/{proformaInvoice.year}</h4>
                     <div className="status-badges">
-                    <Badge color={getBadgeColor(invoice.status)}>{invoice.status}</Badge>
-                        <Badge color={getPaymentBadgeColor(invoice.paymentStatus)}>{invoice.paymentStatus}</Badge>
+                        <Badge color={getBadgeColor(proformaInvoice.status)}>{proformaInvoice.status}</Badge>
                     </div>
                     <div className="amounts-summary">
-                        <div>Status: {invoice.status}</div>
-                        <div>Sous-total: ${invoice.subtotal}</div>
-                        <div>Total: ${invoice.total}</div>
+                        <div>Status: {proformaInvoice.status}</div>
+                        <div>Sous-total: ${proformaInvoice.subtotal}</div>
+                        <div>Total: ${proformaInvoice.total}</div>
                     </div>
                 </div>
 
                 <div className="client-info">
-                    <p><strong>Client:</strong> {invoice.client.person.nom} {invoice.client.person.prenom}</p>
-                    <p><strong>Email:</strong> {invoice.client.person.email}</p>
-                    <p><strong>Téléphone:</strong> {invoice.client.person.telephone}</p>
+                    <p><strong>Client:</strong> {proformaInvoice.client.person.nom} {proformaInvoice.client.person.prenom}</p>
+                    <p><strong>Email:</strong> {proformaInvoice.client.person.email}</p>
+                    <p><strong>Téléphone:</strong> {proformaInvoice.client.person.telephone}</p>
                 </div>
 
                 <Table>
@@ -125,7 +102,7 @@ const DisplayInvoiceModal = ({ isOpen, toggle, invoice,refreshInvoices }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {invoice.items.map((item, index) => (
+                        {proformaInvoice.items.map((item, index) => (
                             <tr key={index}>
                                 <td>{item.article}</td>
                                 <td>{item.description}</td>
@@ -138,21 +115,23 @@ const DisplayInvoiceModal = ({ isOpen, toggle, invoice,refreshInvoices }) => {
                 </Table>
 
                 <div className="totals-section">
-                    <p>Sous-total: ${invoice.subtotal}</p>
-                    <p>Total des taxes ({invoice.tax.value}%): ${invoice.taxAmount}</p>
-                    <p><strong>Total:</strong> ${invoice.total}</p>
+                    <p>Sous-total: ${proformaInvoice.subtotal}</p>
+                    <p>Total des taxes ({proformaInvoice.tax.value}%): ${proformaInvoice.taxAmount}</p>
+                    <p><strong>Total:</strong> ${proformaInvoice.total}</p>
                 </div>
 
                 <div className="action-buttons">
-                    <Button color="secondary" onClick={toggle}>Fermer</Button>
-                    <Button color="info" onClick={handleDownloadPDF}>Télécharger PDF</Button>
+                    <Button color="secondary" onClick={toggle}>Close</Button>
+                    <Button color="info" onClick={handleDownloadPDF}>Download PDF</Button>
+                    <Button color="warning" >Convert to invoice</Button>
+
                     <Button color="primary" onClick={handleSendEmail} disabled={loading}>
                         {loading ? (
                             <>
-                                <Spinner size="sm" /> Envoi en cours...
+                                <Spinner size="sm" /> Sending...
                             </>
                         ) : (
-                            'Envoyer par email'
+                            'Send by email'
                         )}
                     </Button>
                 </div>
@@ -161,4 +140,4 @@ const DisplayInvoiceModal = ({ isOpen, toggle, invoice,refreshInvoices }) => {
     );
 };
 
-export default DisplayInvoiceModal;
+export default DisplayProformaInvoiceModal;
