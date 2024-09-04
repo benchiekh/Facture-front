@@ -260,7 +260,7 @@ const Invoices = () => {
         const currency = currencies.find(currency => currency._id === id);
 
         if (!currency) {
-            return 'Currency Not Found'; // or handle it in a way that makes sense for your application
+            return 'Currency Not Found'; 
         }
 
         if (currency.symbolPosition === "after") {
@@ -268,7 +268,7 @@ const Invoices = () => {
         } else if (currency.symbolPosition === "before") {
             return currency.symbol + price;
         } else {
-            return currency.symbol; // assuming you still want to return the symbol if symbolPosition is not specified
+            return currency.symbol; 
         }
     };
 
