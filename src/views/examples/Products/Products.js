@@ -118,13 +118,17 @@ const Products = () => {
     };
 
 
-    const getCurrencySymbolById = (id,price) => {
+    const getCurrencySymbolById = (id, price) => {
         const currency = currencies.find(currency => currency._id === id);
-        if (currency.symbolPosition ==="after") return price+currency.symbol
-        else if (currency.symbolPosition ==="before") return currency.symbol+price
-        else return currency ? currency.symbol : 'Currency Not Found';
+        if (!currency) return 'Currency Not Found';
+        if (currency.symbolPosition === "after") {
+            return price.toFixed(2) + currency.symbol;
+        } else if (currency.symbolPosition === "before") {
+            return currency.symbol + price.toFixed(2);
+        } else {
+            return currency.symbol;
+        }
     };
-
 
     const filteredProducts = products.filter((product) => {
         const categoryName = getCategoryNameById(product.productCategory);
