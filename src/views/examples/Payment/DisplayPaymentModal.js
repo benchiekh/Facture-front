@@ -28,7 +28,6 @@ const DisplayPaymentModal = ({ isOpen, toggle, invoice }) => {
                 setPayments(response.data);
             } catch (error) {
                 if (error.response?.status === 404) {
-                    // Handle 404 error gracefully
                     setNoPayments(true);
                 } else {
                     console.error("Error fetching payment history:", error);

@@ -8,7 +8,7 @@ import "./style.css";
 const DisplayProformaInvoiceModal = ({ isOpen, toggle, proformaInvoice, refreshInvoices, userId }) => {
     const [loading, setLoading] = useState(false);
     const [isConverting, setIsConverting] = useState(false);
-    const [invoice, setInvoice] = useState(proformaInvoice); // Use local state for invoice
+    const [invoice, setInvoice] = useState(proformaInvoice); 
 
     const getBadgeColor = (status) => {
         switch (status) {
@@ -62,14 +62,13 @@ const DisplayProformaInvoiceModal = ({ isOpen, toggle, proformaInvoice, refreshI
         try {
             const response = await axios.get(`http://localhost:5000/api/invoices/export-pdf/send-email/${invoice._id}/${invoice.createdBy}`);
             if (response.status === 200) {
-                // Update the invoice status to 'Envoyé' immediately
                 setInvoice(prevInvoice => ({
                     ...prevInvoice,
                     status: 'Envoyé'
                 }));
 
                 toast.success('Proforma invoice sent via email successfully.');
-                refreshInvoices(); // Refresh the invoices list if needed
+                refreshInvoices(); 
             } else {
                 toast.error('Failed to send the proforma invoice. Please try again.');
             }
@@ -93,7 +92,7 @@ const DisplayProformaInvoiceModal = ({ isOpen, toggle, proformaInvoice, refreshI
 
             if (response.status === 201) {
                 toast.success('Proforma invoice converted to Facture successfully.');
-                refreshInvoices(); // Refresh the invoices list if needed
+                refreshInvoices(); 
                 toggle();
             } else {
                 toast.error('Failed to convert Proforma invoice. Please try again.');

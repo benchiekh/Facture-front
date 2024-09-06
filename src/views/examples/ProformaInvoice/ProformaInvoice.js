@@ -51,7 +51,7 @@ const ProformaInvoice = () => {
     const [invoiceToEdit, setInvoiceToEdit] = useState(null);
     const [taxe, setTaxe] = useState([]);
     const [currencies, setCurrencies] = useState([]);
-    const [selectedType, setSelectedType] = useState(''); // For filtering by type
+    const [selectedType, setSelectedType] = useState(''); 
     const [selectedStatus, setSelectedStatus] = useState('');
     const token = localStorage.getItem('token');
     const decodedToken = token ? decodeToken(token) : {};
@@ -63,8 +63,8 @@ const ProformaInvoice = () => {
         try {
             const response = await axios.get(`http://localhost:5000/api/invoices/${currentUserId}`, {
                 params: {
-                    type: selectedType || undefined, // Pass only if defined
-                    status: selectedStatus || undefined, // Pass only if defined
+                    type: selectedType || undefined, 
+                    status: selectedStatus || undefined, 
                 }
             });
 

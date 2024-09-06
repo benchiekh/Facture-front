@@ -16,7 +16,6 @@ import { FaCalendarAlt } from "react-icons/fa";
 import Header from "components/Headers/ElementHeader";
 import axios from "axios";
 
-// Helper function to decode JWT token
 const decodeToken = (token) => {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -24,7 +23,6 @@ const decodeToken = (token) => {
     return payload;
 };
 
-// Helper function to get date range based on the period selected
 const getDateRange = (period) => {
     const today = new Date();
     let start, end;
@@ -74,11 +72,12 @@ const Report = () => {
     const currentUserId = decodedToken.AdminID;
 
     const [data, setData] = useState({
-        labels: ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+
         datasets: [
             {
-                label: "Sales",
-                data: [25, 20, 30, 22, 17, 29],
+                label: "Paid invoices",
+                data: [0, 0, 0, 0, 0, 0],
                 maxBarThickness: 10,
                 backgroundColor: '#4c84ff',
             },
@@ -131,7 +130,7 @@ const Report = () => {
     const [unpaidInvoices, setUnpaidInvoices] = useState([]);
     const [totalPaid, setTotalPaid] = useState("00.00 €");
     const [totalUnpaid, setTotalUnpaid] = useState("00.00 €");
-    const [selectedType, setSelectedType] = useState(''); // For filtering by type
+    const [selectedType, setSelectedType] = useState(''); 
     const [selectedStatus, setSelectedStatus] = useState('');
 
     const fetchCurrencies = async () => {
@@ -151,10 +150,10 @@ const Report = () => {
         try {
             const response = await axios.get(`http://localhost:5000/api/invoices/${currentUserId}`, {
                 params: {
-                    type: selectedType || undefined,  // Pass only if defined
-                    status: selectedStatus || undefined,  // Pass only if defined
+                    type: selectedType || undefined,  
+                    status: selectedStatus || undefined,  
                 },
-                headers: { Authorization: `Bearer ${token}` } // Include the authorization token
+                headers: { Authorization: `Bearer ${token}` } 
             });
 
             const FilterPaidInvoices = response.data.filter(invoice =>
@@ -209,7 +208,6 @@ const Report = () => {
         });
 
         if (selectedCurrency) {
-            // Format totals for the selected currency
             const paidCurrencyTotal = paidTotalsByCurrency[selectedCurrency._id] || 0;
             const unpaidCurrencyTotal = unpaidTotalsByCurrency[selectedCurrency._id] || 0;
 

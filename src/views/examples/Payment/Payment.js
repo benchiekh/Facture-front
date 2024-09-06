@@ -24,11 +24,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsisH } from "@fortawesome/free-solid-svg-icons";
 import DisplayPaymentModal from "./DisplayPaymentModal"
-// import DisplayInvoiceModal from "../Invoices/DisplayInvoicemodal";
-// import AddInvoiceModal from "../Invoices/AddInvoiceModal";
-// import EditInvoiceModal from "./EditInvoiceModal";
-// import ConfirmDeleteModal from "./ConfirmDeleteModal";
-// import PaymentModal from "./payment";
+
 
 
 const decodeToken = (token) => {
@@ -56,7 +52,7 @@ const PaymentHistory = () => {
     const [currencies, setCurrencies] = useState([]);
     const [paymentModalOpen, setPaymentModalOpen] = useState(false);
     const [invoiceToPay, setInvoiceToPay] = useState(null);
-    const [selectedType, setSelectedType] = useState(''); // For filtering by type
+    const [selectedType, setSelectedType] = useState(''); 
     const [selectedStatus, setSelectedStatus] = useState('');
 
 
@@ -71,8 +67,8 @@ const PaymentHistory = () => {
         try {
             const response = await axios.get(`http://localhost:5000/api/invoices/${currentUserId}`, {
                 params: {
-                    type: selectedType || undefined, // Pass only if defined
-                    status: selectedStatus || undefined, // Pass only if defined
+                    type: selectedType || undefined, 
+                    status: selectedStatus || undefined, 
                 }
             });
 
@@ -231,26 +227,7 @@ const PaymentHistory = () => {
         setPaymentModalOpen(!paymentModalOpen);
     };
 
-    const handleSavePaymentClick = (invoice) => {
-        setInvoiceToPay(invoice);
-        togglePaymentModal();
-    };
 
-    const getStatusStyle = (status) => {
-        switch (status) {
-            case 'Envoyé':
-                return 'success';
-            case 'Annulé':
-                return 'danger';
-            case 'Brouillon':
-                return 'light';
-
-            case 'Cancelled':
-                return 'danger';
-            default:
-                return 'light';
-        }
-    };
 
     const getPaymentStatusStyle = (status) => {
         switch (status) {
@@ -289,7 +266,7 @@ const PaymentHistory = () => {
                     <div className="col">
                         <Card className="shadow" >
                             <CardHeader className="border-0 d-flex justify-content-between align-items-center">
-                                <h3 className="mb-0">Invoices list</h3>
+                                <h3 className="mb-0">Payment History list</h3>
                                 <div className="d-flex">
                                     <Input
                                         type="text"
@@ -298,7 +275,7 @@ const PaymentHistory = () => {
                                         onChange={handleSearchChange}
                                         className="mr-3"
                                     />
-                                    <Button color="primary" onClick={toggleModal}>Add new invoice</Button>
+                                  
                                 </div>
                             </CardHeader>
                             <div className="table-wrapper">
@@ -307,7 +284,6 @@ const PaymentHistory = () => {
                                         <tr>
                                             <th scope="col">Invoice Number</th>
                                             <th scope="col">Client</th>
-                                            
                                             <th scope="col">Total</th>
                                             <th scope="col">Paid</th>
                                             <th scope="col">Payment</th>
