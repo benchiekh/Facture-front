@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Line } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
 import {
     Card,
     CardBody,
@@ -16,6 +16,7 @@ import { FaCalendarAlt } from "react-icons/fa";
 import Header from "components/Headers/ElementHeader";
 import axios from "axios";
 
+// Helper function to decode JWT token
 const decodeToken = (token) => {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -23,6 +24,7 @@ const decodeToken = (token) => {
     return payload;
 };
 
+// Helper function to get date range based on the period selected
 const getDateRange = (period) => {
     const today = new Date();
     let start, end;
@@ -72,31 +74,45 @@ const Report = () => {
     const currentUserId = decodedToken.AdminID;
 
     const [data, setData] = useState({
-        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        labels: ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
         datasets: [
             {
-                label: "Paid",
-                data: Array(12).fill(0),
-                borderColor: "#4c84ff",
-                backgroundColor: "transparent",
-                borderDash: [5, 5],
+                label: "Sales",
+                data: [25, 20, 30, 22, 17, 29],
+                maxBarThickness: 10,
+                backgroundColor: '#4c84ff',
             },
         ],
     });
 
     const [options, setOptions] = useState({
         scales: {
+            y: {
+                ticks: {
+                    callback: function (value) {
+                        if (!(value % 10)) {
+                            return value;
+                        }
+                    },
+                },
+            },
             x: {
                 grid: {
                     display: false,
                 },
             },
-            y: {
-                grid: {
-                    display: false,
-                },
-                ticks: {
-                    beginAtZero: true,
+        },
+        tooltips: {
+            callbacks: {
+                label: function (item, data) {
+                    var label = data.datasets[item.datasetIndex].label || "";
+                    var yLabel = item.yLabel;
+                    var content = "";
+                    if (data.datasets.length > 1) {
+                        content += label;
+                    }
+                    content += yLabel;
+                    return content;
                 },
             },
         },
@@ -115,6 +131,8 @@ const Report = () => {
     const [unpaidInvoices, setUnpaidInvoices] = useState([]);
     const [totalPaid, setTotalPaid] = useState("00.00 €");
     const [totalUnpaid, setTotalUnpaid] = useState("00.00 €");
+    const [selectedType, setSelectedType] = useState(''); // For filtering by type
+    const [selectedStatus, setSelectedStatus] = useState('');
 
     const fetchCurrencies = async () => {
         try {
@@ -131,10 +149,12 @@ const Report = () => {
 
     const fetchInvoices = async () => {
         try {
-            const response = await axios.get("http://localhost:5000/api/invoices", {
-                params: { createdBy: currentUserId }
-            }, {
-                headers: { Authorization: `Bearer ${token}` },
+            const response = await axios.get(`http://localhost:5000/api/invoices/${currentUserId}`, {
+                params: {
+                    type: selectedType || undefined,  // Pass only if defined
+                    status: selectedStatus || undefined,  // Pass only if defined
+                },
+                headers: { Authorization: `Bearer ${token}` } // Include the authorization token
             });
 
             const FilterPaidInvoices = response.data.filter(invoice =>
@@ -165,7 +185,6 @@ const Report = () => {
 
         const paidTotalsByCurrency = {};
         const unpaidTotalsByCurrency = {};
-        const proformaTotalsByCurrency = {};
 
         paidInvoices.forEach(invoice => {
             const invoiceDate = new Date(invoice.date);
@@ -202,100 +221,59 @@ const Report = () => {
             paidInvoices.forEach(invoice => {
                 const invoiceDate = new Date(invoice.date);
                 if (invoice.currency._id === selectedCurrency._id && invoiceDate >= paidStart && invoiceDate <= paidEnd) {
-                    const month = invoiceDate.getMonth();
-                    paidMonthlyData[month] += invoice.paidAmount;
+                    const monthIndex = invoiceDate.getMonth();
+                    paidMonthlyData[monthIndex] += invoice.paidAmount;
                 }
             });
-
-            setData(prevData => ({
-                ...prevData,
-                datasets: [
-                    {
-                        ...prevData.datasets[0],
-                        data: paidMonthlyData,
-                    },
-                ],
-            }));
 
             setTotalPaid(formattedPaidTotal);
             setTotalUnpaid(formattedUnpaidTotal);
 
-        } else {
-            // Reset totals and chart data when no currency is selected
-            const formattedPaidTotal = "00.00";
-            const formattedUnpaidTotal = "00.00";
-
-            const paidMonthlyData = Array(12).fill(0);
-
-            paidInvoices.forEach(invoice => {
-                const invoiceDate = new Date(invoice.date);
-                if (invoiceDate >= paidStart && invoiceDate <= paidEnd) {
-                    const month = invoiceDate.getMonth();
-                    paidMonthlyData[month] += invoice.paidAmount;
-                }
-            });
-
-            setData(prevData => ({
-                ...prevData,
+            // Set chart data
+            setData({
+                labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
                 datasets: [
                     {
-                        ...prevData.datasets[0],
+                        label: "Sales",
                         data: paidMonthlyData,
+                        maxBarThickness: 10,
+                        backgroundColor: "#4c84ff",
                     },
                 ],
-            }));
-
-            setTotalPaid(formattedPaidTotal);
-            setTotalUnpaid(formattedUnpaidTotal);
+            });
         }
     };
 
     const handlePeriodSelect = (period, cardTitle) => {
-        setCardData(prevCardData =>
-            prevCardData.map(card =>
-                card.title === cardTitle
-                    ? { ...card, period, dropdownOpen: false }
-                    : card
-            )
-        );
+        const updatedCardData = cardData.map(card => {
+            if (card.title === cardTitle) {
+                return { ...card, period };
+            }
+            return card;
+        });
 
-        // Close the period dropdown for the specific card
-        updateChartAndTotals(
-            cardData.find(card => card.title === "Paid Invoice") ? paidInvoices : [],
-            cardData.find(card => card.title === "Unpaid Invoice") ? unpaidInvoices : []
-        );
+        setCardData(updatedCardData);
+        updateChartAndTotals(paidInvoices, unpaidInvoices);
     };
 
     const handleCurrencySelect = (currency) => {
-        if (currency) {
-            setSelectedCurrency(currency);
-        } else {
-            setSelectedCurrency(null);
-        }
+        setSelectedCurrency(currency);
         updateChartAndTotals(paidInvoices, unpaidInvoices);
-        setCurrencyDropdownOpen(false);
     };
 
     const getCurrencySymbolById = (id, price) => {
-        const currency = currencies.find(currency => currency._id === id);
-        if (!currency) return '';
-        if (currency.symbolPosition === "after") {
-            return price.toFixed(2) + currency.symbol;
-        } else if (currency.symbolPosition === "before") {
-            return currency.symbol + price.toFixed(2);
-        } else {
-            return currency.symbol;
-        }
+        const currency = currencies.find(c => c._id === id);
+        return currency ? `${price.toFixed(2)} ${currency.symbol}` : price.toFixed(2);
     };
 
     const toggleDropdown = (dropdown) => {
-        setCardData(prevCardData =>
-            prevCardData.map(card =>
-                card.title.toLowerCase().replace(" ", "") === dropdown
-                    ? { ...card, dropdownOpen: !card.dropdownOpen }
-                    : card
-            )
-        );
+        const updatedCardData = cardData.map(card => {
+            if (card.title.toLowerCase().replace(" ", "") === dropdown) {
+                return { ...card, dropdownOpen: !card.dropdownOpen };
+            }
+            return card;
+        });
+        setCardData(updatedCardData);
     };
 
     const toggleCurrencyDropdown = () => setCurrencyDropdownOpen(!currencyDropdownOpen);
@@ -380,14 +358,13 @@ const Report = () => {
                                         </Col>
                                     </Row>
                                 </CardBody>
-
                             </Card>
                         </Col>
                     ))}
                 </Row>
                 <Card className="shadow-sm">
                     <CardBody>
-                        <Line data={data} options={options} />
+                        <Bar data={data} options={options} />
                     </CardBody>
                 </Card>
             </Container>

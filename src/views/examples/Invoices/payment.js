@@ -6,12 +6,10 @@ import {
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const SavePaymentModal = ({ isOpen, toggle, invoice, refreshInvoices,clients }) => {
+const SavePaymentModal = ({ isOpen, toggle, invoice, refreshInvoices, userId }) => {
     const [amount, setAmount] = useState('');
     const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split("T")[0]);
     const [paymentMethod, setPaymentMethod] = useState('');
-    const [reference, setReference] = useState('');
-    const [description, setDescription] = useState('');
 
     const remainingAmount = invoice.total - invoice.paidAmount;
 
@@ -21,40 +19,38 @@ const SavePaymentModal = ({ isOpen, toggle, invoice, refreshInvoices,clients }) 
             toast.error('Please enter a valid payment amount.');
             return;
         }
-    
+
         if (amountValue > remainingAmount) {
             toast.error('Payment amount exceeds the remaining amount to be paid.');
             return;
         }
-    
+
         if (invoice.paymentStatus === 'Paid') {
             toast.warning('This invoice has already been paid.');
             return;
         }
-    
+
         try {
-            const response = await axios.post(`http://localhost:5000/api/invoices/pay/${invoice._id}`, {
-                amountPaid: amountValue,  
-                paymentDate,
+            const response = await axios.post(`http://localhost:5000/api/payments/${invoice._id}`, {
+                amountPaid: amountValue,
+                paymentDate,  // Include paymentDate in the request
                 paymentMethod,
-                reference,
-                description
+                createdBy: userId  // Ensure the user ID is sent as createdBy
             }, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
             });
-    
+
             toast.success('Payment recorded successfully');
-            refreshInvoices();  
-            toggle();  
+            refreshInvoices();
+            toggle();
         } catch (error) {
-            console.error("Error saving payment:", error);
+            console.error("Error saving payment:", error.response?.data || error.message);
             toast.error('Failed to save payment');
         }
     };
-    
-    
+
     return (
         <Modal isOpen={isOpen} toggle={toggle} size="lg">
             <ModalHeader toggle={toggle}>
@@ -77,6 +73,34 @@ const SavePaymentModal = ({ isOpen, toggle, invoice, refreshInvoices,clients }) 
                                 required
                             />
                         </FormGroup>
+                        <FormGroup>
+                            <Label for="paymentDate">Payment Date</Label>
+                            <Input
+                                type="date"
+                                name="paymentDate"
+                                id="paymentDate"
+                                value={paymentDate}
+                                onChange={(e) => setPaymentDate(e.target.value)}
+                                required
+                            />
+                        </FormGroup>
+                        <FormGroup>
+                            <Label for="paymentMethod">Payment Method</Label>
+                            <Input
+                                type="select"
+                                name="paymentMethod"
+                                id="paymentMethod"
+                                value={paymentMethod}
+                                onChange={(e) => setPaymentMethod(e.target.value)}
+                                required
+                            >
+                                <option value="">Select Method</option>
+                                <option value="Credit Card">Credit Card</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Other">Other</option>
+                            </Input>
+                        </FormGroup>
                     </Col>
                     <Col md="6">
                         <div className="client-details">
@@ -88,7 +112,7 @@ const SavePaymentModal = ({ isOpen, toggle, invoice, refreshInvoices,clients }) 
                             <p>Subtotal: {invoice.subtotal} $</p>
                             <p>Total: {invoice.total} $</p>
                             <p>Paid: {invoice.paidAmount} $</p>
-                            <p>Remaining Amount: {remainingAmount} $</p> 
+                            <p>Remaining Amount: {remainingAmount} $</p>
                         </div>
                     </Col>
                 </Row>

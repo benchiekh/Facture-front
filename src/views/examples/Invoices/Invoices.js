@@ -55,7 +55,8 @@ const Invoices = () => {
     const [currencies, setCurrencies] = useState([]);
     const [paymentModalOpen, setPaymentModalOpen] = useState(false);
     const [invoiceToPay, setInvoiceToPay] = useState(null);
-
+    const [selectedType, setSelectedType] = useState(''); // For filtering by type
+    const [selectedStatus, setSelectedStatus] = useState('');
 
 
 
@@ -67,14 +68,20 @@ const Invoices = () => {
 
     const fetchInvoices = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/invoices`, { params: { createdBy: currentUserId } });
-
+            const response = await axios.get(`http://localhost:5000/api/invoices/${currentUserId}`, {
+                params: {
+                    type: selectedType || undefined, // Pass only if defined
+                    status: selectedStatus || undefined, // Pass only if defined
+                }
+            });
+    
             setInvoices(response.data);
-            console.log(response.data)
+            console.log(response.data);
         } catch (error) {
             console.error("Error fetching invoices:", error);
         }
     };
+    
 
     const refreshInvoices = () => {
         fetchInvoices();
@@ -443,6 +450,8 @@ const Invoices = () => {
                     invoice={invoiceToPay}
                     refreshInvoices={refreshInvoices}
                     clients={clients}
+                    userId={currentUserId}
+
 
 
                 />

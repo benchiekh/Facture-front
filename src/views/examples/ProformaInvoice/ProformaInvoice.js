@@ -51,7 +51,8 @@ const ProformaInvoice = () => {
     const [invoiceToEdit, setInvoiceToEdit] = useState(null);
     const [taxe, setTaxe] = useState([]);
     const [currencies, setCurrencies] = useState([]);
-
+    const [selectedType, setSelectedType] = useState(''); // For filtering by type
+    const [selectedStatus, setSelectedStatus] = useState('');
     const token = localStorage.getItem('token');
     const decodedToken = token ? decodeToken(token) : {};
     const currentUserId = decodedToken.AdminID;
@@ -60,13 +61,20 @@ const ProformaInvoice = () => {
 
     const fetchInvoices = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/invoices`, { params: { createdBy: currentUserId } });
+            const response = await axios.get(`http://localhost:5000/api/invoices/${currentUserId}`, {
+                params: {
+                    type: selectedType || undefined, // Pass only if defined
+                    status: selectedStatus || undefined, // Pass only if defined
+                }
+            });
+
             setInvoices(response.data);
             console.log(response.data);
         } catch (error) {
             console.error("Error fetching invoices:", error);
         }
     };
+
 
     const refreshInvoices = () => {
         fetchInvoices();
@@ -150,7 +158,7 @@ const ProformaInvoice = () => {
 
     const filteredInvoices = invoices.filter((invoice) => {
         return (
-            invoice?.type === 'Proforma' && 
+            invoice?.type === 'Proforma' &&
             (
                 invoice?.client?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 invoice?.number?.toString().includes(searchQuery) ||
@@ -199,16 +207,20 @@ const ProformaInvoice = () => {
 
     const getStatusStyle = (status) => {
         switch (status) {
-            case 'Paid':
-                return 'success'; 
-            case 'Sent':
-                return 'info'; 
-            case 'Draft':
-                return 'warning'; 
-            case 'Cancelled':
-                return 'danger'; 
+            case 'Brouillon':
+                return 'light';
+            case 'Envoyé':
+                return 'info';
+            case 'Annulé':
+                return 'warning';
+            case 'En attente':
+                return 'warning';
+            case 'Accepté':
+                return 'success';
+            case 'Refusé':
+                return 'danger';
             default:
-                return 'light'; 
+                return 'light';
         }
     };
 
@@ -245,7 +257,6 @@ const ProformaInvoice = () => {
                                             <th scope="col">Status</th>
                                             <th scope="col">Created by</th>
                                             <th scope="col"></th>
-
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -256,8 +267,7 @@ const ProformaInvoice = () => {
                                                     <td>{getClientNameById(invoice.client._id)}</td>
                                                     <td>{new Date(invoice.date).toLocaleDateString()}</td>
                                                     <td>{new Date(invoice.expirationDate).toLocaleDateString()}</td>
-                                                      <td>{invoice.total}</td>
-
+                                                    <td>{invoice.total}</td>
                                                     <td>
                                                         <Badge color={getStatusStyle(invoice.status)}>
                                                             {invoice.status}
@@ -330,18 +340,19 @@ const ProformaInvoice = () => {
                     </div>
                 </Row>
             </Container>
-             <AddProformaInvoice
+            <AddProformaInvoice
                 isOpen={modalOpen}
                 toggle={toggleModal}
                 refreshInvoices={fetchInvoices}
                 userId={currentUserId}
             />
-             {displayModalOpen && (
+            {displayModalOpen && (
                 <DisplayProformaInvoicemodal
                     isOpen={displayModalOpen}
                     toggle={toggleDisplayModal}
                     proformaInvoice={selectedInvoice}
-                   
+                    userId={currentUserId}
+                    refreshInvoices={refreshInvoices}
                 />
             )}
             <ConfirmDeleteModal
@@ -349,7 +360,6 @@ const ProformaInvoice = () => {
                 toggle={toggleDeleteModal}
                 onConfirm={confirmDeleteInvoice}
             />
-           
             {editModalOpen && (
                 <EditProformaInvoiceModal
                     isOpen={editModalOpen}
@@ -358,9 +368,8 @@ const ProformaInvoice = () => {
                     refreshInvoices={refreshInvoices}
                     userId={currentUserId}
                 />
-            )}  
+            )}
         </>
     );
 };
 export default ProformaInvoice;
-
