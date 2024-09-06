@@ -306,6 +306,7 @@ function ProductCategory() {
                     category={selectedCategory}
                 />
             )}
+
         </>
     );
 }

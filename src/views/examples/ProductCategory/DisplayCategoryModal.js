@@ -1,15 +1,8 @@
 import React from 'react';
-import {
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  Table
-} from 'reactstrap';
-import Switch from 'react-switch';
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Table } from 'reactstrap';
+import ToggleSwitch from './ToggleSwitch';
 
-const DisplayTaxModal = ({ isOpen, toggle, tax }) => {
+const DisplayProductCategoryModal = ({ isOpen, toggle, category }) => {
   const thStyle = {
     padding: '8px 12px',
     borderRadius: '10px',
@@ -20,57 +13,25 @@ const DisplayTaxModal = ({ isOpen, toggle, tax }) => {
 
   return (
     <Modal isOpen={isOpen} toggle={toggle} size="lg">
-      <ModalHeader toggle={toggle}>Tax Details</ModalHeader>
+      <ModalHeader toggle={toggle}>Product Category Details</ModalHeader>
       <ModalBody>
         <Table responsive>
           <tbody>
             <tr>
               <th><span style={thStyle}>Name</span></th>
-              <td>{tax.name}</td>
+              <td>{category.name}</td>
             </tr>
             <tr>
-              <th><span style={thStyle}>Value</span></th>
-              <td>{tax.value}%</td>
+              <th><span style={thStyle}>Description</span></th>
+              <td>{category.description}</td>
             </tr>
             <tr>
-              <th><span style={thStyle}>Active</span></th>
-              <td>
-                <Switch
-                  checked={tax.isActive}
-                  onChange={() => {}}
-                  onColor="#86d3ff"
-                  offColor="#888"
-                  onHandleColor="#002395"
-                  offHandleColor="#d4d4d4"
-                  handleDiameter={15}
-                  uncheckedIcon={false}
-                  checkedIcon={false}
-                  height={10}
-                  width={30}
-                  className="react-switch"
-                  disabled
-                />
-              </td>
+              <th><span style={thStyle}>Color</span></th>
+              <td>{category.color}</td>
             </tr>
             <tr>
-              <th><span style={thStyle}>Default</span></th>
-              <td>
-                <Switch
-                  checked={tax.isDefault}
-                  onChange={() => {}}
-                  onColor="#86d3ff"
-                  offColor="#888"
-                  onHandleColor="#002395"
-                  offHandleColor="#d4d4d4"
-                  handleDiameter={15}
-                  uncheckedIcon={false}
-                  checkedIcon={false}
-                  height={10}
-                  width={30}
-                  className="react-switch"
-                  disabled
-                />
-              </td>
+              <th><span style={thStyle}>Enabled</span></th>
+              <td><ToggleSwitch isChecked={category.enabled} /></td>
             </tr>
           </tbody>
         </Table>
@@ -84,4 +45,4 @@ const DisplayTaxModal = ({ isOpen, toggle, tax }) => {
   );
 };
 
-export default DisplayTaxModal;
+export default DisplayProductCategoryModal;

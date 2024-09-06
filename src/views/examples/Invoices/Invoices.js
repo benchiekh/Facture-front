@@ -55,7 +55,7 @@ const Invoices = () => {
     const [currencies, setCurrencies] = useState([]);
     const [paymentModalOpen, setPaymentModalOpen] = useState(false);
     const [invoiceToPay, setInvoiceToPay] = useState(null);
-    const [selectedType, setSelectedType] = useState(''); // For filtering by type
+    const [selectedType, setSelectedType] = useState(''); 
     const [selectedStatus, setSelectedStatus] = useState('');
 
 
@@ -70,8 +70,8 @@ const Invoices = () => {
         try {
             const response = await axios.get(`http://localhost:5000/api/invoices/${currentUserId}`, {
                 params: {
-                    type: selectedType || undefined, // Pass only if defined
-                    status: selectedStatus || undefined, // Pass only if defined
+                    type: selectedType || undefined, 
+                    status: selectedStatus || undefined, 
                 }
             });
     
