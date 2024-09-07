@@ -14,7 +14,6 @@ const SavePaymentModal = ({ isOpen, toggle, invoice, refreshInvoices, userId }) 
     const remainingAmount = invoice.total - invoice.paidAmount;
 
     useEffect(() => {
-        // Reset state when the modal opens or invoice changes
         if (invoice) {
             setAmount('');
             setPaymentDate(new Date().toISOString().split("T")[0]);
@@ -24,6 +23,7 @@ const SavePaymentModal = ({ isOpen, toggle, invoice, refreshInvoices, userId }) 
 
     const handleSave = async () => {
         const amountValue = parseFloat(amount);
+
         if (isNaN(amountValue) || amountValue <= 0) {
             toast.error('Please enter a valid payment amount.');
             return;
@@ -39,8 +39,15 @@ const SavePaymentModal = ({ isOpen, toggle, invoice, refreshInvoices, userId }) 
             return;
         }
 
+        // Check if payment is made after the expiration date
+        const expirationDate = new Date(invoice.expirationDate);
+        const selectedPaymentDate = new Date(paymentDate);
+
+        
+
+        // Save the payment
         try {
-            const response = await axios.post(`http://localhost:5000/api/payments/invoice/${invoice._id}`, {
+            await axios.post(`http://localhost:5000/api/payments/invoice/${invoice._id}`, {
                 amountPaid: amountValue,
                 paymentDate,
                 paymentMethod,

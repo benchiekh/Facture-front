@@ -55,7 +55,7 @@ const Invoices = () => {
     const [currencies, setCurrencies] = useState([]);
     const [paymentModalOpen, setPaymentModalOpen] = useState(false);
     const [invoiceToPay, setInvoiceToPay] = useState(null);
-    const [selectedType, setSelectedType] = useState(''); 
+    const [selectedType, setSelectedType] = useState('');
     const [selectedStatus, setSelectedStatus] = useState('');
 
 
@@ -70,18 +70,18 @@ const Invoices = () => {
         try {
             const response = await axios.get(`http://localhost:5000/api/invoices/${currentUserId}`, {
                 params: {
-                    type: selectedType || undefined, 
-                    status: selectedStatus || undefined, 
+                    type: selectedType || undefined,
+                    status: selectedStatus || undefined,
                 }
             });
-    
+
             setInvoices(response.data);
             console.log(response.data);
         } catch (error) {
             console.error("Error fetching invoices:", error);
         }
     };
-    
+
 
     const refreshInvoices = () => {
         fetchInvoices();
@@ -259,6 +259,8 @@ const Invoices = () => {
                 return 'danger';
             case 'Partially Paid':
                 return 'info';
+            case 'Retard':
+                return 'warning';
             default:
                 return 'light';
         }
@@ -267,7 +269,7 @@ const Invoices = () => {
         const currency = currencies.find(currency => currency._id === id);
 
         if (!currency) {
-            return 'Currency Not Found'; 
+            return 'Currency Not Found';
         }
 
         if (currency.symbolPosition === "after") {
@@ -275,7 +277,7 @@ const Invoices = () => {
         } else if (currency.symbolPosition === "before") {
             return currency.symbol + price;
         } else {
-            return currency.symbol; 
+            return currency.symbol;
         }
     };
 
