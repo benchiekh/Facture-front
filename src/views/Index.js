@@ -27,7 +27,7 @@ const Index = () => {
   const [loadingUnpaid, setLoadingUnpaid] = useState(false);
   const [loadingProforma, setLoadingProforma] = useState(false);
   const [payments, setPayments] = useState(false);
-  const currentMonth = new Date().getMonth() + 1; // Months are zero-based in JavaScript, so add 1
+  const currentMonth = new Date().getMonth() + 1; 
   const currentYear = new Date().getFullYear();
   const [selectedType, setSelectedType] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
@@ -41,6 +41,7 @@ const Index = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setCurrencies(currencyResponse.data.filter(currency => currency.active));
+      
     } catch (error) {
       console.error("Error fetching currencies:", error);
     }
@@ -58,14 +59,12 @@ const Index = () => {
       const invoicesData = response.data;
       setInvoices(invoicesData);
 
-      // Get current month and year
       const currentMonth = new Date().getMonth() + 1;
       const currentYear = new Date().getFullYear();
 
-      // Calculate total unpaid for the current month and selected currency
       const totalUnpaidAmount = invoicesData
         .filter(invoice => {
-          const invoiceDate = new Date(invoice.date); // Adjust if invoice date is stored differently
+          const invoiceDate = new Date(invoice.date); 
           return (
             invoice?.type === 'Standard' &&
             invoice?.paymentStatus === "Unpaid" &&
@@ -74,14 +73,13 @@ const Index = () => {
             invoiceDate.getFullYear() === currentYear
           );
         })
-        .reduce((total, invoice) => total + invoice.total, 0); // Adjust if invoice has a different field for amount
+        .reduce((total, invoice) => total + invoice.total, 0); 
 
       setTotalUnpaid(totalUnpaidAmount);
 
-      // Calculate total proforma for the current month and selected currency
       const totalProformaAmount = invoicesData
         .filter(invoice => {
-          const invoiceDate = new Date(invoice.date); // Adjust if invoice date is stored differently
+          const invoiceDate = new Date(invoice.date); 
           return (
             invoice?.type === 'Proforma' &&
             invoice?.currency?._id === selectedCurrency?._id &&
@@ -89,7 +87,7 @@ const Index = () => {
             invoiceDate.getFullYear() === currentYear
           );
         })
-        .reduce((total, invoice) => total + invoice.total, 0); // Adjust if invoice has a different field for amount
+        .reduce((total, invoice) => total + invoice.total, 0); 
 
       setTotalProforma(totalProformaAmount);
 
@@ -117,7 +115,7 @@ const Index = () => {
     if (!invoice || !invoice.currency) {
       return null;
     }
-    console.log(invoice.currency); // You can keep this for debugging
+    console.log(invoice.currency); 
     return invoice.currency._id;
   };
 
