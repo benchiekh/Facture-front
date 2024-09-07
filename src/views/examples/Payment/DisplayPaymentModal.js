@@ -13,7 +13,7 @@ const DisplayPaymentModal = ({ isOpen, toggle, invoice }) => {
     useEffect(() => {
         const fetchPayments = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/payments/${invoice._id}`, {
+                const response = await axios.get(`http://localhost:5000/api/payments/invoice/${invoice._id}`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('token')}`
                     }
@@ -78,7 +78,7 @@ const DisplayPaymentModal = ({ isOpen, toggle, invoice }) => {
                                         <tr key={payment._id}>
                                             <td>{payment.amountPaid} $</td>
                                             <td>{payment.paymentMethod}</td>
-                                            <td>{new Date(payment.createdAt).toLocaleDateString()}</td>
+                                            <td>{payment.paymentDate.split("T")[0]}</td>
                                             <td>
                                                 <Badge color='info' onClick={() => handleDisplayClick(payment)}>
                                                     <span className="d-flex align-items-center">

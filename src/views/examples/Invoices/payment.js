@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Modal, ModalHeader, ModalBody, ModalFooter,
     Button, FormGroup, Label, Input, Col, Row
@@ -12,6 +12,15 @@ const SavePaymentModal = ({ isOpen, toggle, invoice, refreshInvoices, userId }) 
     const [paymentMethod, setPaymentMethod] = useState('');
 
     const remainingAmount = invoice.total - invoice.paidAmount;
+
+    useEffect(() => {
+        // Reset state when the modal opens or invoice changes
+        if (invoice) {
+            setAmount('');
+            setPaymentDate(new Date().toISOString().split("T")[0]);
+            setPaymentMethod('');
+        }
+    }, [invoice, isOpen]);
 
     const handleSave = async () => {
         const amountValue = parseFloat(amount);
@@ -31,11 +40,11 @@ const SavePaymentModal = ({ isOpen, toggle, invoice, refreshInvoices, userId }) 
         }
 
         try {
-            const response = await axios.post(`http://localhost:5000/api/payments/${invoice._id}`, {
+            const response = await axios.post(`http://localhost:5000/api/payments/invoice/${invoice._id}`, {
                 amountPaid: amountValue,
-                paymentDate,  // Include paymentDate in the request
+                paymentDate,
                 paymentMethod,
-                createdBy: userId  // Ensure the user ID is sent as createdBy
+                createdBy: userId
             }, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`

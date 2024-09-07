@@ -1,336 +1,314 @@
-/*!
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { Card, CardBody, Col, Container, Row, Dropdown, DropdownToggle, DropdownMenu, DropdownItem, CardTitle, Spinner, Button, Badge } from "reactstrap";
 
-=========================================================
-* Argon Dashboard React - v1.2.4
-=========================================================
+const decodeToken = (token) => {
+  const base64Url = token.split('.')[1];
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  const payload = JSON.parse(atob(base64));
+  return payload;
+};
 
-* Product Page: https://www.creative-tim.com/product/argon-dashboard-react
-* Copyright 2024 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/argon-dashboard-react/blob/master/LICENSE.md)
+const Index = () => {
+  const token = localStorage.getItem('token');
+  const decodedToken = token ? decodeToken(token) : {};
+  const currentUserId = decodedToken.AdminID;
 
-* Coded by Creative Tim
+  const [currencyDropdownOpen, setCurrencyDropdownOpen] = useState(false);
+  const [currencies, setCurrencies] = useState([]);
+  const [selectedCurrency, setSelectedCurrency] = useState(null);
+  const [paidInvoices, setPaidInvoices] = useState([]);
+  const [unpaidInvoices, setUnpaidInvoices] = useState([]);
+  const [proformaInvoices, setProformaInvoices] = useState([]);
+  const [totalPaid, setTotalPaid] = useState(0);
+  const [totalUnpaid, setTotalUnpaid] = useState(0);
+  const [totalProforma, setTotalProforma] = useState(0);
+  const [loadingPaid, setLoadingPaid] = useState(false);
+  const [loadingUnpaid, setLoadingUnpaid] = useState(false);
+  const [loadingProforma, setLoadingProforma] = useState(false);
+  const [payments, setPayments] = useState(false);
+  const currentMonth = new Date().getMonth() + 1; // Months are zero-based in JavaScript, so add 1
+  const currentYear = new Date().getFullYear();
+  const [selectedType, setSelectedType] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('');
+  const [invoices, setInvoices] = useState([]);
 
-=========================================================
 
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-import { useState } from "react";
-// node.js library that concatenates classes (strings)
-import classnames from "classnames";
-// javascipt plugin for creating charts
-import Chart from "chart.js";
-// react plugin used to create charts
-import { Line, Bar } from "react-chartjs-2";
-// reactstrap components
-import {
-  Button,
-  Card,
-  CardHeader,
-  CardBody,
-  NavItem,
-  NavLink,
-  Nav,
-  Progress,
-  Table,
-  Container,
-  Row,
-  Col,
-} from "reactstrap";
-
-// core components
-import {
-  chartOptions,
-  parseOptions,
-  chartExample1,
-  chartExample2,
-} from "variables/charts.js";
-
-import Header from "components/Headers/Header.js";
-
-const Index = (props) => {
-  const [activeNav, setActiveNav] = useState(1);
-  const [chartExample1Data, setChartExample1Data] = useState("data1");
-
-  if (window.Chart) {
-    parseOptions(Chart, chartOptions());
-  }
-
-  const toggleNavs = (e, index) => {
-    e.preventDefault();
-    setActiveNav(index);
-    setChartExample1Data("data" + index);
+  const fetchCurrencies = async () => {
+    try {
+      const currencyResponse = await axios.get("http://localhost:5000/api/currency", {
+        params: { createdBy: currentUserId },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCurrencies(currencyResponse.data.filter(currency => currency.active));
+    } catch (error) {
+      console.error("Error fetching currencies:", error);
+    }
   };
+
+  const fetchInvoices = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/invoices/${currentUserId}`, {
+        params: {
+          type: selectedType || undefined,
+          status: selectedStatus || undefined,
+        }
+      });
+
+      const invoicesData = response.data;
+      setInvoices(invoicesData);
+
+      // Get current month and year
+      const currentMonth = new Date().getMonth() + 1;
+      const currentYear = new Date().getFullYear();
+
+      // Calculate total unpaid for the current month and selected currency
+      const totalUnpaidAmount = invoicesData
+        .filter(invoice => {
+          const invoiceDate = new Date(invoice.date); // Adjust if invoice date is stored differently
+          return (
+            invoice?.type === 'Standard' &&
+            invoice?.paymentStatus === "Unpaid" &&
+            invoice?.currency?._id === selectedCurrency?._id &&
+            invoiceDate.getMonth() + 1 === currentMonth &&
+            invoiceDate.getFullYear() === currentYear
+          );
+        })
+        .reduce((total, invoice) => total + invoice.total, 0); // Adjust if invoice has a different field for amount
+
+      setTotalUnpaid(totalUnpaidAmount);
+
+      // Calculate total proforma for the current month and selected currency
+      const totalProformaAmount = invoicesData
+        .filter(invoice => {
+          const invoiceDate = new Date(invoice.date); // Adjust if invoice date is stored differently
+          return (
+            invoice?.type === 'Proforma' &&
+            invoice?.currency?._id === selectedCurrency?._id &&
+            invoiceDate.getMonth() + 1 === currentMonth &&
+            invoiceDate.getFullYear() === currentYear
+          );
+        })
+        .reduce((total, invoice) => total + invoice.total, 0); // Adjust if invoice has a different field for amount
+
+      setTotalProforma(totalProformaAmount);
+
+    } catch (error) {
+      console.error("Error fetching invoices:", error);
+    }
+  };
+
+
+
+  const filteredInvoices = invoices.filter((invoice) => {
+    return (
+      (invoice?.type === 'Standard' || invoice?.isConverted === true) && invoice?.paymentStatus === "Paid"
+    );
+  });
+
+
+
+
+  //console.log("all",invoices)
+  //console.log("filtred",filteredInvoices)
+
+  const getCurrencyByInvoiceId = (id) => {
+    const invoice = filteredInvoices.find(invoice => invoice._id === id);
+    if (!invoice || !invoice.currency) {
+      return null;
+    }
+    console.log(invoice.currency); // You can keep this for debugging
+    return invoice.currency._id;
+  };
+
+
+  const fetchPayment = async () => {
+    try {
+      const paymentResponse = await axios.get(`http://localhost:5000/api/payments/createdBy/${currentUserId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const paymentsThisMonth = paymentResponse.data.filter(payment => {
+        const paymentDate = new Date(payment.paymentDate);
+        return (
+          paymentDate.getMonth() + 1 === currentMonth &&
+          paymentDate.getFullYear() === currentYear
+        );
+      });
+      const paymentsByCurrency = paymentsThisMonth.reduce((acc, payment) => {
+        const currencyId = getCurrencyByInvoiceId(payment.invoice);
+
+        if (!currencyId) {
+          return acc;
+        }
+
+        const paymentAmount = payment.amountPaid;
+        if (!acc[currencyId]) {
+          acc[currencyId] = 0;
+        }
+        acc[currencyId] += paymentAmount;
+
+        return acc;
+      }, {});
+
+      console.log('Payments by Currency:', paymentsByCurrency);
+      setPayments(paymentsByCurrency);
+    } catch (error) {
+      console.error("Error fetching payments:", error);
+    }
+  };
+
+
+
+
+
+
+  const handleCurrencySelect = (currency) => {
+    setSelectedCurrency(currency);
+  };
+
+  const getCurrencySymbolById = (id, price) => {
+    const numericPrice = Number(price);
+
+    if (isNaN(numericPrice)) {
+      return 'Invalid amount';
+    }
+
+    const currency = currencies.find(c => c._id === id);
+    if (!currency) return numericPrice.toFixed(2);
+
+    return `${currency.symbol} ${numericPrice.toFixed(2)}`;
+  };
+
+  const toggleCurrencyDropdown = () => setCurrencyDropdownOpen(!currencyDropdownOpen);
+
+  useEffect(() => {
+    fetchInvoices();
+    fetchCurrencies();
+    fetchPayment();
+  }, [selectedCurrency]);
+
+
+
+
   return (
     <>
-      <Header />
-      {/* Page content */}
-      <Container className="mt--7" fluid>
-        <Row>
-          <Col className="mb-5 mb-xl-0" xl="8">
-            <Card className="bg-gradient-default shadow">
-              <CardHeader className="bg-transparent">
-                <Row className="align-items-center">
-                  <div className="col">
-                    <h6 className="text-uppercase text-light ls-1 mb-1">
-                      Overview
-                    </h6>
-                    <h2 className="text-white mb-0">Sales value</h2>
-                  </div>
-                  <div className="col">
-                    <Nav className="justify-content-end" pills>
-                      <NavItem>
-                        <NavLink
-                          className={classnames("py-2 px-3", {
-                            active: activeNav === 1,
-                          })}
-                          href="#pablo"
-                          onClick={(e) => toggleNavs(e, 1)}
-                        >
-                          <span className="d-none d-md-block">Month</span>
-                          <span className="d-md-none">M</span>
-                        </NavLink>
-                      </NavItem>
-                      <NavItem>
-                        <NavLink
-                          className={classnames("py-2 px-3", {
-                            active: activeNav === 2,
-                          })}
-                          data-toggle="tab"
-                          href="#pablo"
-                          onClick={(e) => toggleNavs(e, 2)}
-                        >
-                          <span className="d-none d-md-block">Week</span>
-                          <span className="d-md-none">W</span>
-                        </NavLink>
-                      </NavItem>
-                    </Nav>
-                  </div>
-                </Row>
-              </CardHeader>
-              <CardBody>
-                {/* Chart */}
-                <div className="chart">
-                  <Line
-                    data={chartExample1[chartExample1Data]}
-                    options={chartExample1.options}
-                    getDatasetAtEvent={(e) => console.log(e)}
-                  />
-                </div>
-              </CardBody>
-            </Card>
-          </Col>
-          <Col xl="4">
-            <Card className="shadow">
-              <CardHeader className="bg-transparent">
-                <Row className="align-items-center">
-                  <div className="col">
-                    <h6 className="text-uppercase text-muted ls-1 mb-1">
-                      Performance
-                    </h6>
-                    <h2 className="mb-0">Total orders</h2>
-                  </div>
-                </Row>
-              </CardHeader>
-              <CardBody>
-                {/* Chart */}
-                <div className="chart">
-                  <Bar
-                    data={chartExample2.data}
-                    options={chartExample2.options}
-                  />
-                </div>
-              </CardBody>
-            </Card>
-          </Col>
-        </Row>
-        <Row className="mt-5">
-          <Col className="mb-5 mb-xl-0" xl="8">
-            <Card className="shadow">
-              <CardHeader className="border-0">
-                <Row className="align-items-center">
-                  <div className="col">
-                    <h3 className="mb-0">Page visits</h3>
-                  </div>
-                  <div className="col text-right">
-                    <Button
-                      color="primary"
-                      href="#pablo"
-                      onClick={(e) => e.preventDefault()}
-                      size="sm"
-                    >
-                      See all
-                    </Button>
-                  </div>
-                </Row>
-              </CardHeader>
-              <Table className="align-items-center table-flush" responsive>
-                <thead className="thead-light">
-                  <tr>
-                    <th scope="col">Page name</th>
-                    <th scope="col">Visitors</th>
-                    <th scope="col">Unique users</th>
-                    <th scope="col">Bounce rate</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th scope="row">/argon/</th>
-                    <td>4,569</td>
-                    <td>340</td>
-                    <td>
-                      <i className="fas fa-arrow-up text-success mr-3" /> 46,53%
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">/argon/index.html</th>
-                    <td>3,985</td>
-                    <td>319</td>
-                    <td>
-                      <i className="fas fa-arrow-down text-warning mr-3" />{" "}
-                      46,53%
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">/argon/charts.html</th>
-                    <td>3,513</td>
-                    <td>294</td>
-                    <td>
-                      <i className="fas fa-arrow-down text-warning mr-3" />{" "}
-                      36,49%
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">/argon/tables.html</th>
-                    <td>2,050</td>
-                    <td>147</td>
-                    <td>
-                      <i className="fas fa-arrow-up text-success mr-3" /> 50,87%
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">/argon/profile.html</th>
-                    <td>1,795</td>
-                    <td>190</td>
-                    <td>
-                      <i className="fas fa-arrow-down text-danger mr-3" />{" "}
-                      46,53%
-                    </td>
-                  </tr>
-                </tbody>
-              </Table>
-            </Card>
-          </Col>
-          <Col xl="4">
-            <Card className="shadow">
-              <CardHeader className="border-0">
-                <Row className="align-items-center">
-                  <div className="col">
-                    <h3 className="mb-0">Social traffic</h3>
-                  </div>
-                  <div className="col text-right">
-                    <Button
-                      color="primary"
-                      href="#pablo"
-                      onClick={(e) => e.preventDefault()}
-                      size="sm"
-                    >
-                      See all
-                    </Button>
-                  </div>
-                </Row>
-              </CardHeader>
-              <Table className="align-items-center table-flush" responsive>
-                <thead className="thead-light">
-                  <tr>
-                    <th scope="col">Referral</th>
-                    <th scope="col">Visitors</th>
-                    <th scope="col" />
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <th scope="row">Facebook</th>
-                    <td>1,480</td>
-                    <td>
-                      <div className="d-flex align-items-center">
-                        <span className="mr-2">60%</span>
-                        <div>
-                          <Progress
-                            max="100"
-                            value="60"
-                            barClassName="bg-gradient-danger"
-                          />
-                        </div>
+      <div className="header bg-gradient-info pb-8 pt-5 pt-md-8">
+        <Container fluid>
+          <Row className="mb-4">
+            <Col lg="12" className="mb-4 d-flex justify-content-end">
+              <Dropdown
+                isOpen={currencyDropdownOpen}
+                toggle={toggleCurrencyDropdown}
+              >
+                <DropdownToggle caret>
+                  {selectedCurrency ? selectedCurrency.name : "Select Currency"}
+                </DropdownToggle>
+                <DropdownMenu>
+                  {currencies.map(currency => (
+                    <DropdownItem key={currency._id} onClick={() => handleCurrencySelect(currency)}>
+                      {currency.name}
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </Dropdown>
+            </Col>
+          </Row>
+
+          <span className="h2 font-weight-bold mb-0">
+            {selectedCurrency && payments[selectedCurrency._id] !== undefined
+              ? getCurrencySymbolById(selectedCurrency._id, payments[selectedCurrency._id])
+              : "0.00"}
+          </span>
+
+
+          <div className="header-body">
+            <Row>
+              {/* Paid Invoices Card */}
+              <Col lg="6" xl="4">
+
+                <Card className="card-stats mb-4 mb-xl-0">
+                  <CardBody>
+                    <Row>
+                      <div className="col">
+                        <CardTitle tag="h5" className="text-uppercase text-muted mb-0">
+                          Paid Invoices
+                        </CardTitle>
+
+                        <Badge color="success" style={{ fontSize: "20px" }}>
+
+
+                          {selectedCurrency && payments[selectedCurrency._id] !== undefined
+                            ? getCurrencySymbolById(selectedCurrency._id, payments[selectedCurrency._id])
+                            : "0.00"}
+
+
+                        </Badge>
+
                       </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Facebook</th>
-                    <td>5,480</td>
-                    <td>
-                      <div className="d-flex align-items-center">
-                        <span className="mr-2">70%</span>
-                        <div>
-                          <Progress
-                            max="100"
-                            value="70"
-                            barClassName="bg-gradient-success"
-                          />
+                      <Col className="col-auto">
+                        <div className="icon icon-shape bg-success text-white rounded-circle shadow">
+                          <i className="fas fa-check-circle" />
                         </div>
+                      </Col>
+                    </Row>
+
+                  </CardBody>
+                </Card>
+              </Col>
+
+              {/* Unpaid Invoices Card */}
+              <Col lg="6" xl="4">
+                <Card className="card-stats mb-4 mb-xl-0">
+                  <CardBody>
+                    <Row>
+                      <div className="col">
+                        <CardTitle tag="h5" className="text-uppercase text-muted mb-0">
+                          Unpaid Invoices
+                        </CardTitle>
+                        <Badge color="danger" style={{ fontSize: "20px" }}>
+                          {selectedCurrency ? getCurrencySymbolById(selectedCurrency._id, totalUnpaid) : "0.00"}
+                        </Badge>
                       </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Google</th>
-                    <td>4,807</td>
-                    <td>
-                      <div className="d-flex align-items-center">
-                        <span className="mr-2">80%</span>
-                        <div>
-                          <Progress max="100" value="80" />
+                      <Col className="col-auto">
+                        <div className="icon icon-shape bg-danger text-white rounded-circle shadow">
+                          <i className="fas fa-times-circle" />
                         </div>
+                      </Col>
+                    </Row>
+                  </CardBody>
+                </Card>
+              </Col>
+
+              {/* Proforma Invoices Card */}
+              <Col lg="6" xl="4">
+                <Card className="card-stats mb-4 mb-xl-0">
+                  <CardBody>
+                    <Row>
+                      <div className="col">
+                        <CardTitle tag="h5" className="text-uppercase text-muted mb-0">
+                          Proforma Invoices
+                        </CardTitle>
+                        <span className="h2 font-weight-bold mb-0">
+                          {loadingProforma ? (
+                            <Spinner size="sm" color="primary" />
+                          ) : (
+                            getCurrencySymbolById(selectedCurrency?._id, totalProforma)
+                          )}
+                        </span>
                       </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Instagram</th>
-                    <td>3,678</td>
-                    <td>
-                      <div className="d-flex align-items-center">
-                        <span className="mr-2">75%</span>
-                        <div>
-                          <Progress
-                            max="100"
-                            value="75"
-                            barClassName="bg-gradient-info"
-                          />
+                      <Col className="col-auto">
+                        <div className="icon icon-shape bg-warning text-white rounded-circle shadow">
+                          <i className="fas fa-file-invoice" />
                         </div>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">twitter</th>
-                    <td>2,645</td>
-                    <td>
-                      <div className="d-flex align-items-center">
-                        <span className="mr-2">30%</span>
-                        <div>
-                          <Progress
-                            max="100"
-                            value="30"
-                            barClassName="bg-gradient-warning"
-                          />
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </Table>
-            </Card>
-          </Col>
-        </Row>
-      </Container>
+                      </Col>
+                    </Row>
+                  </CardBody>
+                </Card>
+              </Col>
+            </Row>
+          </div>
+        </Container>
+      </div>
     </>
   );
 };
