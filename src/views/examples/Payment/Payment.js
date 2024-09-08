@@ -52,7 +52,7 @@ const PaymentHistory = () => {
     const [currencies, setCurrencies] = useState([]);
     const [paymentModalOpen, setPaymentModalOpen] = useState(false);
     const [invoiceToPay, setInvoiceToPay] = useState(null);
-    const [selectedType, setSelectedType] = useState(''); 
+    const [selectedType, setSelectedType] = useState('');
     const [selectedStatus, setSelectedStatus] = useState('');
 
 
@@ -67,8 +67,8 @@ const PaymentHistory = () => {
         try {
             const response = await axios.get(`http://localhost:5000/api/invoices/${currentUserId}`, {
                 params: {
-                    type: selectedType || undefined, 
-                    status: selectedStatus || undefined, 
+                    type: selectedType || undefined,
+                    status: selectedStatus || undefined,
                 }
             });
 
@@ -176,7 +176,7 @@ const PaymentHistory = () => {
 
     const filteredInvoices = invoices.filter((invoice) => {
         return (
-            invoice?.type === 'Standard' && (invoice?.paidAmount>0) &&
+            invoice?.type === 'Standard' && (invoice?.paidAmount > 0) &&
             (
                 invoice?.client?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 invoice?.number?.toString().includes(searchQuery) ||
@@ -237,6 +237,8 @@ const PaymentHistory = () => {
                 return 'danger';
             case 'Partially Paid':
                 return 'info';
+            case 'Retard':
+                return 'warning';
             default:
                 return 'light';
         }
@@ -275,7 +277,7 @@ const PaymentHistory = () => {
                                         onChange={handleSearchChange}
                                         className="mr-3"
                                     />
-                                  
+
                                 </div>
                             </CardHeader>
                             <div className="table-wrapper">
@@ -297,14 +299,14 @@ const PaymentHistory = () => {
                                                 <tr key={invoice._id}>
                                                     <td>{invoice.number}</td>
                                                     <td>{getClientNameById(invoice.client._id)}</td>
-                                                 
+
                                                     <td>
                                                         {invoice.currency ? getCurrencySymbolById(invoice.currency._id, invoice.total) : 'Currency Not Available'}
                                                     </td>
 
 
                                                     <td> {invoice.currency ? getCurrencySymbolById(invoice.currency._id, invoice.paidAmount) : 'Currency Not Available'}</td>
-                                                   
+
                                                     <td>
                                                         <Badge color={getPaymentStatusStyle(invoice.paymentStatus)}>
                                                             {invoice.paymentStatus}
@@ -328,7 +330,7 @@ const PaymentHistory = () => {
                                                                         Edit
                                                                     </span>
                                                                 </DropdownItem>
-                                                               
+
 
                                                                 <DropdownItem divider />
                                                                 <DropdownItem onClick={() => handleDeleteClick(invoice._id)}>
@@ -373,7 +375,7 @@ const PaymentHistory = () => {
                     </div>
                 </Row>
             </Container>
-         
+
 
             {displayModalOpen && (
                 <DisplayPaymentModal

@@ -2,26 +2,45 @@ import React from 'react';
 import { Modal, ModalHeader, ModalBody, Button, Table, Badge } from 'reactstrap';
 
 const DetailModal = ({ isOpen, toggle, payment, invoice }) => {
+    console.log(invoice)
+    console.log(payment)
+    const getPaymentBadgeColor = (status) => {
+        switch (status) {
+            case 'Paid':
+                return 'success';
+            case 'Partially Paid':
+                return 'info';
+            case 'Unpaid':
+                return 'danger';
+            case 'Retard':
+                return 'warning';
+            default:
+                return 'light';
+        }
+    };
+
     return (
         <Modal isOpen={isOpen} toggle={toggle} size="lg">
             <ModalHeader toggle={toggle}>
                 Payment Detail for Invoice #{invoice.number}/{invoice.year}
             </ModalHeader>
             <ModalBody>
-                <div className="invoice-detail-header">
-                    <h4>Payment #{payment.number}/{payment.year}</h4>
-                    <div className="status-summary">
-                        <div><strong>Status:</strong> {payment.status}</div>
-                        <div><strong>Paid Amount:</strong> ${payment.amountPaid}</div>
-                        <div><strong>Subtotal:</strong> ${payment.subtotal}</div>
-                        <div><strong>Total:</strong> ${payment.total}</div>
+                <div className="invoice-header">
+                    <h4>Facture # {invoice.number}/{invoice.year}</h4>
+                    <div className="status-badges">
+                        <Badge color={getPaymentBadgeColor(invoice.paymentStatus)}>{invoice.paymentStatus}</Badge>
+                    </div>
+                    <div className="amounts-summary">
+
+                        <div>Sous-total: ${invoice.subtotal}</div>
+                        <div>Total: ${invoice.total}</div>
                     </div>
                 </div>
 
                 <div className="client-info">
-                    <p><strong>Client:</strong> {invoice.client.name}</p>
-                    <p><strong>Email:</strong> {invoice.client.email}</p>
-                    <p><strong>Phone:</strong> {invoice.client.phone}</p>
+                    <p><strong>Client:</strong> {invoice.client.person.nom} {invoice.client.person.prenom}</p>
+                    <p><strong>Email:</strong> {invoice.client.person.email}</p>
+                    <p><strong>Phone:</strong> {invoice.client.person.telephone}</p>
                 </div>
 
                 <div className="payment-summary">

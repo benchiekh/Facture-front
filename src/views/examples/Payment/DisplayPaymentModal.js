@@ -3,6 +3,7 @@ import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Table, Badge } from
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import DetailModal from "./DetailModal";
+import "./style.css"
 
 const DisplayPaymentModal = ({ isOpen, toggle, invoice }) => {
     const [payments, setPayments] = useState([]);
