@@ -56,12 +56,7 @@ const Index = () => {
       });
       setCurrencies(currencyResponse.data.filter(currency => currency.active));
 
-      const tunisianDinar = currencyResponse.data.find(currency => currency.name === 'Tunisian Dinar');
-
-      // Set default currency to Tunisian Dinar
-      if (tunisianDinar) {
-        setSelectedCurrency(tunisianDinar);
-      }
+      
 
     } catch (error) {
       console.error("Error fetching currencies:", error);
@@ -213,7 +208,7 @@ const Index = () => {
     });
   };
   const Proformastatuspercentage = (status) => {
-    if (!selectedCurrency || filteredStandardInvoices.length === 0) {
+    if (!selectedCurrency || filteredProformaInvoices.length === 0) {
       return 0;
     }
 
@@ -351,14 +346,7 @@ const Index = () => {
 
     return `${currency.symbol} ${numericPrice.toFixed(2)}`;
   };
-  const getCurrencyDropdownSymbolById = (id) => {
 
-
-    const currency = currencies.find(c => c._id === id);
-    if (!currency) return null;
-
-    return `${currency.symbol}`;
-  };
   const toggleCurrencyDropdown = () => setCurrencyDropdownOpen(!currencyDropdownOpen);
 
   useEffect(() => {
@@ -366,7 +354,7 @@ const Index = () => {
     fetchCurrencies();
     fetchClients();
     fetchPayment();
-  }, []);
+  }, [selectedCurrency]);
 
 
 
@@ -382,32 +370,16 @@ const Index = () => {
                 toggle={toggleCurrencyDropdown}
               >
                 <DropdownToggle caret>
-                  {selectedCurrency ? (
-                    <>
-                      {selectedCurrency.name}{" "}
-                      <Badge color="info" style={{ fontSize: "11px" }}>
-                        {getCurrencyDropdownSymbolById(selectedCurrency?._id)}
-                      </Badge>
-                    </>
-                  ) : (
-                    "Select Currency"
-                  )}
+                  {selectedCurrency ? selectedCurrency.name : "Select Currency"}
                 </DropdownToggle>
                 <DropdownMenu>
                   {currencies.map(currency => (
                     <DropdownItem key={currency._id} onClick={() => handleCurrencySelect(currency)}>
-                      
-                        
-                        {currency.code+" "}
-                       
-                        
-                        {getCurrencyDropdownSymbolById(currency?._id)+" "}
-                      {"("+currency.name+")"}
+                      {currency.name}
                     </DropdownItem>
                   ))}
                 </DropdownMenu>
               </Dropdown>
-
             </Col>
           </Row>
           <div className="header-body">
