@@ -26,6 +26,7 @@ import { getCountryCallingCode, parsePhoneNumber, isValidPhoneNumber } from 'lib
 import Flag from 'react-world-flags'; 
 
 const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
+  const [cin, setCin] = useState("");
   const [prenom, setPrenom] = useState("");
   const [nom, setNom] = useState("");
   const [company, setCompany] = useState("");
@@ -153,6 +154,7 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
     if (!isUnique) return;
 
     const newPerson = {
+      cin,
       prenom,
       nom,
       pays: pays?.label,
@@ -192,6 +194,7 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
   };
 
   const resetForm = () => {
+    setCin("");
     setPrenom("");
     setNom("");
     setCompany("");
@@ -223,6 +226,26 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
         <ModalHeader toggle={toggle}>Add New Person</ModalHeader>
         <Form onSubmit={handleSubmit}>
           <ModalBody>
+          <FormGroup>
+              <Label for="cin">Carte identite </Label>
+              <InputGroup>
+                <InputGroupText style={{ backgroundColor: '#fff', border: '1px solid #ced4da', borderRight: 0, borderRadius: '0.25rem 0 0 0.25rem' }}>
+                  <i className="ni ni-single-02"></i>
+                </InputGroupText>
+                <Input
+                  type="number"
+                  id="prenom"
+                  value={cin}
+                  onChange={(e) => setCin(e.target.value)}
+                  placeholder="Entrer votre identite ou Passport"
+                  required
+                  style={{ borderLeft: 0, borderRadius: '0 0.25rem 0.25rem 0', transition: 'border-color 0.2s' }}
+                  onFocus={(e) => e.target.style.borderColor = '#80bdff'}
+                  onBlur={(e) => e.target.style.borderColor = '#ced4da'}
+                />
+              </InputGroup>
+            </FormGroup>
+            
             <FormGroup>
               <Label for="prenom">First Name</Label>
               <InputGroup>
@@ -234,7 +257,7 @@ const AddPersonModal = ({ isOpen, toggle, refreshPeople, userId }) => {
                   id="prenom"
                   value={prenom}
                   onChange={(e) => setPrenom(e.target.value)}
-                  placeholder="Enter first name"
+                  placeholder="Entre first name"
                   required
                   style={{ borderLeft: 0, borderRadius: '0 0.25rem 0.25rem 0', transition: 'border-color 0.2s' }}
                   onFocus={(e) => e.target.style.borderColor = '#80bdff'}

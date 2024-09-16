@@ -438,7 +438,7 @@ const Index = () => {
                     <Row>
                       <div className="col">
                         <CardTitle tag="h5" className="text-uppercase text-muted mb-0">
-                          Proforma Invoices
+                          Sent Invoices
                         </CardTitle>
                         <span className="h2 font-weight-bold mb-0">
                           {loadingProforma ? (
@@ -470,7 +470,7 @@ const Index = () => {
               <Col lg="6">
                 <Card className="shadow">
                   <CardHeader>
-                    <h6>Factures</h6>
+                    <h6> Received Invoices</h6>
                     <div>
                       <div className="d-flex justify-content-between align-items-center mb-2">
                         <div>Brouillon</div>
@@ -515,7 +515,7 @@ const Index = () => {
               <Col lg="6">
                 <Card className="shadow">
                   <CardHeader>
-                    <h6>Factures Proforma</h6>
+                    <h6> Sent Invoices</h6>
                     <div>
                       <div className="d-flex justify-content-between align-items-center mb-2">
                         <div>Brouillon</div>
@@ -580,7 +580,7 @@ const Index = () => {
               <CardHeader className="border-0">
                 <Row className="align-items-center">
                   <div className="col">
-                    <h3 className="mb-0">Recent invoices</h3>
+                    <h3 className="mb-0">Recent Received invoices</h3>
                   </div>
                   <div className="col text-right">
                     <Link to="/admin/invoices">
@@ -679,7 +679,7 @@ const Index = () => {
               <CardHeader className="border-0">
                 <Row className="align-items-center">
                   <div className="col">
-                    <h3 className="mb-0">Recent proforma invoices</h3>
+                    <h3 className="mb-0">Recent Sent invoices</h3>
                   </div>
                   <div className="col text-right">
                     <Link to="/admin/proforma-invoice">

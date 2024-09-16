@@ -98,12 +98,15 @@ const Persons = () => {
 
   const filteredPeople = people.filter((person) => {
     const companyName = getCompanyNameById(person.entreprise);
-    return person.prenom.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      person.nom.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      person.pays.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      person.telephone.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      person.email.toLowerCase().includes(searchQuery.toLowerCase());
+    return (
+      (person.cin ? person.cin.toLowerCase().includes(searchQuery.toLowerCase()) : false) ||
+      (person.prenom ? person.prenom.toLowerCase().includes(searchQuery.toLowerCase()) : false) ||
+      (person.nom ? person.nom.toLowerCase().includes(searchQuery.toLowerCase()) : false) ||
+      (companyName ? companyName.toLowerCase().includes(searchQuery.toLowerCase()) : false) ||
+      (person.pays ? person.pays.toLowerCase().includes(searchQuery.toLowerCase()) : false) ||
+      (person.telephone ? person.telephone.toLowerCase().includes(searchQuery.toLowerCase()) : false) ||
+      (person.email ? person.email.toLowerCase().includes(searchQuery.toLowerCase()) : false)
+    );
   });
 
   useEffect(() => {
@@ -208,10 +211,11 @@ const Persons = () => {
                 <Table className="align-items-center table-flush" responsive>
                   <thead className="thead-light">
                     <tr>
-                      <th scope="col">First name</th>
-                      <th scope="col">Last name</th>
-                      <th scope="col">Company</th>
-                      <th scope="col">Country</th>
+                    <th scope="col">CIN</th>
+                      <th scope="col">Prenom</th>
+                      <th scope="col">Nom</th>
+                      <th scope="col">Entreprise</th>
+                      <th scope="col">Pays</th>
                       <th scope="col">Tel</th>
                       <th scope="col">Email</th>
                       <th scope="col"></th>
@@ -221,6 +225,7 @@ const Persons = () => {
                     {currentPeople.length > 0 ? (
                       currentPeople.map((person) => (
                         <tr key={person._id}>
+                          <td>{person.cin}</td>
                           <td>{person.prenom}</td>
                           <td>{person.nom}</td>
                           <td >

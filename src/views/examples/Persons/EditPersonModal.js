@@ -26,6 +26,8 @@ import { parsePhoneNumber } from 'libphonenumber-js';
 import Flag from 'react-world-flags';
 
 const EditPersonModal = ({ isOpen, toggle, person, refreshPeople, refreshCompanies, userId }) => {
+  const [cin, setCin] = useState("");
+
   const [prenom, setPrenom] = useState("");
   const [nom, setNom] = useState("");
   const [company, setCompany] = useState("");
@@ -44,6 +46,8 @@ const EditPersonModal = ({ isOpen, toggle, person, refreshPeople, refreshCompani
   useEffect(() => {
     fetchCompanies();
     if (person) {
+      setCin(person.cin);
+
       setPrenom(person.prenom);
       setNom(person.nom);
       setCompany(person.entreprise);
@@ -230,6 +234,24 @@ const EditPersonModal = ({ isOpen, toggle, person, refreshPeople, refreshCompani
         <ModalHeader toggle={toggle}>Edit Person</ModalHeader>
         <Form onSubmit={handleSubmit}>
           <ModalBody>
+          <FormGroup>
+              <Label for="cin">Carte d'identite nationale</Label>
+              <InputGroup>
+                <InputGroupText style={{ backgroundColor: '#fff', border: '1px solid #ced4da', borderRight: 0, borderRadius: '0.25rem 0 0 0.25rem' }}>
+                  <i className="ni ni-single-02"></i>
+                </InputGroupText>
+                <Input
+                  type="text"
+                  id="cin"
+                  value={cin}
+                  onChange={(e) => setCin(e.target.value)}
+                  placeholder="Enter your cin"
+                  required
+                  style={{ borderLeft: 0, borderRadius: '0 0.25rem 0.25rem 0', transition: 'border-color 0.2s' }}
+                />
+              </InputGroup>
+            </FormGroup>
+            
             <FormGroup>
               <Label for="prenom">First Name</Label>
               <InputGroup>

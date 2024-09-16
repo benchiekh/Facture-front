@@ -153,16 +153,16 @@ function Clients() {
                                         onChange={handleSearchChange}
                                         className="mr-3"
                                     />
-                                    <Button color="primary" onClick={toggleModal}>Add new client</Button>
+                                    <Button color="primary" onClick={toggleModal}>Ajouter nouveaux client</Button>
                                 </div>
                             </CardHeader>
                             <Table className="align-items-center table-flush" responsive>
                                 <thead className="thead-light">
                                     <tr>
                                         <th scope="col">Type</th>
-                                        <th scope="col">Full name</th>
-                                        <th scope="col">Country</th>
-                                        <th scope="col">Tel</th>
+                                        <th scope="col">Nom et prénom</th>
+                                        <th scope="col">Pays</th>
+                                        <th scope="col">Telephone</th>
                                         <th scope="col">Email</th>
                                         <th scope="col"></th>
 
@@ -206,20 +206,20 @@ function Clients() {
                                                             <DropdownItem onClick={() => handleDisplayClick(client)}>
                                                                 <span className="d-flex align-items-center">
                                                                     <i className="fa-solid fa-eye" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
-                                                                    Display
+                                                                    Afficher
                                                                 </span>
                                                             </DropdownItem>
                                                             <DropdownItem onClick={() => handleEditClick(client)}>
                                                                 <span className="d-flex align-items-center">
                                                                     <i className="fa-solid fa-gear" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
-                                                                    Edit
+                                                                    modifier
                                                                 </span>
                                                             </DropdownItem>
                                                             <DropdownItem divider />
                                                             <DropdownItem onClick={() => handleDeleteClick(client._id)}>
                                                                 <span className="d-flex align-items-center">
                                                                     <i className="fa-solid fa-trash text-danger" style={{ fontSize: '1rem', marginRight: '10px' }}></i>
-                                                                    Delete
+                                                                    Supprimer 
                                                                 </span>
                                                             </DropdownItem>
                                                         </DropdownMenu>

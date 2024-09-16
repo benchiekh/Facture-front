@@ -116,10 +116,14 @@ const Company = () => {
   };
 
   const filteredCompanies = companies.filter((company) =>
+
     (company.nom && company.nom.toLowerCase().includes(searchQuery.toLowerCase())) ||
     (company.pays && company.pays.toLowerCase().includes(searchQuery.toLowerCase())) ||
     (company.telephone && company.telephone.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    (company.email && company.email.toLowerCase().includes(searchQuery.toLowerCase()))
+    (company.email && company.email.toLowerCase().includes(searchQuery.toLowerCase()))||
+    (company.rib && company.rib.toLowerCase().includes(searchQuery.toLowerCase())) ||
+    (company.matriculeFiscale && company.matriculeFiscale.toLowerCase().includes(searchQuery.toLowerCase())) 
+
   );
 
   useEffect(() => {
@@ -227,6 +231,8 @@ const Company = () => {
                     <th scope="col">Country</th>
                     <th scope="col">Tel</th>
                     <th scope="col">Email</th>
+                    <th scope="col">RIB</th>
+                    <th scope="col">Matricule Fiscale </th>
                     <th scope="col">Website</th>
                     <th scope="col"></th>
 
@@ -241,6 +247,8 @@ const Company = () => {
                         <td>{countryOptions[company.pays] || company.pays}</td>
                         <td>{company.telephone}</td>
                         <td>{company.email}</td>
+                        <td>{company.rib}</td>
+                        <td>{company.matriculeFiscale}</td>
                         <td><a target="_blank" href={company.siteweb}>{company.siteweb}</a></td>
 
                         <td>

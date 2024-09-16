@@ -26,24 +26,29 @@ const DisplayPersonModal = ({ isOpen, toggle, person, companies }) => {
 
   return (
     <Modal isOpen={isOpen} toggle={toggle} size="lg">
-      <ModalHeader toggle={toggle}>Person Details</ModalHeader>
+      <ModalHeader toggle={toggle}>Personne Details</ModalHeader>
       <ModalBody>
         <Table responsive>
           <tbody>
+            
+          <tr>
+              <th ><span style={thStyle}>Carte d'identite nationale</span></th>
+              <td>{person.cin}</td>
+            </tr>
             <tr>
-              <th ><span style={thStyle}>First Name</span></th>
+              <th ><span style={thStyle}>Prenom</span></th>
               <td>{person.prenom}</td>
             </tr>
             <tr>
-              <th ><span style={thStyle}>Last Name</span></th>
+              <th ><span style={thStyle}>Nom</span></th>
               <td>{person.nom}</td>
             </tr>
             <tr>
-              <th ><span style={thStyle}>Company</span></th>
+              <th ><span style={thStyle}>Entrepise</span></th>
               <td>{getCompanyNameById(person.entreprise)}</td>
             </tr>
             <tr>
-              <th><span style={thStyle}>Country</span></th>
+              <th><span style={thStyle}>Pays</span></th>
               <td>{person.pays}</td>
             </tr>
             <tr>

@@ -38,10 +38,13 @@ const validatePhoneNumber = (number, countryCode) => {
 };
 
 const AddCompanyModal = ({ isOpen, toggle, refreshCompany, userId }) => {
+ 
   const [nom, setNom] = useState("");
   const [pays, setPays] = useState(null);
   const [telephone, setTelephone] = useState("");
   const [email, setEmail] = useState("");
+  const [rib, setRib] = useState("");
+  const [matriculeFiscale, setmatriculeFiscale] = useState("");
   const [siteweb, setSiteweb] = useState("");
   const [mainContact, setMainContact] = useState(null);
   const [people, setPeople] = useState([]);
@@ -106,6 +109,8 @@ const AddCompanyModal = ({ isOpen, toggle, refreshCompany, userId }) => {
       pays: pays ? pays.value : "",
       telephone,
       email,
+      rib,
+      matriculeFiscale,
       siteweb,
       createdBy: userId,
       mainContact
@@ -128,6 +133,8 @@ const AddCompanyModal = ({ isOpen, toggle, refreshCompany, userId }) => {
       setPays(null);
       setTelephone("");
       setEmail("");
+      setRib("");
+      setmatriculeFiscale("");
       setSiteweb("");
       setMainContact(null);
     } catch (error) {
@@ -230,6 +237,36 @@ const AddCompanyModal = ({ isOpen, toggle, refreshCompany, userId }) => {
               />
             </InputGroup>
           </FormGroup>
+          <FormGroup>
+            <Label for="rib">RIB</Label>
+            <InputGroup>
+              
+              <Input
+                type="text"
+                id="rib"
+                value={rib}
+                onChange={(e) => setRib(e.target.value)}
+                placeholder="Enter your RIB "
+                required
+              />
+            </InputGroup>
+          </FormGroup>
+          <FormGroup>
+            <Label for="matricule">Matricule Fiscale</Label>
+            <InputGroup>
+            
+              <Input
+                type="text"
+                id="matriculeFiscale"
+                value={matriculeFiscale}
+                onChange={(e) => setmatriculeFiscale(e.target.value)}
+                placeholder="Enter your matricule Fiscale"
+                required
+              />
+            </InputGroup>
+          </FormGroup>
+
+
           <FormGroup>
             <Label for="siteweb">Website</Label>
             <InputGroup>

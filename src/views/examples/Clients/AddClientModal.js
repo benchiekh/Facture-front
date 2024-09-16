@@ -75,7 +75,7 @@ const AddClientModal = ({ isOpen, toggle, refreshClients, userId }) => {
 
   return (
     <Modal isOpen={isOpen} toggle={toggle} fade={true} className="custom-moda">
-      <ModalHeader toggle={toggle}>Add New Client</ModalHeader>
+      <ModalHeader toggle={toggle}>Ajouter un nouveau client</ModalHeader>
       <Form onSubmit={handleSubmit}>
         <ModalBody>
           <FormGroup>
@@ -89,13 +89,13 @@ const AddClientModal = ({ isOpen, toggle, refreshClients, userId }) => {
               required
             >
               <option value="">Select Type</option>
-              <option value="Person">Person</option>
-              <option value="Company">Company</option>
+              <option value="Person">Personne</option>
+              <option value="Company">Entreprise</option>
             </Input>
           </FormGroup>
           {clientType === 'Person' && (
             <FormGroup>
-              <Label for="person">Person</Label>
+              <Label for="person">Personne</Label>
               <Select
                 id="person"
                 options={filteredPersons.length > 0 ? filteredPersons.map(person => ({ value: person._id, label: `${person.prenom} ${person.nom}` })) : [{ value: '', label: 'No persons added by you' }]}
@@ -109,7 +109,7 @@ const AddClientModal = ({ isOpen, toggle, refreshClients, userId }) => {
           )}
           {clientType === 'Company' && (
             <FormGroup>
-              <Label for="company">Company</Label>
+              <Label for="company">Entreprise </Label>
               <Select
                 id="company"
                 options={filteredCompanies.length > 0 ? filteredCompanies.map(company => ({ value: company._id, label: company.nom })) : [{ value: '', label: 'No companies added by you' }]}

@@ -32,6 +32,9 @@ const EditCompanyModal = ({ isOpen, toggle, company, refreshCompany, userId }) =
   const [pays, setPays] = useState(null);
   const [telephone, setTelephone] = useState("");
   const [email, setEmail] = useState("");
+  const [rib, setRib] = useState("");
+  const [matriculeFiscale, setMatriculefiscale] = useState("");
+
   const [siteweb, setSiteweb] = useState("");
   const [mainContact, setMainContact] = useState(null);
   const [people, setPeople] = useState([]);
@@ -57,6 +60,9 @@ const EditCompanyModal = ({ isOpen, toggle, company, refreshCompany, userId }) =
       setPays(countryOptions.find(option => option.value === company.pays) || null);
       setTelephone(company.telephone);
       setEmail(company.email);
+      setRib(company.rib);
+      setMatriculefiscale(company.matriculeFiscale);
+
       setSiteweb(company.siteweb);
       setMainContact(company.mainContact);
     }
@@ -115,6 +121,8 @@ const EditCompanyModal = ({ isOpen, toggle, company, refreshCompany, userId }) =
       pays: pays ? pays.value : "",
       telephone,
       email,
+      rib,
+      matriculeFiscale,
       siteweb,
       mainContact
     };
@@ -229,6 +237,30 @@ const EditCompanyModal = ({ isOpen, toggle, company, refreshCompany, userId }) =
           </FormGroup>
           <FormGroup>
             <Label for="email">Email</Label>
+            <InputGroup>
+              <InputGroupText style={{ backgroundColor: '#fff', border: '1px solid #ced4da', borderRight: 0, borderRadius: '0.25rem 0 0 0.25rem' }}>
+                <i className="ni ni-email-83"></i>
+              </InputGroupText>
+              <Input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter email address"
+                required
+                style={{ borderLeft: 0, borderRadius: '0 0.25rem 0.25rem 0', transition: 'border-color 0.2s' }}
+                onFocus={(e) => e.target.style.borderColor = '#80bdff'}
+                onBlur={(e) => e.target.style.borderColor = '#ced4da'}
+              />
+            </InputGroup>
+          </FormGroup>
+
+
+
+
+          
+          <FormGroup>
+            <Label for="rib">RIB</Label>
             <InputGroup>
               <InputGroupText style={{ backgroundColor: '#fff', border: '1px solid #ced4da', borderRight: 0, borderRadius: '0.25rem 0 0 0.25rem' }}>
                 <i className="ni ni-email-83"></i>
